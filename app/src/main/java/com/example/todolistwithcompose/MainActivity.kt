@@ -1,6 +1,7 @@
 package com.example.todolistwithcompose
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,24 +25,10 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             ToDoListWithComposeTheme {
-     MainScreen(viewModel = viewmodel)
+     MainScreen(viewModel = viewmodel){
+         Log.d("ASDASDASDASD", "this is the task ${it.title}")
+     }
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    ToDoListWithComposeTheme {
-        Greeting("Android")
     }
 }

@@ -72,4 +72,6 @@ dependencies {
     implementation("androidx.room:room-ktx:$room_version")
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.0")
+
+    implementation ("androidx.navigation:navigation-compose:2.7.7")
 }

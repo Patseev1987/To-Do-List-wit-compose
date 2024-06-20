@@ -10,9 +10,9 @@ import java.util.*
 
 @Entity(tableName = "task")
 data class TaskEntity(
-    @PrimaryKey
+    @PrimaryKey(autoGenerate = true)
     @ColumnInfo("id")
-    val id: Long = 0,
+    val id: Long = 0L,
     @ColumnInfo("counter")
     var title: String,
     @ColumnInfo("content")

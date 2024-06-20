@@ -1,6 +1,7 @@
 package com.example.todolistwithcompose.presentor.viewModel
 
 import android.app.Application
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.todolistwithcompose.data.database.TasksDatabase
@@ -19,8 +20,8 @@ import java.time.LocalTime
 
 
 
-class AddTaskViewModel(application: Application) : ViewModel() {
-    private val taskDao = TasksDatabase.getInstance(application = application).taskDao
+class AddTaskViewModel(context: Context) : ViewModel() {
+    private val taskDao = TasksDatabase.getInstance(context = context).taskDao
 
     private var task: Task = Task(
         title = "",

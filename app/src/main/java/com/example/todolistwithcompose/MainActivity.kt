@@ -15,21 +15,14 @@ import com.example.todolistwithcompose.presentor.viewModel.ViewModelFactory
 import com.example.todolistwithcompose.presentor.viewModel.ViewModelMainScreen
 
 class MainActivity : ComponentActivity() {
-    private lateinit var factory:ViewModelFactory
-    private val viewmodel by lazy {
-        ViewModelProvider(this)[ViewModelMainScreen::class.java]
-    }
-   private val addViewModel by lazy {
-       ViewModelProvider(this,factory)[AddTaskViewModel::class.java]
-   }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        factory = ViewModelFactory(this.application)
         setContent {
             ToDoListWithComposeTheme {
               //  StartScreen(viewmodel)
-                AddTask(addViewModel = addViewModel )
+                AddTask()
      }
             }
         }

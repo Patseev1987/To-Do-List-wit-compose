@@ -1,9 +1,10 @@
 package com.example.todolistwithcompose.data.database
 
 import android.app.Application
+import android.content.Context
 import androidx.room.*
 
-@Database(entities = [TaskEntity::class], exportSchema = false, version = 2)
+@Database(entities = [TaskEntity::class], exportSchema = false, version = 3)
 @TypeConverters(Convertor::class)
 abstract class TasksDatabase() : RoomDatabase() {
 
@@ -13,12 +14,12 @@ abstract class TasksDatabase() : RoomDatabase() {
         @Volatile
         private var INSTANCE: TasksDatabase? = null
 
-        fun getInstance(application: Application): TasksDatabase {
+        fun getInstance(context: Context): TasksDatabase {
             synchronized(this) {
                 var instance = INSTANCE
                 if (instance == null) {
                     instance = Room.databaseBuilder(
-                        application,
+                        context.applicationContext,
                         TasksDatabase::class.java,
                         "tasks"
                     )

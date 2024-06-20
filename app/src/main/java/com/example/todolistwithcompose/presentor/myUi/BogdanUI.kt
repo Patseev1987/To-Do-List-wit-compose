@@ -1,24 +1,21 @@
 package com.example.todolistwithcompose.presentor.myUi
 
 import android.annotation.SuppressLint
-
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-
-
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -27,6 +24,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.todolistwithcompose.domain.Task
 import com.example.todolistwithcompose.domain.TaskGroup
 import com.example.todolistwithcompose.domain.TaskStatus
@@ -34,6 +32,7 @@ import com.example.todolistwithcompose.presentor.state.AddTaskState
 import com.example.todolistwithcompose.presentor.theme.ui.MyGrayForCard
 import com.example.todolistwithcompose.presentor.theme.ui.Pink80
 import com.example.todolistwithcompose.presentor.viewModel.AddTaskViewModel
+import com.example.todolistwithcompose.presentor.viewModel.ViewModelFactory
 import com.example.todolistwithcompose.presentor.viewModel.ViewModelMainScreen
 import com.vanpra.composematerialdialogs.MaterialDialog
 import com.vanpra.composematerialdialogs.datetime.date.datepicker
@@ -149,26 +148,103 @@ fun MainScreen(viewModel: ViewModelMainScreen, onTaskListener: (Task) -> Unit, m
 }
 
 @Composable
-@Preview
-fun AddTask(modifier: Modifier = Modifier, addViewModel: AddTaskViewModel) {
-    Box(modifier = modifier.fillMaxSize().padding(top = 16.dp)) {
+
+fun AddTask(modifier: Modifier = Modifier) {
+    val viewmodel = viewModel<AddTaskViewModel>(factory = ViewModelFactory(LocalContext.current))
+    Box(modifier = modifier
+        .fillMaxSize()
+        .padding(top = 16.dp)) {
         Column(
             horizontalAlignment = CenterHorizontally,
             modifier = modifier.fillMaxWidth(),
         ) {
-            MainPartForAddTask(addViewModel)
+            MainPartForAddTask(viewmodel)
             Spacer(modifier = Modifier.height(40.dp))
-            MyButtons({addViewModel.saveTask()}, {})
+            MyButtons({
+                viewmodel.saveTask()
+            }, {})
         }
     }
 }
 
 @Composable
-fun MainPartForAddTask( addViewModel: AddTaskViewModel) {
-    val state = addViewModel.state.collectAsState(AddTaskState.InitState)
+fun MainPartForAddTask( viewmodel:AddTaskViewModel) {
+    val state = viewmodel.state.collectAsState(initial = AddTaskState.InitState)
     when (val currentState = state.value) {
         is AddTaskState.Result ->{
-            extracted( addViewModel)
+            Text(text = "Add Task", color = Color.Black, fontSize = 24.sp, fontFamily = FontFamily.SansSerif)
+            Spacer(modifier = Modifier.height(DEFAULT_SPACE_FOR_SPACER))
+            var textForTitle by remember { mutableStateOf(TextFieldValue("")) }
+            OutlinedTextField(
+                textForTitle,
+                onValueChange = {
+                    textForTitle = it
+                    viewmodel.setTitle(it.text)
+                },
+                label = {
+                    Text(text = "Title")
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 25.dp, end = 25.dp)
+            )
+            Spacer(modifier = Modifier.height(DEFAULT_SPACE_FOR_SPACER))
+            Text(text = "Add task content", color = Color.Black, fontSize = 18.sp, fontFamily = FontFamily.SansSerif)
+            Spacer(modifier = Modifier.height(DEFAULT_SPACE_FOR_SPACER))
+            var textForContent by remember { mutableStateOf(TextFieldValue("")) }
+            OutlinedTextField(
+                textForContent,
+                onValueChange = {
+                    textForContent = it
+                    viewmodel.setContent(it.text)
+                },
+                label = {
+                    Text(text = "Content")
+                },
+                modifier = Modifier
+                    .height(150.dp)
+                    .fillMaxWidth()
+                    .padding(start = 25.dp, end = 25.dp)
+            )
+            Spacer(modifier = Modifier.height(DEFAULT_SPACE_FOR_SPACER))
+            Text(
+                text = "Choose the task group",
+                color = Color.Black,
+                fontSize = 18.sp,
+                fontFamily = FontFamily.SansSerif
+            )
+            Spacer(modifier = Modifier.height(DEFAULT_SPACE_FOR_SPACER))
+            RadioButtonsTaskGroup(selected = currentState.task.taskGroup.value){
+                viewmodel.setTaskGroup(it)
+            }
+            Spacer(modifier = Modifier.height(DEFAULT_SPACE_FOR_SPACER))
+            Text(
+                text = "Set date and time for remind",
+                color = Color.Black,
+                fontSize = 18.sp,
+                fontFamily = FontFamily.SansSerif
+            )
+            Spacer(modifier = Modifier.height(DEFAULT_SPACE_FOR_SPACER))
+            MyDataPicker(
+                dateChangeListener = {
+                    viewmodel.setDate(it)
+                },
+                timeChangeListener = {
+                    viewmodel.setTime(it)
+                }
+            )
+            Spacer(modifier = Modifier.height(DEFAULT_SPACE_FOR_SPACER))
+            Text(
+                text = "Set status for task",
+                color = Color.Black,
+                fontSize = 18.sp,
+                fontFamily = FontFamily.SansSerif
+            )
+            Spacer(modifier = Modifier.height(DEFAULT_SPACE_FOR_SPACER))
+            RadioButtonsStatus(currentState.task.status.value){
+                viewmodel.setStatus(it)
+            }
+
         }
         is AddTaskState.InitState -> {
 
@@ -177,83 +253,10 @@ fun MainPartForAddTask( addViewModel: AddTaskViewModel) {
 
 }
 
-@Composable
-private fun extracted(
-    addViewModel: AddTaskViewModel
-) {
-    Text(text = "Add Task", color = Color.Black, fontSize = 24.sp, fontFamily = FontFamily.SansSerif)
-    Spacer(modifier = Modifier.height(DEFAULT_SPACE_FOR_SPACER))
-        var textForTitle by remember { mutableStateOf(TextFieldValue("")) }
-        OutlinedTextField(
-            textForTitle,
-            onValueChange = {
-                textForTitle = it
-                addViewModel.setTitle(it.text)
-            },
-            label = {
-                Text(text = "Title")
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 25.dp, end = 25.dp)
-        )
-    Spacer(modifier = Modifier.height(DEFAULT_SPACE_FOR_SPACER))
-    Text(text = "Add task content", color = Color.Black, fontSize = 18.sp, fontFamily = FontFamily.SansSerif)
-    Spacer(modifier = Modifier.height(DEFAULT_SPACE_FOR_SPACER))
-    var textForContent by remember { mutableStateOf(TextFieldValue("")) }
-    OutlinedTextField(
-        textForContent,
-        onValueChange = {
-            textForContent = it
-            addViewModel.setContent(it.text)
-        },
-        label = {
-            Text(text = "Content")
-        },
-        modifier = Modifier
-            .height(150.dp)
-            .fillMaxWidth()
-            .padding(start = 25.dp, end = 25.dp)
-    )
-    Spacer(modifier = Modifier.height(DEFAULT_SPACE_FOR_SPACER))
-    Text(
-        text = "Choose the task group",
-        color = Color.Black,
-        fontSize = 18.sp,
-        fontFamily = FontFamily.SansSerif
-    )
-    Spacer(modifier = Modifier.height(DEFAULT_SPACE_FOR_SPACER))
-    RadioButtonsTaskGroup(addViewModel)
-    Spacer(modifier = Modifier.height(DEFAULT_SPACE_FOR_SPACER))
-    Text(
-        text = "Set date and time for remind",
-        color = Color.Black,
-        fontSize = 18.sp,
-        fontFamily = FontFamily.SansSerif
-    )
-    Spacer(modifier = Modifier.height(DEFAULT_SPACE_FOR_SPACER))
-    MyDataPicker(
-        dateChangeListener = {
-            addViewModel.setDate(it)
-        },
-        timeChangeListener = {
-            addViewModel.setTime(it)
-        }
-    )
-    Spacer(modifier = Modifier.height(DEFAULT_SPACE_FOR_SPACER))
-    Text(
-        text = "Set status for task",
-        color = Color.Black,
-        fontSize = 18.sp,
-        fontFamily = FontFamily.SansSerif
-    )
-    Spacer(modifier = Modifier.height(DEFAULT_SPACE_FOR_SPACER))
-    RadioButtonsStatus(addViewModel)
-}
 
 
 @Composable
-fun RadioButtons(values: List<String>, onSelectedListener: (String) -> Unit) {
+fun RadioButtons(values: List<String>, selected: String, onSelectedListener: (String) -> Unit) {
     val (selectedOption, onOptionSelected) = remember { mutableStateOf(values[0]) }
     Column(Modifier.selectableGroup()) {
         values.forEach { text ->
@@ -261,9 +264,11 @@ fun RadioButtons(values: List<String>, onSelectedListener: (String) -> Unit) {
                 Modifier
                     .height(36.dp)
                     .selectable(
-                        selected = (text == selectedOption),
-                        onClick = { onOptionSelected(text)
-                                  onSelectedListener(text)},
+                        selected = (text == selected),
+                        onClick = {
+                            onOptionSelected(text)
+                            onSelectedListener(text)
+                        },
                         role = Role.RadioButton
                     )
                     .padding(horizontal = 8.dp),
@@ -283,25 +288,25 @@ fun RadioButtons(values: List<String>, onSelectedListener: (String) -> Unit) {
     }
 }
 @Composable
-fun RadioButtonsTaskGroup(addViewModel: AddTaskViewModel) {
+fun RadioButtonsTaskGroup(selected:String, onSelectedListener: (String) -> Unit) {
     val taskGroups = listOf(
         TaskGroup.WORK_TASK.value,
         TaskGroup.HOME_TASK.value,
         TaskGroup.FAMILY_TASK.value,
     )
-    RadioButtons(taskGroups) {
-        addViewModel.setTaskGroup(it)
+    RadioButtons(taskGroups, selected) {
+        onSelectedListener(it)
     }
 }
 @Composable
-fun RadioButtonsStatus(addViewModel: AddTaskViewModel) {
+fun RadioButtonsStatus(selected: String, onSelectedListener: (String) -> Unit) {
     val statues = listOf(
         TaskStatus.NOT_STARTED.value,
         TaskStatus.IN_PROGRESS.value,
         TaskStatus.COMPLETED.value,
     )
-    RadioButtons(statues){
-        addViewModel.setStatus(it)
+    RadioButtons(statues, selected){
+        onSelectedListener(it)
     }
 }
 @Composable

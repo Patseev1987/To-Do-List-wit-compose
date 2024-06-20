@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.sp
 import com.example.todolistwithcompose.domain.Task
 import com.example.todolistwithcompose.domain.TaskGroup
 import com.example.todolistwithcompose.domain.TaskStatus
+import com.example.todolistwithcompose.presentor.state.AddTaskState
 import com.example.todolistwithcompose.presentor.theme.ui.MyGrayForCard
 import com.example.todolistwithcompose.presentor.theme.ui.Pink80
 import com.example.todolistwithcompose.presentor.viewModel.AddTaskViewModel
@@ -164,29 +165,48 @@ fun AddTask(modifier: Modifier = Modifier, addViewModel: AddTaskViewModel) {
 
 @Composable
 fun MainPartForAddTask( addViewModel: AddTaskViewModel) {
+    val state = addViewModel.state.collectAsState(AddTaskState.InitState)
+    when (val currentState = state.value) {
+        is AddTaskState.Result ->{
+            extracted( addViewModel)
+        }
+        is AddTaskState.InitState -> {
+
+        }
+    }
+
+}
+
+@Composable
+private fun extracted(
+    addViewModel: AddTaskViewModel
+) {
     Text(text = "Add Task", color = Color.Black, fontSize = 24.sp, fontFamily = FontFamily.SansSerif)
     Spacer(modifier = Modifier.height(DEFAULT_SPACE_FOR_SPACER))
-    var textForTitle by remember { mutableStateOf(TextFieldValue("")) }
-    OutlinedTextField(
-        textForTitle,
-        onValueChange = { textForTitle = it
-                        addViewModel.setTitle(it.text)
-                        },
-        label = {
-            Text(text = "Title")
-        },
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(start = 25.dp, end = 25.dp)
-    )
+        var textForTitle by remember { mutableStateOf(TextFieldValue("")) }
+        OutlinedTextField(
+            textForTitle,
+            onValueChange = {
+                textForTitle = it
+                addViewModel.setTitle(it.text)
+            },
+            label = {
+                Text(text = "Title")
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 25.dp, end = 25.dp)
+        )
     Spacer(modifier = Modifier.height(DEFAULT_SPACE_FOR_SPACER))
     Text(text = "Add task content", color = Color.Black, fontSize = 18.sp, fontFamily = FontFamily.SansSerif)
     Spacer(modifier = Modifier.height(DEFAULT_SPACE_FOR_SPACER))
     var textForContent by remember { mutableStateOf(TextFieldValue("")) }
     OutlinedTextField(
         textForContent,
-        onValueChange = { textForContent = it
-            addViewModel.setContent(it.text)},
+        onValueChange = {
+            textForContent = it
+            addViewModel.setContent(it.text)
+        },
         label = {
             Text(text = "Content")
         },

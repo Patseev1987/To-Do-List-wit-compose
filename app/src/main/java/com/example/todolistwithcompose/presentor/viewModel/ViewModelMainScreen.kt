@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.time.Instant
+import java.time.LocalDateTime
 import java.util.Date
 
 class ViewModelMainScreen(
@@ -33,7 +34,7 @@ class ViewModelMainScreen(
             id = 1L,
             title = "Title 1",
             content = "Content content content",
-            date = Date.from(Instant.now()),
+            date = LocalDateTime.now(),
             taskGroup = TaskGroup.HOME_TASK,
             status = TaskStatus.NOT_STARTED
         ),
@@ -41,7 +42,7 @@ class ViewModelMainScreen(
             id = 2L,
             title = "Title 2",
             content = "Content content content",
-            date = Date.from(Instant.now()),
+            date = LocalDateTime.now(),
             taskGroup = TaskGroup.HOME_TASK,
             status = TaskStatus.NOT_STARTED
         ),
@@ -49,7 +50,7 @@ class ViewModelMainScreen(
             id = 6L,
             title = "Title 6",
             content = "Content content content",
-            date = Date.from(Instant.now()),
+            date = LocalDateTime.now(),
             taskGroup = TaskGroup.FAMILY_TASK,
             status = TaskStatus.NOT_STARTED
         ),
@@ -57,7 +58,7 @@ class ViewModelMainScreen(
             id = 5L,
             title = "Title 5",
             content = "Content content content",
-            date = Date.from(Instant.now()),
+            date = LocalDateTime.now(),
             taskGroup = TaskGroup.HOME_TASK,
             status = TaskStatus.COMPLETED
         ),
@@ -65,7 +66,7 @@ class ViewModelMainScreen(
             id = 3L,
             title = "Title 3",
             content = "Content content content",
-            date = Date.from(Instant.now()),
+            date = LocalDateTime.now(),
             taskGroup = TaskGroup.WORK_TASK,
             status = TaskStatus.COMPLETED
         ),
@@ -73,7 +74,7 @@ class ViewModelMainScreen(
             id = 4L,
             title = "Title 4",
             content = "Content content content",
-            date = Date.from(Instant.now()),
+            date = LocalDateTime.now(),
             taskGroup = TaskGroup.FAMILY_TASK,
             status = TaskStatus.IN_PROGRESS
         ),

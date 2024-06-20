@@ -1,20 +1,15 @@
 package com.example.todolistwithcompose.data.database
 
+import androidx.room.*
 import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.Query
-import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 
 
 @Dao
 interface Dao {
 
-//    @Insert
-//    fun insert(task: TaskEntity): TaskEntity
-//
-//    @Update
-//    fun update(task: TaskEntity): TaskEntity
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(task: TaskEntity)
 
     @Query("select * from task")
     fun getTask(): Flow<List<TaskEntity>>

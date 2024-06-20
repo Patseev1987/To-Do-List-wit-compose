@@ -3,6 +3,7 @@ package com.example.todolistwithcompose.utils
 import com.example.todolistwithcompose.data.database.TaskEntity
 import com.example.todolistwithcompose.domain.Task
 import java.time.Instant
+import java.time.LocalDateTime
 import java.util.*
 
 fun Task.toTaskEntity(): TaskEntity {
@@ -13,7 +14,7 @@ fun Task.toTaskEntity(): TaskEntity {
         date = this.date,
         status = this.status,
         taskGroup = this.taskGroup,
-        createDate = Date.from(Instant.now())
+        createDate = LocalDateTime.now()
     )
 }
 

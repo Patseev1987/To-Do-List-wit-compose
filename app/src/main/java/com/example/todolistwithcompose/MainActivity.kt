@@ -21,8 +21,8 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             ToDoListWithComposeTheme {
-              //  StartScreen(viewmodel)
-                AddTask()
+                StartScreen()
+               // AddTask{}
      }
             }
         }

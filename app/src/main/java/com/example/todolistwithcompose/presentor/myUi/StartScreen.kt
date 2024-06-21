@@ -1,4 +1,5 @@
 package com.example.todolistwithcompose.presentor.myUi
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
@@ -11,15 +12,20 @@ import androidx.compose.ui.Modifier
 import com.example.todolistwithcompose.presentor.viewModel.ViewModelMainScreen
 
 @Composable
-fun StartScreen(viewmodel:ViewModelMainScreen) {
-    Scaffold { paddingValues ->
+fun StartScreen() {
+    Scaffold(
+        floatingActionButton = {
+            FloatingActionButton(
+                content = {
+                    Image(imageVector = Icons.Default.Create, contentDescription = "")
+                },
+                onClick = {
 
-
-        MainScreen(modifier = Modifier.padding(paddingValues) ,viewModel = viewmodel, onTaskListener = {})
-        FloatingActionButton(content = {
-            Image(imageVector = Icons.Default.Create, contentDescription = "")     }, onClick = {
-
-        },
-            modifier = Modifier.padding(paddingValues), shape = CircleShape)
+                },
+                shape = CircleShape
+            )
+        }
+    ) { paddingValues ->
+        MainScreen(modifier = Modifier.padding(paddingValues), onTaskListener = {})
     }
 }

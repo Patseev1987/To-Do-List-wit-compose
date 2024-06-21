@@ -10,6 +10,9 @@ class ViewModelFactory ( val context: Context): ViewModelProvider.Factory {
         if(modelClass.isAssignableFrom(AddTaskViewModel::class.java)) {
             return AddTaskViewModel(context = context) as T
         }
+        if (modelClass.isAssignableFrom(ViewModelMainScreen::class.java)) {
+            return ViewModelMainScreen(context) as T
+        }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
 }

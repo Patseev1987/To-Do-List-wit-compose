@@ -22,7 +22,6 @@ import java.time.LocalTime
 
 class AddTaskViewModel(context: Context) : ViewModel() {
     private val taskDao = TasksDatabase.getInstance(context = context).taskDao
-
     private var task: Task = Task(
         title = "",
         content = "",
@@ -36,12 +35,12 @@ class AddTaskViewModel(context: Context) : ViewModel() {
 
 
     fun setTitle(title: String) {
-        task.title = title
+        task = task.copy(title = title)
         _state.value = AddTaskState.Result(task)
     }
 
     fun setContent(content: String) {
-        task.content = content
+        task = task.copy(content = content)
         _state.value = AddTaskState.Result(task)
     }
 

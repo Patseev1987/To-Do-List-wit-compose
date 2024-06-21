@@ -1,6 +1,7 @@
 package com.example.todolistwithcompose.presentor.myUi
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -29,6 +30,7 @@ import com.example.todolistwithcompose.domain.Task
 import com.example.todolistwithcompose.domain.TaskGroup
 import com.example.todolistwithcompose.domain.TaskStatus
 import com.example.todolistwithcompose.presentor.state.AddTaskState
+import com.example.todolistwithcompose.presentor.state.MainScreenState
 import com.example.todolistwithcompose.presentor.theme.ui.MyGrayForCard
 import com.example.todolistwithcompose.presentor.theme.ui.Pink80
 import com.example.todolistwithcompose.presentor.viewModel.AddTaskViewModel
@@ -90,13 +92,17 @@ fun Task(task: Task, onTaskListener: (Task) -> Unit) {
                 )
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
-                        text = SimpleDateFormat("HH-mm").format(task.date),
+                        text = DateTimeFormatter
+                            .ofPattern("HH:mm")
+                            .format(task.date),
                         modifier = Modifier.padding(end = 20.dp),
                         textAlign = TextAlign.Center,
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = SimpleDateFormat("yyyy-MM-dd").format(task.date)
+                        text = DateTimeFormatter
+                            .ofPattern("yyyy-MM-dd")
+                            .format(task.date)
                     )
                 }
 
@@ -108,48 +114,63 @@ fun Task(task: Task, onTaskListener: (Task) -> Unit) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(viewModel: ViewModelMainScreen, onTaskListener: (Task) -> Unit, modifier: Modifier = Modifier) {
-    val state by viewModel.state.collectAsState(listOf())
+fun MainScreen(modifier: Modifier = Modifier, onTaskListener: (Task) -> Unit ) {
+    val viewModel = viewModel<ViewModelMainScreen>( factory = ViewModelFactory(LocalContext.current))
+    val state = viewModel.state.collectAsState(MainScreenState.Initial)
+    when (val currentState = state.value) {
+        is MainScreenState.Loading -> {
 
-    LazyColumn(
-        contentPadding = PaddingValues(top = 16.dp, bottom = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        items(items = state, key = { it.id }) { task ->
-            val dismissState = rememberDismissState()
-            if (dismissState.isDismissed(DismissDirection.EndToStart)) {
-                viewModel.deleteTask(task)
-            }
-            SwipeToDismiss(
-                state = dismissState,
-                directions = setOf(DismissDirection.EndToStart),
-                dismissContent = {
-                    Task(
-                        task = task,
-                        onTaskListener = {
-                            onTaskListener(task)
+        }
+        is MainScreenState.Error -> {
+
+        }
+        is MainScreenState.Initial -> {
+
+        }
+        is MainScreenState.Result -> {
+            LazyColumn(
+                contentPadding = PaddingValues(top = 16.dp, bottom = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(items = currentState.notes, key = { it.id }) { task ->
+                    val dismissState = rememberDismissState()
+                    if (dismissState.isDismissed(DismissDirection.EndToStart)) {
+                        viewModel.deleteTask(task)
+                    }
+                    SwipeToDismiss(
+                        state = dismissState,
+                        directions = setOf(DismissDirection.EndToStart),
+                        dismissContent = {
+                            Task(
+                                task = task,
+                                onTaskListener = {
+                                    onTaskListener(task)
+                                }
+                            )
+                        },
+                        background = {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(16.dp)
+                                    .background(color = Color.Red),
+                                contentAlignment = Alignment.CenterEnd
+                            ) {
+                                Text(text = "DELETE TASK", color = Color.White)
+                            }
                         }
                     )
-                },
-                background = {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(16.dp)
-                            .background(color = Color.Red),
-                        contentAlignment = Alignment.CenterEnd
-                    ) {
-                        Text(text = "DELETE TASK", color = Color.White)
-                    }
                 }
-            )
+            }
         }
     }
+
+
 }
 
 @Composable
 
-fun AddTask(modifier: Modifier = Modifier) {
+fun AddTask(modifier: Modifier = Modifier, onCancelListener: () -> Unit) {
     val viewmodel = viewModel<AddTaskViewModel>(factory = ViewModelFactory(LocalContext.current))
     Box(modifier = modifier
         .fillMaxSize()
@@ -162,7 +183,7 @@ fun AddTask(modifier: Modifier = Modifier) {
             Spacer(modifier = Modifier.height(40.dp))
             MyButtons({
                 viewmodel.saveTask()
-            }, {})
+            }, { onCancelListener() })
         }
     }
 }
@@ -174,29 +195,27 @@ fun MainPartForAddTask( viewmodel:AddTaskViewModel) {
         is AddTaskState.Result ->{
             Text(text = "Add Task", color = Color.Black, fontSize = 24.sp, fontFamily = FontFamily.SansSerif)
             Spacer(modifier = Modifier.height(DEFAULT_SPACE_FOR_SPACER))
-            var textForTitle by remember { mutableStateOf(TextFieldValue("")) }
             OutlinedTextField(
-                textForTitle,
+                value = currentState.task.title,
+                isError = currentState.errorTitle,
                 onValueChange = {
-                    textForTitle = it
-                    viewmodel.setTitle(it.text)
+                    viewmodel.setTitle(it)
                 },
                 label = {
                     Text(text = "Title")
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 25.dp, end = 25.dp)
+                    .padding(start = 25.dp, end = 25.dp),
             )
             Spacer(modifier = Modifier.height(DEFAULT_SPACE_FOR_SPACER))
             Text(text = "Add task content", color = Color.Black, fontSize = 18.sp, fontFamily = FontFamily.SansSerif)
             Spacer(modifier = Modifier.height(DEFAULT_SPACE_FOR_SPACER))
-            var textForContent by remember { mutableStateOf(TextFieldValue("")) }
             OutlinedTextField(
-                textForContent,
+                currentState.task.content,
+                isError = currentState.errorContext,
                 onValueChange = {
-                    textForContent = it
-                    viewmodel.setContent(it.text)
+                    viewmodel.setContent(it)
                 },
                 label = {
                     Text(text = "Content")

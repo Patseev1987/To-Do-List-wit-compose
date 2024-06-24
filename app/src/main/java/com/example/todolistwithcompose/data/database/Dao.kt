@@ -15,7 +15,7 @@ interface Dao {
     fun getTask(): Flow<List<TaskEntity>>
 
     @Query("select * from task where id = :id")
-    suspend fun getTaskById(id: Long): TaskEntity?
+    fun getTaskById(id: Long):Flow <TaskEntity?>
 
     @Query("delete from task where id = :id")
     suspend fun clearTaskById(id: Long)

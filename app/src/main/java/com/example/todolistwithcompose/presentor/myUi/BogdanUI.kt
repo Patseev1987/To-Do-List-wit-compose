@@ -31,9 +31,11 @@ import com.example.todolistwithcompose.domain.TaskGroup
 import com.example.todolistwithcompose.domain.TaskStatus
 import com.example.todolistwithcompose.presentor.state.AddTaskState
 import com.example.todolistwithcompose.presentor.state.MainScreenState
+import com.example.todolistwithcompose.presentor.state.ShowTaskState
 import com.example.todolistwithcompose.presentor.theme.ui.MyGrayForCard
 import com.example.todolistwithcompose.presentor.theme.ui.Pink80
 import com.example.todolistwithcompose.presentor.viewModel.AddTaskViewModel
+import com.example.todolistwithcompose.presentor.viewModel.ShowTaskViewModel
 import com.example.todolistwithcompose.presentor.viewModel.ViewModelFactory
 import com.example.todolistwithcompose.presentor.viewModel.ViewModelMainScreen
 import com.vanpra.composematerialdialogs.MaterialDialog
@@ -114,19 +116,22 @@ fun Task(task: Task, onTaskListener: (Task) -> Unit) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(modifier: Modifier = Modifier, onTaskListener: (Task) -> Unit ) {
-    val viewModel = viewModel<ViewModelMainScreen>( factory = ViewModelFactory(LocalContext.current))
+fun MainScreen(modifier: Modifier = Modifier, onTaskListener: (Task) -> Unit) {
+    val viewModel = viewModel<ViewModelMainScreen>(factory = ViewModelFactory(LocalContext.current))
     val state = viewModel.state.collectAsState(MainScreenState.Initial)
     when (val currentState = state.value) {
         is MainScreenState.Loading -> {
 
         }
+
         is MainScreenState.Error -> {
 
         }
+
         is MainScreenState.Initial -> {
 
         }
+
         is MainScreenState.Result -> {
             LazyColumn(
                 contentPadding = PaddingValues(top = 16.dp, bottom = 16.dp),
@@ -172,9 +177,11 @@ fun MainScreen(modifier: Modifier = Modifier, onTaskListener: (Task) -> Unit ) {
 
 fun AddTask(modifier: Modifier = Modifier, onCancelListener: () -> Unit) {
     val viewmodel = viewModel<AddTaskViewModel>(factory = ViewModelFactory(LocalContext.current))
-    Box(modifier = modifier
-        .fillMaxSize()
-        .padding(top = 16.dp)) {
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(top = 16.dp)
+    ) {
         Column(
             horizontalAlignment = CenterHorizontally,
             modifier = modifier.fillMaxWidth(),
@@ -189,10 +196,10 @@ fun AddTask(modifier: Modifier = Modifier, onCancelListener: () -> Unit) {
 }
 
 @Composable
-fun MainPartForAddTask( viewmodel:AddTaskViewModel) {
+fun MainPartForAddTask(viewmodel: AddTaskViewModel) {
     val state = viewmodel.state.collectAsState(initial = AddTaskState.InitState)
     when (val currentState = state.value) {
-        is AddTaskState.Result ->{
+        is AddTaskState.Result -> {
             Text(text = "Add Task", color = Color.Black, fontSize = 24.sp, fontFamily = FontFamily.SansSerif)
             Spacer(modifier = Modifier.height(DEFAULT_SPACE_FOR_SPACER))
             OutlinedTextField(
@@ -233,7 +240,7 @@ fun MainPartForAddTask( viewmodel:AddTaskViewModel) {
                 fontFamily = FontFamily.SansSerif
             )
             Spacer(modifier = Modifier.height(DEFAULT_SPACE_FOR_SPACER))
-            RadioButtonsTaskGroup(selected = currentState.task.taskGroup.value){
+            RadioButtonsTaskGroup(selected = currentState.task.taskGroup.value) {
                 viewmodel.setTaskGroup(it)
             }
             Spacer(modifier = Modifier.height(DEFAULT_SPACE_FOR_SPACER))
@@ -260,19 +267,18 @@ fun MainPartForAddTask( viewmodel:AddTaskViewModel) {
                 fontFamily = FontFamily.SansSerif
             )
             Spacer(modifier = Modifier.height(DEFAULT_SPACE_FOR_SPACER))
-            RadioButtonsStatus(currentState.task.status.value){
+            RadioButtonsStatus(currentState.task.status.value) {
                 viewmodel.setStatus(it)
             }
 
         }
+
         is AddTaskState.InitState -> {
 
         }
     }
 
 }
-
-
 
 @Composable
 fun RadioButtons(values: List<String>, selected: String, onSelectedListener: (String) -> Unit) {
@@ -306,8 +312,9 @@ fun RadioButtons(values: List<String>, selected: String, onSelectedListener: (St
         }
     }
 }
+
 @Composable
-fun RadioButtonsTaskGroup(selected:String, onSelectedListener: (String) -> Unit) {
+fun RadioButtonsTaskGroup(selected: String, onSelectedListener: (String) -> Unit) {
     val taskGroups = listOf(
         TaskGroup.WORK_TASK.value,
         TaskGroup.HOME_TASK.value,
@@ -317,6 +324,7 @@ fun RadioButtonsTaskGroup(selected:String, onSelectedListener: (String) -> Unit)
         onSelectedListener(it)
     }
 }
+
 @Composable
 fun RadioButtonsStatus(selected: String, onSelectedListener: (String) -> Unit) {
     val statues = listOf(
@@ -324,12 +332,13 @@ fun RadioButtonsStatus(selected: String, onSelectedListener: (String) -> Unit) {
         TaskStatus.IN_PROGRESS.value,
         TaskStatus.COMPLETED.value,
     )
-    RadioButtons(statues, selected){
+    RadioButtons(statues, selected) {
         onSelectedListener(it)
     }
 }
+
 @Composable
-fun MyDataPicker(dateChangeListener:(LocalDate) -> Unit, timeChangeListener:(LocalTime) -> Unit){
+fun MyDataPicker(dateChangeListener: (LocalDate) -> Unit, timeChangeListener: (LocalTime) -> Unit) {
     var pickedDate by remember {
         mutableStateOf(LocalDate.now())
     }
@@ -355,8 +364,10 @@ fun MyDataPicker(dateChangeListener:(LocalDate) -> Unit, timeChangeListener:(Loc
     val timeDialogState = rememberMaterialDialogState()
 
     Row() {
-        Column(modifier = Modifier.weight(1f),
-            horizontalAlignment = CenterHorizontally) {
+        Column(
+            modifier = Modifier.weight(1f),
+            horizontalAlignment = CenterHorizontally
+        ) {
             OutlinedButton(onClick = {
                 dateDialogState.show()
             }) {
@@ -364,8 +375,10 @@ fun MyDataPicker(dateChangeListener:(LocalDate) -> Unit, timeChangeListener:(Loc
             }
             Text(text = formattedDate)
         }
-        Column(modifier = Modifier.weight(1f),
-            horizontalAlignment = CenterHorizontally) {
+        Column(
+            modifier = Modifier.weight(1f),
+            horizontalAlignment = CenterHorizontally
+        ) {
             OutlinedButton(onClick = {
                 timeDialogState.show()
             }) {
@@ -409,6 +422,7 @@ fun MyDataPicker(dateChangeListener:(LocalDate) -> Unit, timeChangeListener:(Loc
         }
     }
 }
+
 @Composable
 fun MyButtons(addClickListener: () -> Unit, cancelClickListener: () -> Unit) {
     Row(horizontalArrangement = Arrangement.spacedBy(50.dp)) {
@@ -423,6 +437,56 @@ fun MyButtons(addClickListener: () -> Unit, cancelClickListener: () -> Unit) {
             shape = RectangleShape
         ) {
             Text(text = "Cancel")
+        }
+    }
+}
+
+@Composable
+fun ShowTask(taskId: Long) {
+    val viewmodel = viewModel<ShowTaskViewModel>(factory = ViewModelFactory(LocalContext.current, taskId))
+    val state = viewmodel.state.collectAsState(ShowTaskState.Loading)
+    Scaffold { paddingValues ->
+        when (val currentState = state.value) {
+            is ShowTaskState.Loading -> {
+                Text(text = "Loading...", modifier = Modifier.padding(paddingValues))
+            }
+
+            is ShowTaskState.Result -> {
+                MainPartShowTask(task = currentState.task)
+            }
+        }
+
+    }
+}
+
+@Composable
+fun MainPartShowTask(task: Task) {
+    Column {
+        Text(text = "Add Task", color = Color.Black, fontSize = 24.sp, fontFamily = FontFamily.SansSerif)
+        Spacer(modifier = Modifier.height(DEFAULT_SPACE_FOR_SPACER))
+        Text(text = task.title, color = Color.Black, fontSize = 24.sp, fontFamily = FontFamily.SansSerif)
+        Spacer(modifier = Modifier.height(DEFAULT_SPACE_FOR_SPACER))
+        Text(text = "Add task content", color = Color.Black, fontSize = 18.sp, fontFamily = FontFamily.SansSerif)
+        Spacer(modifier = Modifier.height(DEFAULT_SPACE_FOR_SPACER))
+        Text(text = "Add task content", color = Color.Black, fontSize = 18.sp, fontFamily = FontFamily.SansSerif)
+        Spacer(modifier = Modifier.height(DEFAULT_SPACE_FOR_SPACER))
+        RadioButtonsTaskGroup(selected = task.taskGroup.value) {}
+        Spacer(modifier = Modifier.height(DEFAULT_SPACE_FOR_SPACER))
+        Row {
+            Column(
+                modifier = Modifier.weight(1f),
+                horizontalAlignment = CenterHorizontally
+            ) {
+                Text(text = task.date?.toLocalDate().toString(), color = Color.Black)
+            }
+            Column(
+                modifier = Modifier.weight(1f),
+                horizontalAlignment = CenterHorizontally
+            ) {
+                Text(text = task.date?.toLocalTime().toString(), color = Color.Black)
+            }
+            Spacer(modifier = Modifier.height(DEFAULT_SPACE_FOR_SPACER))
+            RadioButtonsStatus(task.status.value) {}
         }
     }
 }

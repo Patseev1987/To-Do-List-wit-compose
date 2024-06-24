@@ -9,10 +9,14 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.example.todolistwithcompose.presentor.viewModel.ViewModelMainScreen
+import com.example.todolistwithcompose.domain.Task
+
 
 @Composable
-fun StartScreen() {
+fun StartScreen(
+    onFABClickListener: () -> Unit,
+    onTaskListener:(Task) -> Unit,
+) {
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(
@@ -20,7 +24,7 @@ fun StartScreen() {
                     Image(imageVector = Icons.Default.Create, contentDescription = "")
                 },
                 onClick = {
-
+                    onFABClickListener()
                 },
                 shape = CircleShape
             )

@@ -30,6 +30,6 @@ fun StartScreen(
             )
         }
     ) { paddingValues ->
-        MainScreen(modifier = Modifier.padding(paddingValues), onTaskListener = {})
+        MainScreen(modifier = Modifier.padding(paddingValues), onTaskListener = {onTaskListener(it)})
     }
 }

@@ -1,5 +1,6 @@
 package com.example.todolistwithcompose.presentor.viewModel
 
+import android.app.Application
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -10,8 +11,8 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
-class ShowTaskViewModel(private val taskId:Long,private val context:Context):ViewModel() {
-   private val dao = TasksDatabase.getInstance(context = context).taskDao
+class ShowTaskViewModel(private val taskId:Long, private val appContext: Context):ViewModel() {
+   private val dao = TasksDatabase.getInstance(context = appContext).taskDao
 
     val state = dao.getTaskById(taskId)
         .map { taskEntity -> taskEntity?.toTask() ?: throw Exception("Task not found") }

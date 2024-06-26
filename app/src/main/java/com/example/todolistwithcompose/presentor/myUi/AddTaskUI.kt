@@ -31,8 +31,8 @@ import java.time.format.DateTimeFormatter
 
 
 @Composable
-fun AddAndUpdateTask(modifier: Modifier = Modifier, onCancelListener: () -> Unit, onButtonListener: () -> Unit) {
-    val viewmodel = viewModel<AddAndUpdateTaskViewModel>(factory = ViewModelFactory(LocalContext.current))
+fun AddAndUpdateTask(modifier: Modifier = Modifier,taskId:Long = 0L, onCancelListener: () -> Unit, onButtonListener: () -> Unit) {
+    val viewmodel = viewModel<AddAndUpdateTaskViewModel>(factory = ViewModelFactory(LocalContext.current, taskId = taskId))
     val state = viewmodel.state.collectAsState(initial = AddAndUpdateTaskState.InitState)
 
     Scaffold { paddingValues ->

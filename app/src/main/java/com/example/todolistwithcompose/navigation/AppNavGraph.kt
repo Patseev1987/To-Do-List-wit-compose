@@ -14,7 +14,8 @@ fun AppNavGraph(
     mainScreenContent: @Composable () -> Unit = {},
     addScreenContent: @Composable () -> Unit = {},
     taskScreenContent: @Composable () -> Unit = {},
-    showTaskScreenContent: @Composable (taskId:Long) -> Unit = {},
+    showTaskScreenContent: @Composable (taskId: Long) -> Unit = {},
+    updateTaskScreenContent: @Composable (taskId: Long) -> Unit = {},
 ) {
     NavHost(navController, startDestination = Screen.MainScreen.route) {
         composable(Screen.MainScreen.route) {
@@ -29,15 +30,25 @@ fun AppNavGraph(
         }
 
         composable(
-          route =   Screen.ShowTaskScreen.route,
+            route = Screen.ShowTaskScreen.route,
             //all argument in path will be defined like string type
             //create argument like Long type
             arguments = listOf(navArgument(Screen.TASK_ID_KEY) {
                 type = NavType.LongType
             })
         ) { //show_task_screen/{task_id}
-            val taskId = it.arguments?.getLong(Screen.TASK_ID_KEY) ?: 1L
+            val taskId = it.arguments?.getLong(Screen.TASK_ID_KEY) ?: throw RuntimeException("Task not found")
             showTaskScreenContent(taskId)
+        }
+
+        composable(
+            route = Screen.UpdateScreen.route,
+            arguments = listOf(navArgument(Screen.TASK_ID_KEY) {
+                type = NavType.LongType
+            })
+        ) {
+            val taskId = it.arguments?.getLong(Screen.TASK_ID_KEY) ?: throw RuntimeException("Task not found")
+            updateTaskScreenContent(taskId)
         }
     }
 }

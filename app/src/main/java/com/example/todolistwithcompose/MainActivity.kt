@@ -42,11 +42,19 @@ class MainActivity : ComponentActivity() {
                     showTaskScreenContent = { taskId ->
                         ShowTask(
                             taskId = taskId,
-                            updateClickListener = { taskId ->
-
+                            updateClickListener = { id ->
+                                navState.navigateTo(Screen.UpdateScreen.getRouteWithArgs(id))
                             },
                             cancelClickListener = { onBackPressedDispatcher.onBackPressed() }
                         )
+                    },
+                    updateTaskScreenContent = { taskId ->
+                        AddAndUpdateTask(taskId = taskId,           onCancelListener =  {
+                            onBackPressedDispatcher.onBackPressed()
+                        },
+                            onButtonListener = {
+                                onBackPressedDispatcher.onBackPressed()
+                            })
                     }
                 )
             }

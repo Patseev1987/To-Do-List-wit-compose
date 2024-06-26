@@ -1,12 +1,11 @@
 package com.example.todolistwithcompose
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import com.example.todolistwithcompose.navigation.AppNavGraph
 import com.example.todolistwithcompose.navigation.Screen
-import com.example.todolistwithcompose.presentor.myUi.AddTask
+import com.example.todolistwithcompose.presentor.myUi.AddAndUpdateTask
 import com.example.todolistwithcompose.presentor.myUi.StartScreen
 import com.example.todolistwithcompose.navigation.rememberNavigationState
 import com.example.todolistwithcompose.presentor.myUi.ShowTask
@@ -31,14 +30,21 @@ class MainActivity : ComponentActivity() {
                         )
                     },
                     addScreenContent = {
-                        AddTask {
+                        AddAndUpdateTask(
+                            onCancelListener =  {
                             onBackPressedDispatcher.onBackPressed()
-                        }
+                        },
+                            onButtonListener = {
+                                onBackPressedDispatcher.onBackPressed()
+                            }
+                        )
                     },
                     showTaskScreenContent = { taskId ->
                         ShowTask(
                             taskId = taskId,
-                            updateClickListener = { },
+                            updateClickListener = { taskId ->
+
+                            },
                             cancelClickListener = { onBackPressedDispatcher.onBackPressed() }
                         )
                     }

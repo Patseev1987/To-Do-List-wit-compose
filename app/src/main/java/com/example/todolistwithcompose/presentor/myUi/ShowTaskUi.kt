@@ -25,7 +25,7 @@ import com.example.todolistwithcompose.presentor.viewModel.ViewModelFactory
 
 
 @Composable
-fun ShowTask(taskId: Long, updateClickListener: () -> Unit, cancelClickListener: () -> Unit) {
+fun ShowTask(taskId: Long, updateClickListener: (Long) -> Unit, cancelClickListener: () -> Unit) {
     val viewmodel = viewModel<ShowTaskViewModel>(factory = ViewModelFactory(LocalContext.current, taskId))
     val state = viewmodel.state.collectAsState(ShowTaskState.Loading)
     Scaffold { paddingValues ->
@@ -37,7 +37,7 @@ fun ShowTask(taskId: Long, updateClickListener: () -> Unit, cancelClickListener:
                 Column (modifier = Modifier.fillMaxSize()) {
                     MainPartShowTask(task = currentState.task, modifier = Modifier.weight(1f))
                     ShowTaskButtons( modifier = Modifier.padding(bottom = 35.dp),
-                        updateClickListener = {updateClickListener()},
+                        updateClickListener = {updateClickListener(taskId)},
                         cancelClickListener = {cancelClickListener()}
                     )
                 }
@@ -95,7 +95,6 @@ fun ShowTaskButtons( modifier: Modifier = Modifier, updateClickListener: () -> U
         }
     }
 }
-
 
 @Composable
 fun ShowTaskRadioButtons(values: List<String>, selected: String) {

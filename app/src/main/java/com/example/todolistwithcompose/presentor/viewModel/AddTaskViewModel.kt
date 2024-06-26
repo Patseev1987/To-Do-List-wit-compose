@@ -8,7 +8,7 @@ import com.example.todolistwithcompose.data.database.TasksDatabase
 import com.example.todolistwithcompose.domain.Task
 import com.example.todolistwithcompose.domain.TaskGroup
 import com.example.todolistwithcompose.domain.TaskStatus
-import com.example.todolistwithcompose.presentor.state.AddTaskState
+import com.example.todolistwithcompose.presentor.state.AddAndUpdateTaskState
 import com.example.todolistwithcompose.utils.toTaskEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,44 +30,44 @@ class AddTaskViewModel(private val appContext: Context) : ViewModel() {
         status = TaskStatus.NOT_STARTED
     )
 
-    private val _state: MutableStateFlow<AddTaskState> = MutableStateFlow(AddTaskState.Result(task))
+    private val _state: MutableStateFlow<AddAndUpdateTaskState> = MutableStateFlow(AddAndUpdateTaskState.Result(task))
     val state = _state.asStateFlow()
 
 
     fun setTitle(title: String) {
         task = task.copy(title = title)
-        _state.value = AddTaskState.Result(task)
+        _state.value = AddAndUpdateTaskState.Result(task)
     }
 
     fun setContent(content: String) {
         task = task.copy(content = content)
-        _state.value = AddTaskState.Result(task)
+        _state.value = AddAndUpdateTaskState.Result(task)
     }
 
     fun setTaskGroup(value: String) {
         val taskGroup = TaskGroup.entries.first { it.value == value }
         task = task.copy(taskGroup = taskGroup)
-        _state.value = AddTaskState.Result(task)
+        _state.value = AddAndUpdateTaskState.Result(task)
     }
 
     fun setStatus(value: String) {
         val status = TaskStatus.entries.first { it.value == value }
         task.status = status
-        _state.value = AddTaskState.Result(task)
+        _state.value = AddAndUpdateTaskState.Result(task)
     }
 
     fun setTime(time: LocalTime) {
         val date = task.date?.toLocalDate()
         val newDate = LocalDateTime.of(date, time)
         task = task.copy(date = newDate)
-        _state.value = AddTaskState.Result(task)
+        _state.value = AddAndUpdateTaskState.Result(task)
     }
 
     fun setDate(date: LocalDate) {
         val time = task.date?.toLocalTime()
         val newDate = LocalDateTime.of(date, time)
         task = task.copy(date = newDate)
-        _state.value = AddTaskState.Result(task)
+        _state.value = AddAndUpdateTaskState.Result(task)
     }
 
     fun saveTask() {
@@ -82,10 +82,10 @@ class AddTaskViewModel(private val appContext: Context) : ViewModel() {
     private fun checkTask(task: Task): Boolean {
         return when {
             task.title.isEmpty() -> {
-                _state.value = AddTaskState.Result(task, errorTitle = true)
+                _state.value = AddAndUpdateTaskState.Result(task, errorTitle = true)
                 false}
             task.content.isEmpty() -> {
-                _state.value = AddTaskState.Result(task, errorContext = true)
+                _state.value = AddAndUpdateTaskState.Result(task, errorContext = true)
                 false}
             else -> true
         }

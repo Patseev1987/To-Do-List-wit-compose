@@ -20,5 +20,6 @@ interface Dao {
     @Query("delete from task where id = :id")
     suspend fun clearTaskById(id: Long)
 
-
+    @Query("select id from task order by id desc limit 1")
+    fun getLastId(): Long
 }

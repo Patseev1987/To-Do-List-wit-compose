@@ -1,5 +1,6 @@
 package com.example.todolistwithcompose.presentor.myUi
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
@@ -25,18 +26,28 @@ import com.vanpra.composematerialdialogs.MaterialDialog
 import com.vanpra.composematerialdialogs.datetime.date.datepicker
 import com.vanpra.composematerialdialogs.datetime.time.timepicker
 import com.vanpra.composematerialdialogs.rememberMaterialDialogState
+import kotlinx.coroutines.launch
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
 
+
+@SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 fun AddAndUpdateTask(modifier: Modifier = Modifier,taskId:Long = 0L, onCancelListener: () -> Unit, onButtonListener: () -> Unit) {
     val viewmodel = viewModel<AddAndUpdateTaskViewModel>(factory = ViewModelFactory(LocalContext.current, taskId = taskId))
     val state = viewmodel.state.collectAsState(initial = AddAndUpdateTaskState.InitState)
-
-    Scaffold { paddingValues ->
-        when (val currentState = state.value) {
+    val currentState = state.value
+    val snackbarHostState = SnackbarHostState()
+    val scope = rememberCoroutineScope()
+    Scaffold(
+        snackbarHost = {
+           SnackbarHost(hostState = snackbarHostState)
+        }
+    ) { paddingValues ->
+        when (currentState) {
             is AddAndUpdateTaskState.Loading -> {
                 Text(text = "Loading...")
             }
@@ -47,7 +58,8 @@ fun AddAndUpdateTask(modifier: Modifier = Modifier,taskId:Long = 0L, onCancelLis
 
             is AddAndUpdateTaskState.Result -> {
                 Box(
-                    modifier = modifier.padding(paddingValues)
+                    modifier = modifier
+                        .padding(paddingValues)
                         .fillMaxSize()
                         .padding(top = 16.dp)
                 ) {
@@ -63,7 +75,8 @@ fun AddAndUpdateTask(modifier: Modifier = Modifier,taskId:Long = 0L, onCancelLis
                             onChangeDataListener = {viewmodel.setDate(it)},
                             onChangeTimeListener = {viewmodel.setTime(it)},
                             onSelectedStatusListener = {viewmodel.setStatus(it)},
-                            onSelectedGroupListener = {viewmodel.setTaskGroup(it)}
+                            onSelectedGroupListener = {viewmodel.setTaskGroup(it)},
+                            onCheckedListener = {viewmodel.changeIsRemind()}
                         )
                         Spacer(modifier = Modifier.height(40.dp))
                         MyButtons(
@@ -72,10 +85,12 @@ fun AddAndUpdateTask(modifier: Modifier = Modifier,taskId:Long = 0L, onCancelLis
                             cancelClickListener = { onCancelListener() })
                     }
                 }
+                ShowSnackbares(currentState = currentState, snackbarHost = snackbarHostState)
+                }
             }
         }
     }
-}
+
 
 @Composable
 fun MainPartForAddAndUpdateTask(
@@ -87,9 +102,10 @@ fun MainPartForAddAndUpdateTask(
     onChangeContentListener: (content: String) -> Unit,
     onChangeDataListener: (LocalDate) -> Unit,
     onChangeTimeListener: (LocalTime) -> Unit,
+    onCheckedListener: () -> Unit
 ) {
     Text(text = label, color = Color.Black, fontSize = 24.sp, fontFamily = FontFamily.SansSerif)
-    Spacer(modifier = Modifier.height(DEFAULT_SPACE_FOR_SPACER))
+    Spacer(modifier = Modifier.height(DEFAULT_VALUE_FOR_SPACER))
     OutlinedTextField(
         value = currentState.task.title,
         isError = currentState.errorTitle,
@@ -103,9 +119,9 @@ fun MainPartForAddAndUpdateTask(
             .fillMaxWidth()
             .padding(start = 25.dp, end = 25.dp),
     )
-    Spacer(modifier = Modifier.height(DEFAULT_SPACE_FOR_SPACER))
+    Spacer(modifier = Modifier.height(DEFAULT_VALUE_FOR_SPACER))
     Text(text = "$label content", color = Color.Black, fontSize = 18.sp, fontFamily = FontFamily.SansSerif)
-    Spacer(modifier = Modifier.height(DEFAULT_SPACE_FOR_SPACER))
+    Spacer(modifier = Modifier.height(DEFAULT_VALUE_FOR_SPACER))
     OutlinedTextField(
         currentState.task.content,
         isError = currentState.errorContext,
@@ -120,43 +136,50 @@ fun MainPartForAddAndUpdateTask(
             .fillMaxWidth()
             .padding(start = 25.dp, end = 25.dp)
     )
-    Spacer(modifier = Modifier.height(DEFAULT_SPACE_FOR_SPACER))
+    Spacer(modifier = Modifier.height(DEFAULT_VALUE_FOR_SPACER))
     Text(
         text = "Choose the task group",
         color = Color.Black,
         fontSize = 18.sp,
         fontFamily = FontFamily.SansSerif
     )
-    Spacer(modifier = Modifier.height(DEFAULT_SPACE_FOR_SPACER))
+    Spacer(modifier = Modifier.height(DEFAULT_VALUE_FOR_SPACER))
     RadioButtonsTaskGroup(selected = currentState.task.taskGroup.value) {
         onSelectedGroupListener(it)
     }
-    Spacer(modifier = Modifier.height(DEFAULT_SPACE_FOR_SPACER))
-    Text(
-        text = "Set date and time for remind",
-        color = Color.Black,
-        fontSize = 18.sp,
-        fontFamily = FontFamily.SansSerif
-    )
-    Spacer(modifier = Modifier.height(DEFAULT_SPACE_FOR_SPACER))
-    MyDataPicker(
-        startDate = currentState.task.date?.toLocalDate() ?: LocalDate.now(),
-        startTime = currentState.task.date?.toLocalTime() ?: LocalTime.now(),
-        dateChangeListener = {
-            onChangeDataListener(it)
-        },
-        timeChangeListener = {
-            onChangeTimeListener(it)
-        }
-    )
-    Spacer(modifier = Modifier.height(DEFAULT_SPACE_FOR_SPACER))
+    Spacer(modifier = Modifier.height(DEFAULT_VALUE_FOR_SPACER))
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Text(
+            text = "Set date and time for remind",
+            color = Color.Black,
+            fontSize = 18.sp,
+            fontFamily = FontFamily.SansSerif
+        )
+        Checkbox(checked = currentState.task.isRemind, onCheckedChange = {
+            onCheckedListener()
+        })
+    }
+    if (currentState.task.isRemind){
+        Spacer(modifier = Modifier.height(DEFAULT_VALUE_FOR_SPACER))
+        MyDataPicker(
+            startDate = currentState.task.date?.toLocalDate() ?: LocalDate.now(),
+            startTime = currentState.task.date?.toLocalTime() ?: LocalTime.now(),
+            dateChangeListener = {
+                onChangeDataListener(it)
+            },
+            timeChangeListener = {
+                onChangeTimeListener(it)
+            }
+        )
+    }
+    Spacer(modifier = Modifier.height(DEFAULT_VALUE_FOR_SPACER))
     Text(
         text = "Set status for task",
         color = Color.Black,
         fontSize = 18.sp,
         fontFamily = FontFamily.SansSerif
     )
-    Spacer(modifier = Modifier.height(DEFAULT_SPACE_FOR_SPACER))
+    Spacer(modifier = Modifier.height(DEFAULT_VALUE_FOR_SPACER))
     RadioButtonsStatus(currentState.task.status.value) {
         onSelectedStatusListener(it)
     }
@@ -327,4 +350,30 @@ fun MyButtons(label: String, addClickListener: () -> Unit, cancelClickListener: 
             Text(text = "Cancel")
         }
     }
+}
+
+@SuppressLint("CoroutineCreationDuringComposition")
+@Composable
+fun ShowSnackbares(currentState:AddAndUpdateTaskState.Result, snackbarHost: SnackbarHostState) {
+    val scope = rememberCoroutineScope()
+    scope.launch {
+        when {
+            currentState.errorDate -> snackbarHost.showSnackbar(
+                message = "Date shouldn't be early than " +
+                        "\n${LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm"))}",
+                duration = SnackbarDuration.Short
+            )
+
+            currentState.errorTitle -> snackbarHost.showSnackbar(
+                message = "Title shouldn't be empty!",
+                duration = SnackbarDuration.Short
+            )
+
+            currentState.errorContext -> snackbarHost.showSnackbar(
+                message = "Description shouldn't be empty!",
+                duration = SnackbarDuration.Short
+            )
+        }
+    }
+
 }

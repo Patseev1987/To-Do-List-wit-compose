@@ -48,7 +48,7 @@ class AddAndUpdateTaskViewModel(private val taskId: Long, private val appContext
             task = Task(
                 title = "",
                 content = "",
-                date = LocalDateTime.now(),
+                date = null,
                 taskGroup = TaskGroup.WORK_TASK,
                 status = TaskStatus.NOT_STARTED
             )
@@ -82,6 +82,7 @@ class AddAndUpdateTaskViewModel(private val taskId: Long, private val appContext
         val date = task.date?.toLocalDate()
         val newDate = LocalDateTime.of(date, time)
         task = task.copy(date = newDate)
+        Log.d("DATE_TIME", newDate.toString())
         _state.value = AddAndUpdateTaskState.Result(task)
     }
 
@@ -89,11 +90,20 @@ class AddAndUpdateTaskViewModel(private val taskId: Long, private val appContext
         val time = task.date?.toLocalTime()
         val newDate = LocalDateTime.of(date, time)
         task = task.copy(date = newDate)
+        Log.d("DATE_TIME", newDate.toString())
         _state.value = AddAndUpdateTaskState.Result(task)
     }
 
     fun saveTask(onButtonListener: () -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
+            if (!checkDateForRemind()){
+                _state.value = AddAndUpdateTaskState.Result(
+                    task = task,
+                    errorDate = true
+                )
+                Log.d("DATE_ERROR", _state.value.toString())
+                return@launch
+            }
             if (checkTask(task)) {
                 taskDao.insert(task.toTaskEntity())
                 withContext(Dispatchers.Main) {
@@ -129,7 +139,8 @@ class AddAndUpdateTaskViewModel(private val taskId: Long, private val appContext
     private fun setAlarm() {
         val alarmManager = appContext.getSystemService(ALARM_SERVICE) as AlarmManager
         val intent = AlarmReceiver.newAlarmIntent(appContext, task.title, task.content)
-        val alarmTime = task.date?.atZone(ZoneId.systemDefault())?.toInstant()?.toEpochMilli()
+        val time = task.date?.atZone(ZoneId.systemDefault())?.toInstant()?.toEpochMilli()
+        val alarmTime = time
             ?: throw RuntimeException("wrong time")
         val requestCodeFromIdTask = if(taskId == 0L) taskDao.getLastId().toInt() else taskId.toInt()
         val pendingIntent = PendingIntent.getBroadcast(
@@ -138,11 +149,10 @@ class AddAndUpdateTaskViewModel(private val taskId: Long, private val appContext
             intent,
             0
         )
-
         alarmManager.setExact(
             AlarmManager.RTC_WAKEUP,
             alarmTime,
-            pendingIntent
+            pendingIntent,
         )
     }
 
@@ -156,6 +166,29 @@ class AddAndUpdateTaskViewModel(private val taskId: Long, private val appContext
             0
         )
         alarmManager.cancel(pendingIntent)
+    }
+
+    fun changeIsRemind(){
+        task = task.copy(isRemind = !task.isRemind)
+        _state.value = AddAndUpdateTaskState.Result(task)
+        task.apply {
+            date = if (isRemind) getNowDateWithoutSeconds() else null
+        }
+    }
+
+    private fun checkDateForRemind():Boolean = task.date?.isAfter(LocalDateTime.now())
+        ?: throw RuntimeException("wrong date")
+
+
+    private fun getNowDateWithoutSeconds() : LocalDateTime {
+        return LocalDateTime.of(
+            LocalDateTime.now().year,
+            LocalDateTime.now().month,
+            LocalDateTime.now().dayOfMonth,
+            LocalDateTime.now().hour,
+            LocalDateTime.now().minute,
+            0,
+        )
     }
 
 }

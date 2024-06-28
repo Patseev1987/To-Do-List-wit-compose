@@ -50,13 +50,13 @@ fun ShowTask(taskId: Long, updateClickListener: (Long) -> Unit, cancelClickListe
 @Composable
 fun MainPartShowTask(task: Task , modifier: Modifier = Modifier) {
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = modifier) {
-        Spacer(modifier = Modifier.height(DEFAULT_SPACE_FOR_SPACER*2))
+        Spacer(modifier = Modifier.height(DEFAULT_VALUE_FOR_SPACER*2))
         Text(text = task.title, color = Color.Black, fontSize = 24.sp, fontFamily = FontFamily.SansSerif)
-        Spacer(modifier = Modifier.height(DEFAULT_SPACE_FOR_SPACER*2))
+        Spacer(modifier = Modifier.height(DEFAULT_VALUE_FOR_SPACER*2))
         Text(text = task.content, color = Color.Black, fontSize = 18.sp, fontFamily = FontFamily.SansSerif)
-        Spacer(modifier = Modifier.height(DEFAULT_SPACE_FOR_SPACER*2))
+        Spacer(modifier = Modifier.height(DEFAULT_VALUE_FOR_SPACER*2))
         ShowTaskRadioButtonsTaskGroup(selected = task.taskGroup.value)
-        Spacer(modifier = Modifier.height(DEFAULT_SPACE_FOR_SPACER*2))
+        Spacer(modifier = Modifier.height(DEFAULT_VALUE_FOR_SPACER*2))
         Row() {
             Column(
                 modifier = Modifier.weight(1f),
@@ -73,7 +73,7 @@ fun MainPartShowTask(task: Task , modifier: Modifier = Modifier) {
                 Text(text = task.date?.toLocalTime().toString(), color = Color.Black)
             }
         }
-            Spacer(modifier = Modifier.height(DEFAULT_SPACE_FOR_SPACER*2))
+            Spacer(modifier = Modifier.height(DEFAULT_VALUE_FOR_SPACER*2))
             ShowTaskRadioButtonsStatus(task.status.value)
     }
 }

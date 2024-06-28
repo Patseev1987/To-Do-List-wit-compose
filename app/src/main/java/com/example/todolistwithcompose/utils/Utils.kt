@@ -14,7 +14,8 @@ fun Task.toTaskEntity(): TaskEntity {
         date = this.date,
         status = this.status,
         taskGroup = this.taskGroup,
-        createDate = LocalDateTime.now()
+        createDate = LocalDateTime.now(),
+        isRemind = this.isRemind
     )
 }
 
@@ -26,5 +27,6 @@ fun TaskEntity.toTask(): Task {
         date = this.date,
         status = this.status,
         taskGroup = this.taskGroup,
+        isRemind = this.isRemind
     )
 }

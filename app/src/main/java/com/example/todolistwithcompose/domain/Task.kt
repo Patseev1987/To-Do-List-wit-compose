@@ -11,4 +11,5 @@ data class Task(
     var date: LocalDateTime?,
     val taskGroup: TaskGroup,
     var status: TaskStatus,
+    var isRemind: Boolean = false,
 )

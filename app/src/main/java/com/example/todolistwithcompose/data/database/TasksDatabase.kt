@@ -4,7 +4,7 @@ import android.app.Application
 import android.content.Context
 import androidx.room.*
 
-@Database(entities = [TaskEntity::class], exportSchema = false, version = 3)
+@Database(entities = [TaskEntity::class], exportSchema = false, version = 4)
 @TypeConverters(Convertor::class)
 abstract class TasksDatabase() : RoomDatabase() {
 

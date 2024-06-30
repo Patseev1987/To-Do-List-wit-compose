@@ -96,23 +96,25 @@ class AddAndUpdateTaskViewModel(private val taskId: Long, private val appContext
 
     fun saveTask(onButtonListener: () -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
-            if (!checkDateForRemind()){
-                _state.value = AddAndUpdateTaskState.Result(
-                    task = task,
-                    errorDate = true
-                )
-                Log.d("DATE_ERROR", _state.value.toString())
-                return@launch
-            }
-            if (checkTask(task)) {
+            if (checkTask(task)){
+                if (task.isRemind){
+                    if (task.id != 0L){
+                        cancelAlarm(taskId)
+                    }
+                    if (checkDateForRemind()){
+                        setAlarm()
+                    }else{
+                        _state.value = AddAndUpdateTaskState.Result(
+                            task = task,
+                            errorDate = true
+                        )
+                        return@launch
+                    }
+                }
                 taskDao.insert(task.toTaskEntity())
                 withContext(Dispatchers.Main) {
                     onButtonListener()
                 }
-                if (taskId != 0L){
-                    cancelAlarm(taskId)
-                }
-                setAlarm()
             }
         }
     }
@@ -142,7 +144,7 @@ class AddAndUpdateTaskViewModel(private val taskId: Long, private val appContext
         val time = task.date?.atZone(ZoneId.systemDefault())?.toInstant()?.toEpochMilli()
         val alarmTime = time
             ?: throw RuntimeException("wrong time")
-        val requestCodeFromIdTask = if(taskId == 0L) taskDao.getLastId().toInt() else taskId.toInt()
+        val requestCodeFromIdTask = if (taskId == 0L) taskDao.getLastId().toInt() else taskId.toInt()
         val pendingIntent = PendingIntent.getBroadcast(
             appContext,
             requestCodeFromIdTask,
@@ -156,7 +158,7 @@ class AddAndUpdateTaskViewModel(private val taskId: Long, private val appContext
         )
     }
 
-    private fun cancelAlarm(taskId:Long){
+    private fun cancelAlarm(taskId: Long) {
         val alarmManager = appContext.getSystemService(ALARM_SERVICE) as AlarmManager
         val intent = AlarmReceiver.newAlarmIntent(appContext, task.title, task.content)
         val pendingIntent = PendingIntent.getBroadcast(
@@ -168,7 +170,7 @@ class AddAndUpdateTaskViewModel(private val taskId: Long, private val appContext
         alarmManager.cancel(pendingIntent)
     }
 
-    fun changeIsRemind(){
+    fun changeIsRemind() {
         task = task.copy(isRemind = !task.isRemind)
         _state.value = AddAndUpdateTaskState.Result(task)
         task.apply {
@@ -176,11 +178,11 @@ class AddAndUpdateTaskViewModel(private val taskId: Long, private val appContext
         }
     }
 
-    private fun checkDateForRemind():Boolean = task.date?.isAfter(LocalDateTime.now())
+    private fun checkDateForRemind(): Boolean = task.date?.isAfter(LocalDateTime.now())
         ?: throw RuntimeException("wrong date")
 
 
-    private fun getNowDateWithoutSeconds() : LocalDateTime {
+    private fun getNowDateWithoutSeconds(): LocalDateTime {
         return LocalDateTime.of(
             LocalDateTime.now().year,
             LocalDateTime.now().month,

@@ -21,10 +21,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.todolistwithcompose.domain.Task
 import com.example.todolistwithcompose.domain.TaskGroup
 import com.example.todolistwithcompose.presentor.state.MainScreenState
-import com.example.todolistwithcompose.presentor.theme.ui.MyGrayForCard
 import com.example.todolistwithcompose.presentor.theme.ui.Pink80
 import com.example.todolistwithcompose.presentor.viewModel.ViewModelFactory
 import com.example.todolistwithcompose.presentor.viewModel.ViewModelMainScreen
+import com.example.todolistwithcompose.utils.getColor
 import java.time.format.DateTimeFormatter
 
 
@@ -41,7 +41,7 @@ fun Task(task: Task, onTaskListener: (Task) -> Unit) {
                 onTaskListener(task)
             },
         elevation = CardDefaults.cardElevation(4.dp),
-        colors = CardDefaults.cardColors(containerColor = MyGrayForCard)
+        colors = CardDefaults.cardColors(containerColor = task.getColor())
     ) {
         Column(modifier = Modifier.padding(8.dp)) {
             Text(
@@ -72,22 +72,23 @@ fun Task(task: Task, onTaskListener: (Task) -> Unit) {
                     color = color,
                     modifier = Modifier.weight(1f),
                 )
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(
-                        text = DateTimeFormatter
-                            .ofPattern("HH:mm")
-                            .format(task.date),
-                        modifier = Modifier.padding(end = 20.dp),
-                        textAlign = TextAlign.Center,
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = DateTimeFormatter
-                            .ofPattern("yyyy-MM-dd")
-                            .format(task.date)
-                    )
+                if (task.date != null) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                            text = DateTimeFormatter
+                                .ofPattern("HH:mm")
+                                .format(task.date),
+                            modifier = Modifier.padding(end = 20.dp),
+                            textAlign = TextAlign.Center,
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = DateTimeFormatter
+                                .ofPattern("yyyy-MM-dd")
+                                .format(task.date)
+                        )
+                    }
                 }
-
             }
         }
     }
@@ -118,14 +119,14 @@ fun MainScreen(modifier: Modifier = Modifier, onTaskListener: (Task) -> Unit) {
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(items = currentState.notes, key = { it.id }) { task ->
-                    val dismissState = rememberDismissState()
-                    if (dismissState.isDismissed(DismissDirection.EndToStart)) {
+                    val dismissState = rememberSwipeToDismissBoxState()
+                    if (dismissState.dismissDirection == SwipeToDismissBoxValue.EndToStart) {
                         viewModel.deleteTask(task)
                     }
-                    SwipeToDismiss(
+                    SwipeToDismissBox(
                         state = dismissState,
-                        directions = setOf(DismissDirection.EndToStart),
-                        dismissContent = {
+                        enableDismissFromStartToEnd = false,
+                        content = {
                             Task(
                                 task = task,
                                 onTaskListener = {
@@ -133,7 +134,7 @@ fun MainScreen(modifier: Modifier = Modifier, onTaskListener: (Task) -> Unit) {
                                 }
                             )
                         },
-                        background = {
+                        backgroundContent = {
                             Box(
                                 modifier = Modifier
                                     .fillMaxSize()

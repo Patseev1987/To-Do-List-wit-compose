@@ -11,3 +11,7 @@ val PurpleGrey40 = Color(0xFF625b71)
 val MyGrayForCard = Color(161,158,151)
 
 val Pink40 = Color(0xFF7D5260)
+
+val InProgressColor = Color(0xFF899BC2)
+val CompletedColor = Color(0xFF89CC7F)
+val NotStartedColor = Color(0xFFEDB0B7)

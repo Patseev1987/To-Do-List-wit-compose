@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 class ViewModelMainScreen(
-    private val appContext: Context,
+    private val appContext: Context
 ) : ViewModel() {
  private   val dao = TasksDatabase.getInstance(appContext).taskDao
     val state = dao.getTask()

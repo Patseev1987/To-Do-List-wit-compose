@@ -5,10 +5,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import com.example.todolistwithcompose.navigation.AppNavGraph
 import com.example.todolistwithcompose.navigation.Screen
-import com.example.todolistwithcompose.presentor.myUi.AddAndUpdateTask
-import com.example.todolistwithcompose.presentor.myUi.StartScreen
 import com.example.todolistwithcompose.navigation.rememberNavigationState
-import com.example.todolistwithcompose.presentor.myUi.ShowTask
+import com.example.todolistwithcompose.presentor.myUi.*
 import com.example.todolistwithcompose.presentor.theme.ui.ToDoListWithComposeTheme
 
 class MainActivity : ComponentActivity() {
@@ -18,45 +16,49 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             ToDoListWithComposeTheme {
-                val navState = rememberNavigationState()
-                AppNavGraph(
-                    navController = navState.navHostController,
-                    mainScreenContent = {
-                        StartScreen(
-                            onFABClickListener = { navState.navigateTo(Screen.AddTaskScreen.route) },
-                            onTaskListener = { task ->
-                                navState.navigateTo(Screen.ShowTaskScreen.getRouteWithArgs(task.id))
-                            }
-                        )
-                    },
-                    addScreenContent = {
-                        AddAndUpdateTask(
-                            onCancelListener =  {
-                            onBackPressedDispatcher.onBackPressed()
-                        },
-                            onButtonListener = {
-                                onBackPressedDispatcher.onBackPressed()
-                            }
-                        )
-                    },
-                    showTaskScreenContent = { taskId ->
-                        ShowTask(
-                            taskId = taskId,
-                            updateClickListener = { id ->
-                                navState.navigateTo(Screen.UpdateScreen.getRouteWithArgs(id))
-                            },
-                            cancelClickListener = { onBackPressedDispatcher.onBackPressed() }
-                        )
-                    },
-                    updateTaskScreenContent = { taskId ->
-                        AddAndUpdateTask(taskId = taskId,           onCancelListener =  {
-                            onBackPressedDispatcher.onBackPressed()
-                        },
-                            onButtonListener = {
-                                onBackPressedDispatcher.onBackPressed()
-                            })
-                    }
-                )
+//                val navState = rememberNavigationState()
+//                AppNavGraph(
+//                    navController = navState.navHostController,
+//                    mainScreenContent = {
+//                        StartScreen(
+//                            onFABClickListener = { navState.navigateTo(Screen.AddTaskScreen.route) },
+//                            onTaskListener = { task ->
+//                                navState.navigateTo(Screen.ShowTaskScreen.getRouteWithArgs(task.id))
+//                            }
+//                        )
+//                    },
+//                    addScreenContent = {
+//                        AddAndUpdateTask(
+//                            onCancelListener =  {
+//                            onBackPressedDispatcher.onBackPressed()
+//                        },
+//                            onButtonListener = {
+//                                onBackPressedDispatcher.onBackPressed()
+//                            }
+//                        )
+//                    },
+//                    showTaskScreenContent = { taskId ->
+//                        ShowTask(
+//                            taskId = taskId,
+//                            updateClickListener = { id ->
+//                                navState.navigateTo(Screen.UpdateScreen.getRouteWithArgs(id))
+//                            },
+//                            cancelClickListener = { onBackPressedDispatcher.onBackPressed() }
+//                        )
+//                    },
+//                    updateTaskScreenContent = { taskId ->
+//                        AddAndUpdateTask(taskId = taskId,           onCancelListener =  {
+//                            onBackPressedDispatcher.onBackPressed()
+//                        },
+//                            onButtonListener = {
+//                                onBackPressedDispatcher.onBackPressed()
+//                            })
+//                    }
+//                )
+
+
+                AAA()
+
             }
         }
     }

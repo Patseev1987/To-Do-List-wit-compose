@@ -38,10 +38,9 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun AddAndUpdateTask(modifier: Modifier = Modifier,taskId:Long = 0L, onCancelListener: () -> Unit, onButtonListener: () -> Unit) {
     val viewmodel = viewModel<AddAndUpdateTaskViewModel>(factory = ViewModelFactory(LocalContext.current, taskId = taskId))
-    val state = viewmodel.state.collectAsState(initial = AddAndUpdateTaskState.InitState)
+    val state = viewmodel.state.collectAsState(initial = AddAndUpdateTaskState.Loading)
     val currentState = state.value
     val snackbarHostState = SnackbarHostState()
-    val scope = rememberCoroutineScope()
     Scaffold(
         snackbarHost = {
            SnackbarHost(hostState = snackbarHostState)
@@ -53,7 +52,6 @@ fun AddAndUpdateTask(modifier: Modifier = Modifier,taskId:Long = 0L, onCancelLis
             }
 
             is AddAndUpdateTaskState.InitState -> {
-
             }
 
             is AddAndUpdateTaskState.Result -> {

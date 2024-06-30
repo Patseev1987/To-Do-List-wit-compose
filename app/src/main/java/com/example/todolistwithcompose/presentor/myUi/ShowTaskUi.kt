@@ -49,7 +49,7 @@ fun ShowTask(taskId: Long, updateClickListener: (Long) -> Unit, cancelClickListe
 
 @Composable
 fun MainPartShowTask(task: Task , modifier: Modifier = Modifier) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = modifier) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = modifier.fillMaxSize()) {
         Spacer(modifier = Modifier.height(DEFAULT_VALUE_FOR_SPACER*2))
         Text(text = task.title, color = Color.Black, fontSize = 24.sp, fontFamily = FontFamily.SansSerif)
         Spacer(modifier = Modifier.height(DEFAULT_VALUE_FOR_SPACER*2))
@@ -57,23 +57,26 @@ fun MainPartShowTask(task: Task , modifier: Modifier = Modifier) {
         Spacer(modifier = Modifier.height(DEFAULT_VALUE_FOR_SPACER*2))
         ShowTaskRadioButtonsTaskGroup(selected = task.taskGroup.value)
         Spacer(modifier = Modifier.height(DEFAULT_VALUE_FOR_SPACER*2))
+        if (task.date != null) {
         Row() {
-            Column(
-                modifier = Modifier.weight(1f),
-                horizontalAlignment = CenterHorizontally
-            ) {
-                Text(text = "Date:", color = Color.Black)
-                Text(text = task.date?.toLocalDate().toString(), color = Color.Black)
+                Column(
+                    modifier = Modifier.weight(1f),
+                    horizontalAlignment = CenterHorizontally
+                ) {
+                    Text(text = "Date:", color = Color.Black)
+                    Text(text = task.date?.toLocalDate().toString(), color = Color.Black)
+                }
+                Column(
+                    modifier = Modifier.weight(1f),
+                    horizontalAlignment = CenterHorizontally
+                ) {
+                    Text(text = "Time:", color = Color.Black)
+                    Text(text = task.date?.toLocalTime().toString(), color = Color.Black)
+                }
             }
-            Column(
-                modifier = Modifier.weight(1f),
-                horizontalAlignment = CenterHorizontally
-            ) {
-                Text(text = "Time:", color = Color.Black)
-                Text(text = task.date?.toLocalTime().toString(), color = Color.Black)
+            Spacer(modifier = Modifier.height(DEFAULT_VALUE_FOR_SPACER * 2))
             }
-        }
-            Spacer(modifier = Modifier.height(DEFAULT_VALUE_FOR_SPACER*2))
+
             ShowTaskRadioButtonsStatus(task.status.value)
     }
 }

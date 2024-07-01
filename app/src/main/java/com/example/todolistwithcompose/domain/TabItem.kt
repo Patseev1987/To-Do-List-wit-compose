@@ -4,39 +4,40 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.ui.graphics.vector.ImageVector
+import com.example.todolistwithcompose.navigation.Screen
 
 sealed class TabItem(
     val title: String,
     val selectedIcon: ImageVector,
     val unselectedIcon: ImageVector,
-    var isSelected: Boolean = false
+    val tabId:Int
 ) {
     data object WorkTabItem : TabItem(
         title = "Work tasks",
         selectedIcon = Icons.Filled.Work,
         unselectedIcon = Icons.Outlined.WorkOutline,
-        isSelected = false
+        tabId = 1
     )
 
     data object FamilyTabItem : TabItem(
         title = "Family tasks",
         selectedIcon = Icons.Filled.People,
         unselectedIcon = Icons.Outlined.PeopleOutline,
-        isSelected = false
+        tabId = 3
     )
 
     data object HomeTabItem : TabItem(
-        title = "Work task",
+        title = "Home task",
         selectedIcon = Icons.Filled.Home,
         unselectedIcon = Icons.Outlined.Home,
-        isSelected = false
+        tabId = 2
     )
 
     data object AllTabItem : TabItem(
         title = "All task",
         selectedIcon = Icons.Filled.AutoAwesomeMotion,
         unselectedIcon = Icons.Outlined.AutoAwesomeMotion,
-        isSelected = false
+        tabId = 0
     )
 
     companion object {

@@ -6,5 +6,5 @@ sealed class MainScreenState {
     data object Initial : MainScreenState()
     data object Loading : MainScreenState()
     data object Error : MainScreenState()
-    data class Result(val notes:List<Task>): MainScreenState()
+    data class Result(val tasks:List<Task>): MainScreenState()
 }

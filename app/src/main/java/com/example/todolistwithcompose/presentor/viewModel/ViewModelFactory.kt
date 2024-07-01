@@ -11,6 +11,9 @@ class ViewModelFactory (private val appContext: Context,private val taskId:Long 
         if(modelClass.isAssignableFrom(AddAndUpdateTaskViewModel::class.java)) {
             return AddAndUpdateTaskViewModel(taskId, appContext) as T
         }
+        if(modelClass.isAssignableFrom(TestTabNavigationViewModel::class.java)) {
+            return TestTabNavigationViewModel(appContext) as T
+        }
         if (modelClass.isAssignableFrom(ViewModelMainScreen::class.java)) {
             return ViewModelMainScreen(appContext) as T
         }

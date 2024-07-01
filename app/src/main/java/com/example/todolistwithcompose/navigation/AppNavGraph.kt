@@ -16,6 +16,10 @@ fun AppNavGraph(
     taskScreenContent: @Composable () -> Unit = {},
     showTaskScreenContent: @Composable (taskId: Long) -> Unit = {},
     updateTaskScreenContent: @Composable (taskId: Long) -> Unit = {},
+    workTaskScreenContent: @Composable () -> Unit = {},
+    homeTaskScreenContent: @Composable () -> Unit = {},
+    familyTaskScreenContent: @Composable () -> Unit = {},
+    allTaskScreenContent: @Composable () -> Unit = {},
 ) {
     NavHost(navController, startDestination = Screen.MainScreen.route) {
         composable(Screen.MainScreen.route) {
@@ -50,5 +54,32 @@ fun AppNavGraph(
             val taskId = it.arguments?.getLong(Screen.TASK_ID_KEY) ?: throw RuntimeException("Task not found")
             updateTaskScreenContent(taskId)
         }
+
+    //Test Tab navigate
+
+        composable(
+            route = Screen.WorkTaskScreen.route
+        ){
+            workTaskScreenContent()
+        }
+
+        composable(
+            route = Screen.HomeTaskScreen.route
+        ){
+            homeTaskScreenContent()
+        }
+
+        composable(
+            route = Screen.FamilyTaskScreen.route
+        ){
+            familyTaskScreenContent()
+        }
+
+        composable(
+            route = Screen.AllTaskScreen.route
+        ){
+            allTaskScreenContent()
+        }
+
     }
 }

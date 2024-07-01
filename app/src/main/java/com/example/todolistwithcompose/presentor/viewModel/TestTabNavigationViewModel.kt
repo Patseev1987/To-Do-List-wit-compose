@@ -47,7 +47,7 @@ class TestTabNavigationViewModel(private val appContext: Context) : ViewModel() 
     private fun loadData(filter: TaskGroup?) {
         viewModelScope.launch(Dispatchers.IO) {
             dao.getTask().map { tasks ->
-                return@map tasks.filter { it.taskGroup == filter }
+                return@map if (filter != null) tasks.filter { it.taskGroup == filter } else tasks
             }.map { tasks -> tasks.map { it.toTask() } }
                 .collect { tasks -> _state.value = TestNavigationTabState.Result(tasks) }
         }

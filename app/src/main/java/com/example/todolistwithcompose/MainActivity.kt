@@ -18,47 +18,47 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             ToDoListWithComposeTheme {
-//                val navState = rememberNavigationState()
-//                AppNavGraph(
-//                    navController = navState.navHostController,
-//                    mainScreenContent = {
-//                        StartScreen(
-//                            onFABClickListener = { navState.navigateTo(Screen.AddTaskScreen.route) },
-//                            onTaskListener = { task ->
-//                                navState.navigateTo(Screen.ShowTaskScreen.getRouteWithArgs(task.id))
-//                            }
-//                        )
-//                    },
-//                    addScreenContent = {
-//                        AddAndUpdateTask(
-//                            onCancelListener =  {
-//                            onBackPressedDispatcher.onBackPressed()
-//                        },
-//                            onButtonListener = {
-//                                onBackPressedDispatcher.onBackPressed()
-//                            }
-//                        )
-//                    },
-//                    showTaskScreenContent = { taskId ->
-//                        ShowTask(
-//                            taskId = taskId,
-//                            updateClickListener = { id ->
-//                                navState.navigateTo(Screen.UpdateScreen.getRouteWithArgs(id))
-//                            },
-//                            cancelClickListener = { onBackPressedDispatcher.onBackPressed() }
-//                        )
-//                    },
-//                    updateTaskScreenContent = { taskId ->
-//                        AddAndUpdateTask(taskId = taskId,           onCancelListener =  {
-//                            onBackPressedDispatcher.onBackPressed()
-//                        },
-//                            onButtonListener = {
-//                                onBackPressedDispatcher.onBackPressed()
-//                            })
-//                    }
-//                )
+                val navState = rememberNavigationState()
+                AppNavGraph(
+                    navController = navState.navHostController,
+                    mainScreenContent = {
+                        StartScreen(
+                            onFABClickListener = { navState.navigateTo(Screen.AddTaskScreen.route) },
+                            onTaskListener = { task ->
+                                navState.navigateTo(Screen.ShowTaskScreen.getRouteWithArgs(task.id))
+                            }
+                        )
+                    },
+                    addScreenContent = {
+                        AddAndUpdateTask(
+                            onCancelListener =  {
+                            onBackPressedDispatcher.onBackPressed()
+                        },
+                            onButtonListener = {
+                                onBackPressedDispatcher.onBackPressed()
+                            }
+                        )
+                    },
+                    showTaskScreenContent = { taskId ->
+                        ShowTask(
+                            taskId = taskId,
+                            updateClickListener = { id ->
+                                navState.navigateTo(Screen.UpdateScreen.getRouteWithArgs(id))
+                            },
+                            cancelClickListener = { onBackPressedDispatcher.onBackPressed() }
+                        )
+                    },
+                    updateTaskScreenContent = { taskId ->
+                        AddAndUpdateTask(taskId = taskId,           onCancelListener =  {
+                            onBackPressedDispatcher.onBackPressed()
+                        },
+                            onButtonListener = {
+                                onBackPressedDispatcher.onBackPressed()
+                            })
+                    }
+                )
 
-                AAA()
+
 
             }
         }

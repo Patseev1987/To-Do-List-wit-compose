@@ -114,53 +114,14 @@ fun MainScreen(modifier: Modifier = Modifier, onTaskListener: (Task) -> Unit) {
         }
 
         is MainScreenState.Result -> {
-//            LazyColumn(
-//                contentPadding = PaddingValues(top = 16.dp, bottom = 16.dp),
-//                verticalArrangement = Arrangement.spacedBy(8.dp)
-//            ) {
-//                items(items = currentState.tasks, key = { it.id }) { task ->
-//                    val dismissState = rememberSwipeToDismissBoxState()
-//                    if (dismissState.dismissDirection == SwipeToDismissBoxValue.EndToStart) {
-//                        viewModel.deleteTask(task)
-//                    }
-//                    SwipeToDismissBox(
-//                        state = dismissState,
-//                        enableDismissFromStartToEnd = false,
-//                        content = {
-//                            Task(
-//                                task = task,
-//                                onTaskListener = {
-//                                    onTaskListener(task)
-//                                }
-//                            )
-//                        },
-//                        backgroundContent = {
-//                            Box(
-//                                modifier = Modifier
-//                                    .fillMaxSize()
-//                                    .padding(16.dp)
-//                                    .background(color = Color.Red),
-//                                contentAlignment = Alignment.CenterEnd
-//                            ) {
-//                                Text(text = "DELETE TASK", color = Color.White)
-//                            }
-//                        }
-//                    )
-//                }
-//            }
-
-
-            Foo(
-                tasks = currentState.tasks,
-                onDismissListener = {viewModel.deleteTask(it)},
-                onTaskListener = {onTaskListener(it)}
-            )
+            AAA(onTaskListener = { onTaskListener(it) })
         }
     }
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Foo(tasks:List<Task>, onDismissListener:(Task)-> Unit, onTaskListener: (Task) -> Unit  ){
+fun TaskWithFilter(tasks: List<Task>, onDismissListener: (Task) -> Unit, onTaskListener: (Task) -> Unit) {
     LazyColumn(
         contentPadding = PaddingValues(top = 16.dp, bottom = 16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)

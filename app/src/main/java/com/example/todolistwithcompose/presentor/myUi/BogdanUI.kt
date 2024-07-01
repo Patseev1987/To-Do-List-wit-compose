@@ -127,10 +127,10 @@ fun TaskWithFilter(tasks: List<Task>, onDismissListener: (Task) -> Unit, onTaskL
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(items = tasks, key = { it.id }) { task ->
-            val dismissState = rememberSwipeToDismissBoxState()
-            if (dismissState.dismissDirection == SwipeToDismissBoxValue.EndToStart) {
-                onDismissListener(task)
-            }
+            val dismissState = rememberSwipeToDismissBoxState(
+                positionalThreshold = { 400.dp.value }
+            )
+            if (dismissState.currentValue == DismissValue.DismissedToStart) {}
             SwipeToDismissBox(
                 state = dismissState,
                 enableDismissFromStartToEnd = false,

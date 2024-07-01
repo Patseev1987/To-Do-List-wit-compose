@@ -130,7 +130,9 @@ fun TaskWithFilter(tasks: List<Task>, onDismissListener: (Task) -> Unit, onTaskL
             val dismissState = rememberSwipeToDismissBoxState(
                 positionalThreshold = { 400.dp.value }
             )
-            if (dismissState.currentValue == DismissValue.DismissedToStart) {}
+            if (dismissState.currentValue == SwipeToDismissBoxValue.EndToStart) {
+                onDismissListener(task)
+            }
             SwipeToDismissBox(
                 state = dismissState,
                 enableDismissFromStartToEnd = false,

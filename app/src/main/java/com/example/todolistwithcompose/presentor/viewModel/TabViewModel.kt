@@ -4,23 +4,27 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.todolistwithcompose.data.database.TasksDatabase
+import com.example.todolistwithcompose.domain.TabItem
 import com.example.todolistwithcompose.domain.Task
 import com.example.todolistwithcompose.domain.TaskGroup
-import com.example.todolistwithcompose.presentor.state.TestNavigationTabState
+import com.example.todolistwithcompose.domain.TaskStatus
+import com.example.todolistwithcompose.presentor.state.TabState
 import com.example.todolistwithcompose.utils.toTask
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
 
 
-class TestTabNavigationViewModel(private val appContext: Context) : ViewModel() {
+class TabViewModel(private val appContext: Context) : ViewModel() {
     private val dao = TasksDatabase.getInstance(appContext).taskDao
 
-    private val _state: MutableStateFlow<TestNavigationTabState> = MutableStateFlow(TestNavigationTabState.Init)
+    private val _state: MutableStateFlow<TabState> = MutableStateFlow(TabState.Init)
     val state = _state.asStateFlow()
-
+    val tabs = TabItem.tabs
 
     fun getTasks(page: Int = 0) {
         when (page) {
@@ -49,7 +53,11 @@ class TestTabNavigationViewModel(private val appContext: Context) : ViewModel() 
             dao.getTask().map { tasks ->
                 return@map if (filter != null) tasks.filter { it.taskGroup == filter } else tasks
             }.map { tasks -> tasks.map { it.toTask() } }
-                .collect { tasks -> _state.value = TestNavigationTabState.Result(tasks) }
+                .map {
+                    it.sortedWith(compareBy<Task>{ task -> task.status }
+                    .thenBy(nullsLast()) { task -> task.date })
+                }
+                .collect { tasks -> _state.value = TabState.Result(tasks) }
         }
     }
 

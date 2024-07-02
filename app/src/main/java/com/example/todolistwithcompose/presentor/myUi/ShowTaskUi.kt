@@ -1,8 +1,11 @@
 package com.example.todolistwithcompose.presentor.myUi
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-
-import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -17,8 +20,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.todolistwithcompose.domain.Task
-import com.example.todolistwithcompose.domain.TaskGroup
-import com.example.todolistwithcompose.domain.TaskStatus
 import com.example.todolistwithcompose.presentor.state.ShowTaskState
 import com.example.todolistwithcompose.presentor.viewModel.ShowTaskViewModel
 import com.example.todolistwithcompose.presentor.viewModel.ViewModelFactory
@@ -31,14 +32,26 @@ fun ShowTask(taskId: Long, updateClickListener: (Long) -> Unit, cancelClickListe
     Scaffold { paddingValues ->
         when (val currentState = state.value) {
             is ShowTaskState.Loading -> {
-                Text(text = "Loading...", modifier = Modifier.padding(paddingValues))
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(modifier = Modifier.size(100.dp))
+                }
             }
+
             is ShowTaskState.Result -> {
-                Column (modifier = Modifier.fillMaxSize()) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues)
+                ) {
                     MainPartShowTask(task = currentState.task, modifier = Modifier.weight(1f))
-                    ShowTaskButtons( modifier = Modifier.padding(bottom = 35.dp),
-                        updateClickListener = {updateClickListener(taskId)},
-                        cancelClickListener = {cancelClickListener()}
+                    ShowTaskButtons(modifier = Modifier.padding(bottom = 35.dp),
+                        updateClickListener = { updateClickListener(taskId) },
+                        cancelClickListener = { cancelClickListener() }
                     )
                 }
             }
@@ -48,94 +61,119 @@ fun ShowTask(taskId: Long, updateClickListener: (Long) -> Unit, cancelClickListe
 }
 
 @Composable
-fun MainPartShowTask(task: Task , modifier: Modifier = Modifier) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = modifier.fillMaxSize()) {
-        Spacer(modifier = Modifier.height(DEFAULT_VALUE_FOR_SPACER*2))
-        Text(text = task.title, color = Color.Black, fontSize = 24.sp, fontFamily = FontFamily.SansSerif)
-        Spacer(modifier = Modifier.height(DEFAULT_VALUE_FOR_SPACER*2))
-        Text(text = task.content, color = Color.Black, fontSize = 18.sp, fontFamily = FontFamily.SansSerif)
-        Spacer(modifier = Modifier.height(DEFAULT_VALUE_FOR_SPACER*2))
-        ShowTaskRadioButtonsTaskGroup(selected = task.taskGroup.value)
-        Spacer(modifier = Modifier.height(DEFAULT_VALUE_FOR_SPACER*2))
-        if (task.date != null) {
-        Row() {
-                Column(
-                    modifier = Modifier.weight(1f),
-                    horizontalAlignment = CenterHorizontally
+fun MainPartShowTask(task: Task, modifier: Modifier = Modifier) {
+    Card(
+        shape = CardDefaults.outlinedShape,
+        colors = CardDefaults.cardColors(containerColor = Color.Gray.copy(alpha = 0.6f)),
+        border = BorderStroke(2.dp, Color.Black),
+        modifier = modifier
+            .padding(16.dp)
+            .fillMaxSize(),
+
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            TitleLabel(task = task, modifier = Modifier.weight(3f))
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(10f)
+                    .padding(start = 16.dp, end = 16.dp)
+                    .border(BorderStroke(1.dp, Color.Black), shape = CircleShape.copy(CornerSize(8.dp)))
+                    .background(Color.White),
+                contentAlignment = Alignment.Center
                 ) {
-                    Text(text = "Date:", color = Color.Black)
-                    Text(text = task.date?.toLocalDate().toString(), color = Color.Black)
-                }
-                Column(
-                    modifier = Modifier.weight(1f),
-                    horizontalAlignment = CenterHorizontally
-                ) {
-                    Text(text = "Time:", color = Color.Black)
-                    Text(text = task.date?.toLocalTime().toString(), color = Color.Black)
-                }
-            }
-            Spacer(modifier = Modifier.height(DEFAULT_VALUE_FOR_SPACER * 2))
+                Text(
+                    text = task.content,
+                    color = Color.Black,
+                    fontSize = 18.sp,
+                    fontFamily = FontFamily.SansSerif
+                )
             }
 
-            ShowTaskRadioButtonsStatus(task.status.value)
+            Text(
+                text = "Task group:   ${task.getGroup()}",
+                color = Color.Black,
+                fontSize = 18.sp,
+                fontFamily = FontFamily.SansSerif,
+                modifier = Modifier.weight(1f)
+            )
+
+            if (task.date != null) {
+                Row(
+                    modifier
+                        .fillMaxWidth()
+                        .weight(1f)) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = CenterHorizontally
+                    ) {
+                        Text(text = "Time for a reminder:", color = Color.Black)
+                        Text(
+                            text = "${task.getDateForLabel()}    ${task.getTimeForLabel()}",
+                            color = Color.Black
+                        )
+                    }
+
+                }
+            }
+
+            Text(
+                text = "Task status:   ${task.getStatusForLabel()}",
+                color = Color.Black,
+                fontSize = 18.sp,
+                fontFamily = FontFamily.SansSerif,
+                modifier = Modifier.weight(1f)
+            )
+        }
     }
 }
 
 @Composable
-fun ShowTaskButtons( modifier: Modifier = Modifier, updateClickListener: () -> Unit, cancelClickListener: () -> Unit) {
+fun ShowTaskButtons(modifier: Modifier = Modifier, updateClickListener: () -> Unit, cancelClickListener: () -> Unit) {
     Row(horizontalArrangement = Arrangement.SpaceAround, modifier = modifier.fillMaxWidth()) {
         OutlinedButton(
             onClick = { updateClickListener() },
             shape = RectangleShape
-        ){
+        ) {
             Text(text = "Update task", fontSize = 20.sp)
         }
         OutlinedButton(
             onClick = { cancelClickListener() },
             shape = RectangleShape
-        ){
+        ) {
             Text(text = "Cancel", fontSize = 20.sp)
         }
     }
 }
 
+
 @Composable
-fun ShowTaskRadioButtons(values: List<String>, selected: String) {
-    Column(Modifier.selectableGroup()) {
-        values.forEach { text ->
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                RadioButton(
-                    selected = (text == selected),
-                    onClick = null
-                )
-                Text(
-                    text = text,
-                    style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.padding(start = 8.dp)
-                )
-            }
-        }
+fun TitleLabel(task:Task, modifier: Modifier = Modifier) {
+    Column(modifier = modifier,
+        horizontalAlignment = CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(
+            text = "Title: ${task.title}",
+            color = Color.Black,
+            fontSize = 24.sp,
+            fontFamily = FontFamily.SansSerif,
+            modifier = Modifier
+                .padding(top = 16.dp)
+                .weight(1f)
+        )
+        Text(
+            text = "Description:",
+            color = Color.Black,
+            fontSize = 20.sp,
+            fontFamily = FontFamily.SansSerif,
+            modifier = Modifier.weight(1f)
+        )
+
     }
 }
 
-@Composable
-fun ShowTaskRadioButtonsTaskGroup(selected: String){
-    val taskGroups = listOf(
-        TaskGroup.WORK_TASK.value,
-        TaskGroup.HOME_TASK.value,
-        TaskGroup.FAMILY_TASK.value,
-    )
-    ShowTaskRadioButtons(taskGroups, selected)
-}
-
-@Composable
-fun ShowTaskRadioButtonsStatus(selected: String) {
-    val statues = listOf(
-        TaskStatus.NOT_STARTED.value,
-        TaskStatus.IN_PROGRESS.value,
-        TaskStatus.COMPLETED.value,
-    )
-    ShowTaskRadioButtons(statues, selected)
-}
+private fun Task.getTimeForLabel():String = this.date?.toLocalTime().toString()
+private fun Task.getDateForLabel():String = this.date?.toLocalDate().toString()
+private fun Task.getStatusForLabel() = this.status.value
+private fun Task.getGroup() = this.taskGroup.value

@@ -48,9 +48,10 @@ fun AddAndUpdateTask(modifier: Modifier = Modifier,taskId:Long = 0L, onCancelLis
     ) { paddingValues ->
         when (currentState) {
             is AddAndUpdateTaskState.Loading -> {
-                Text(text = "Loading...")
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
+                    CircularProgressIndicator(modifier = Modifier.size(100.dp))
+                }
             }
-
             is AddAndUpdateTaskState.InitState -> {
             }
 

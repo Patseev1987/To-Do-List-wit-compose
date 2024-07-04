@@ -1,22 +1,35 @@
 package com.example.todolistwithcompose.presentor.myUi
 
+import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
+import android.provider.Settings
+import android.util.Log
+import androidx.activity.compose.ManagedActivityResultLauncher
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.result.contract.ActivityResultContracts.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.todolistwithcompose.R
 import com.example.todolistwithcompose.domain.TaskGroup
 import com.example.todolistwithcompose.domain.TaskStatus
 import com.example.todolistwithcompose.presentor.state.AddAndUpdateTaskState
@@ -33,25 +46,41 @@ import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
 
-
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
-fun AddAndUpdateTask(modifier: Modifier = Modifier,taskId:Long = 0L, onCancelListener: () -> Unit, onButtonListener: () -> Unit) {
-    val viewmodel = viewModel<AddAndUpdateTaskViewModel>(factory = ViewModelFactory(LocalContext.current, taskId = taskId))
+fun AddAndUpdateTask(
+    modifier: Modifier = Modifier,
+    taskId: Long = 0L,
+    onCancelListener: () -> Unit,
+    onButtonListener: () -> Unit
+) {
+    val viewmodel =
+        viewModel<AddAndUpdateTaskViewModel>(factory = ViewModelFactory(LocalContext.current, taskId = taskId))
     val state = viewmodel.state.collectAsState(initial = AddAndUpdateTaskState.Loading)
     val currentState = state.value
     val snackbarHostState = SnackbarHostState()
+    val launcherNotificationPermission = rememberLauncherForActivityResult(
+        contract = RequestPermission(),
+        onResult = { isGranted ->
+            if (isGranted) {
+                viewmodel.saveTask(onButtonListener)
+            } else {
+                viewmodel.permissionsDenied()
+            }
+        }
+    )
     Scaffold(
         snackbarHost = {
-           SnackbarHost(hostState = snackbarHostState)
+            SnackbarHost(hostState = snackbarHostState)
         }
     ) { paddingValues ->
         when (currentState) {
             is AddAndUpdateTaskState.Loading -> {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator(modifier = Modifier.size(100.dp))
                 }
             }
+
             is AddAndUpdateTaskState.InitState -> {
             }
 
@@ -62,33 +91,44 @@ fun AddAndUpdateTask(modifier: Modifier = Modifier,taskId:Long = 0L, onCancelLis
                         .fillMaxSize()
                         .padding(top = 16.dp)
                 ) {
+                    val scrollState = rememberScrollState()
                     Column(
                         horizontalAlignment = CenterHorizontally,
-                        modifier = modifier.fillMaxWidth(),
+                        modifier = modifier
+                            .fillMaxWidth()
+                            .verticalScroll(scrollState)
                     ) {
                         MainPartForAddAndUpdateTask(
                             currentState,
                             label = viewmodel.getLabel(),
-                            onChangeTitleListener = {viewmodel.setTitle(it)},
-                            onChangeContentListener = {viewmodel.setContent(it)},
-                            onChangeDataListener = {viewmodel.setDate(it)},
-                            onChangeTimeListener = {viewmodel.setTime(it)},
-                            onSelectedStatusListener = {viewmodel.setStatus(it)},
-                            onSelectedGroupListener = {viewmodel.setTaskGroup(it)},
-                            onCheckedListener = {viewmodel.changeIsRemind()}
+                            onChangeTitleListener = { viewmodel.setTitle(it) },
+                            onChangeContentListener = { viewmodel.setContent(it) },
+                            onChangeDataListener = { viewmodel.setDate(it) },
+                            onChangeTimeListener = { viewmodel.setTime(it) },
+                            onSelectedStatusListener = { viewmodel.setStatus(it) },
+                            onSelectedGroupListener = { viewmodel.setTaskGroup(it) },
+                            onCheckedListener = { viewmodel.changeIsRemind() }
                         )
                         Spacer(modifier = Modifier.height(40.dp))
+
+
                         MyButtons(
                             label = viewmodel.getLabel(),
-                            addClickListener =  { viewmodel.saveTask(onButtonListener) },
+                            addClickListener = {
+                              if  (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                  launcherNotificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
+                              }else{
+                                  viewmodel.saveTask(onButtonListener)
+                              }
+                            },
                             cancelClickListener = { onCancelListener() })
                     }
                 }
                 ShowSnackbares(currentState = currentState, snackbarHost = snackbarHostState)
-                }
             }
         }
     }
+}
 
 
 @Composable
@@ -103,7 +143,7 @@ fun MainPartForAddAndUpdateTask(
     onChangeTimeListener: (LocalTime) -> Unit,
     onCheckedListener: () -> Unit
 ) {
-    Text(text = label, color = Color.Black, fontSize = 24.sp, fontFamily = FontFamily.SansSerif)
+    Text(text = label, fontSize = 24.sp, fontFamily = FontFamily.SansSerif)
     Spacer(modifier = Modifier.height(DEFAULT_VALUE_FOR_SPACER))
     OutlinedTextField(
         value = currentState.task.title,
@@ -112,14 +152,14 @@ fun MainPartForAddAndUpdateTask(
             onChangeTitleListener(it)
         },
         label = {
-            Text(text = "Title")
+            Text(text = stringResource(id = R.string.title))
         },
         modifier = Modifier
             .fillMaxWidth()
             .padding(start = 25.dp, end = 25.dp),
     )
     Spacer(modifier = Modifier.height(DEFAULT_VALUE_FOR_SPACER))
-    Text(text = "$label content", color = Color.Black, fontSize = 18.sp, fontFamily = FontFamily.SansSerif)
+    Text(text = "$label description", fontSize = 18.sp, fontFamily = FontFamily.SansSerif)
     Spacer(modifier = Modifier.height(DEFAULT_VALUE_FOR_SPACER))
     OutlinedTextField(
         currentState.task.content,
@@ -128,7 +168,7 @@ fun MainPartForAddAndUpdateTask(
             onChangeContentListener(it)
         },
         label = {
-            Text(text = "Content")
+            Text(text = stringResource(id = R.string.description))
         },
         modifier = Modifier
             .height(150.dp)
@@ -137,28 +177,33 @@ fun MainPartForAddAndUpdateTask(
     )
     Spacer(modifier = Modifier.height(DEFAULT_VALUE_FOR_SPACER))
     Text(
-        text = "Choose the task group",
-        color = Color.Black,
+        text = stringResource(R.string.choose_the_task_group),
         fontSize = 18.sp,
         fontFamily = FontFamily.SansSerif
     )
     Spacer(modifier = Modifier.height(DEFAULT_VALUE_FOR_SPACER))
-    RadioButtonsTaskGroup(selected = currentState.task.taskGroup.value) {
+    RadioButtonsTaskGroup(selected = stringResource(id = currentState.task.taskGroup.idString)) {
         onSelectedGroupListener(it)
     }
     Spacer(modifier = Modifier.height(DEFAULT_VALUE_FOR_SPACER))
     Row(verticalAlignment = Alignment.CenterVertically) {
         Text(
-            text = "Set date and time for remind",
-            color = Color.Black,
+            text = stringResource(R.string.set_date_and_time_for_remind),
             fontSize = 18.sp,
             fontFamily = FontFamily.SansSerif
         )
-        Checkbox(checked = currentState.task.isRemind, onCheckedChange = {
-            onCheckedListener()
-        })
+        Checkbox(
+            checked = currentState.task.isRemind,
+            onCheckedChange = {
+                onCheckedListener()
+            },
+            colors = CheckboxDefaults.colors(
+                checkmarkColor = MaterialTheme.colorScheme.background
+            )
+
+        )
     }
-    if (currentState.task.isRemind){
+    if (currentState.task.isRemind) {
         Spacer(modifier = Modifier.height(DEFAULT_VALUE_FOR_SPACER))
         MyDataPicker(
             startDate = currentState.task.date?.toLocalDate() ?: LocalDate.now(),
@@ -173,13 +218,12 @@ fun MainPartForAddAndUpdateTask(
     }
     Spacer(modifier = Modifier.height(DEFAULT_VALUE_FOR_SPACER))
     Text(
-        text = "Set status for task",
-        color = Color.Black,
+        text = stringResource(R.string.set_status_for_task),
         fontSize = 18.sp,
         fontFamily = FontFamily.SansSerif
     )
     Spacer(modifier = Modifier.height(DEFAULT_VALUE_FOR_SPACER))
-    RadioButtonsStatus(currentState.task.status.value) {
+    RadioButtonsStatus(stringResource(id = currentState.task.status.idString)) {
         onSelectedStatusListener(it)
     }
 }
@@ -221,9 +265,9 @@ fun RadioButtons(values: List<String>, selected: String, onSelectedListener: (St
 @Composable
 fun RadioButtonsTaskGroup(selected: String, onSelectedListener: (String) -> Unit) {
     val taskGroups = listOf(
-        TaskGroup.WORK_TASK.value,
-        TaskGroup.HOME_TASK.value,
-        TaskGroup.FAMILY_TASK.value,
+        stringResource(id = TaskGroup.WORK_TASK.idString),
+        stringResource(id = TaskGroup.HOME_TASK.idString),
+        stringResource(id = TaskGroup.FAMILY_TASK.idString)
     )
     RadioButtons(taskGroups, selected) {
         onSelectedListener(it)
@@ -233,9 +277,9 @@ fun RadioButtonsTaskGroup(selected: String, onSelectedListener: (String) -> Unit
 @Composable
 fun RadioButtonsStatus(selected: String, onSelectedListener: (String) -> Unit) {
     val statues = listOf(
-        TaskStatus.NOT_STARTED.value,
-        TaskStatus.IN_PROGRESS.value,
-        TaskStatus.COMPLETED.value,
+        stringResource(id = TaskStatus.NOT_STARTED.idString),
+        stringResource(id = TaskStatus.IN_PROGRESS.idString),
+        stringResource(id = TaskStatus.COMPLETED.idString),
     )
     RadioButtons(statues, selected) {
         onSelectedListener(it)
@@ -244,8 +288,8 @@ fun RadioButtonsStatus(selected: String, onSelectedListener: (String) -> Unit) {
 
 @Composable
 fun MyDataPicker(
-    startDate:LocalDate = LocalDate.now(),
-    startTime:LocalTime = LocalTime.now(),
+    startDate: LocalDate = LocalDate.now(),
+    startTime: LocalTime = LocalTime.now(),
     dateChangeListener: (LocalDate) -> Unit,
     timeChangeListener: (LocalTime) -> Unit
 ) {
@@ -292,7 +336,7 @@ fun MyDataPicker(
             OutlinedButton(onClick = {
                 timeDialogState.show()
             }) {
-                Text(text = "Pick time")
+                Text(text = stringResource(R.string.pick_time))
             }
             Text(text = formattedTime)
         }
@@ -301,14 +345,14 @@ fun MyDataPicker(
     MaterialDialog(
         dialogState = dateDialogState,
         buttons = {
-            positiveButton(text = "Ok") {
+            positiveButton(text = stringResource(R.string.ok)) {
             }
-            negativeButton(text = "Cancel")
+            negativeButton(text = stringResource(R.string.cancel))
         }
     ) {
         datepicker(
             initialDate = startDate,
-            title = "Pick a date",
+            title = stringResource(R.string.pick_a_date),
         ) {
             pickedDate = it
             dateChangeListener(it)
@@ -317,15 +361,15 @@ fun MyDataPicker(
     MaterialDialog(
         dialogState = timeDialogState,
         buttons = {
-            positiveButton(text = "Ok") {
+            positiveButton(text = stringResource(R.string.ok)) {
             }
-            negativeButton(text = "Cancel")
+            negativeButton(text = stringResource(R.string.cancel))
         }
     ) {
         timepicker(
             is24HourClock = true,
             initialTime = startTime,
-            title = "Pick a time"
+            title = stringResource(R.string.pick_a_time)
         ) {
             pickedTime = it
             timeChangeListener(it)
@@ -346,33 +390,52 @@ fun MyButtons(label: String, addClickListener: () -> Unit, cancelClickListener: 
             onClick = { cancelClickListener() },
             shape = RectangleShape
         ) {
-            Text(text = "Cancel")
+            Text(text = stringResource(id = R.string.cancel))
         }
     }
 }
 
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
-fun ShowSnackbares(currentState:AddAndUpdateTaskState.Result, snackbarHost: SnackbarHostState) {
+fun ShowSnackbares(currentState: AddAndUpdateTaskState.Result, snackbarHost: SnackbarHostState) {
     val scope = rememberCoroutineScope()
+    val messageDateError = stringResource(R.string.date_shouldn_t_be_early_than) +
+            "\n${LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm"))}"
+    val messageTitleError = stringResource(R.string.title_shouldn_t_be_empty)
+    val messageContentError = stringResource(R.string.description_shouldn_t_be_empty)
+    val messageIsGranted = stringResource(R.string.permissions_denied)
+
     scope.launch {
         when {
             currentState.errorDate -> snackbarHost.showSnackbar(
-                message = "Date shouldn't be early than " +
-                        "\n${LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm"))}",
+                message = messageDateError,
                 duration = SnackbarDuration.Short
             )
 
             currentState.errorTitle -> snackbarHost.showSnackbar(
-                message = "Title shouldn't be empty!",
+                message = messageTitleError,
                 duration = SnackbarDuration.Short
             )
 
             currentState.errorContext -> snackbarHost.showSnackbar(
-                message = "Description shouldn't be empty!",
+                message = messageContentError,
+                duration = SnackbarDuration.Short
+            )
+
+            !currentState.isGranted -> snackbarHost.showSnackbar(
+                message = messageIsGranted,
                 duration = SnackbarDuration.Short
             )
         }
     }
-
 }
+
+private val REQUEST_PERMISSIONS: Array<String> = buildList {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+        add(Manifest.permission.POST_NOTIFICATIONS)
+    }
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        add(Manifest.permission.SCHEDULE_EXACT_ALARM)
+    }
+
+}.toTypedArray()

@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.todolistwithcompose.R
 import com.example.todolistwithcompose.data.database.TasksDatabase
 import com.example.todolistwithcompose.domain.Task
 import com.example.todolistwithcompose.presentor.state.ShowTaskState
@@ -16,7 +17,7 @@ class ShowTaskViewModel(private val taskId:Long, private val appContext: Context
    private val dao = TasksDatabase.getInstance(context = appContext).taskDao
 
     val state = dao.getTaskById(taskId)
-        .map { taskEntity -> taskEntity?.toTask() ?: throw Exception("Task not found") }
+        .map { taskEntity -> taskEntity?.toTask() ?: throw Exception(appContext.getString(R.string.task_not_found)) }
         .map { task -> ShowTaskState.Result(task) as ShowTaskState }
         .stateIn(viewModelScope, SharingStarted.Lazily,ShowTaskState.Loading)
 

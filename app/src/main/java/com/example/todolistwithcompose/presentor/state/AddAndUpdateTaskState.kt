@@ -9,6 +9,7 @@ sealed class AddAndUpdateTaskState {
         val task: Task,
         var errorTitle: Boolean = false,
         var errorContext: Boolean = false,
-        var errorDate:Boolean = false
+        var errorDate:Boolean = false,
+        var isGranted: Boolean = true
     ) : AddAndUpdateTaskState()
 }

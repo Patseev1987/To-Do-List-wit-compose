@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">To Do List with Compose</string>
+    <string name="time_for_a_reminder">Время для напоминания:</string>
+    <string name="task_group">Группа задач:</string>
+    <string name="task_status">Статус задачи:</string>
+    <string name="title">Название:</string>
+    <string name="description">Описание:</string>
+    <string name="choose_the_task_group">Выбери группу для задачи:</string>
+    <string name="set_date_and_time_for_remind">Напоминание:</string>
+    <string name="set_status_for_task">Установи стаус задачи:</string>
+    <string name="pick_time">Выбери время</string>
+    <string name="ok">Ок</string>
+    <string name="cancel">Отмена</string>
+    <string name="pick_a_date">Выбери дату</string>
+    <string name="pick_a_time">Выбери время</string>
+    <string name="delete_task">УДАЛИТЬ ЗАДАЧУ</string>
+    <string name="update_task">Обновить задачу</string>
+    <string name="work_task">Рабочая задача</string>
+    <string name="home_task">Домашняя задача</string>
+    <string name="family_task">Семейная задача</string>
+    <string name="not_started">Не начата</string>
+    <string name="in_progress">В процессе</string>
+    <string name="completed">Выполнена</string>
+    <string name="title_shouldn_t_be_empty">Название не должно быть пустым</string>
+    <string name="description_shouldn_t_be_empty">Описание не должно быть пустым</string>
+    <string name="date_shouldn_t_be_early_than">Дата не должны быть раньше, чем</string>
+    <string name="task_not_found">Задача не найдена</string>
+    <string name="add_task">Добавить задачу</string>
+    <string name="work_tasks">Рабочие задачи</string>
+    <string name="home_tasks">Домашние задачи</string>
+    <string name="family_tasks">Семейные задачи</string>
+    <string name="all_task">Все задачи</string>
+    <string name="permissions_denied">Разрешения не предоставленны</string>
+</resources>

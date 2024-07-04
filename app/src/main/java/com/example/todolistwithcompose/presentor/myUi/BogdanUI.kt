@@ -12,11 +12,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.todolistwithcompose.R
 import com.example.todolistwithcompose.domain.Task
 import com.example.todolistwithcompose.domain.TaskGroup
 import com.example.todolistwithcompose.presentor.theme.ui.Pink80
@@ -56,13 +58,14 @@ fun Task(task: Task, onTaskListener: (Task) -> Unit) {
             Text(
                 text = task.content,
                 modifier = Modifier.fillMaxWidth(),
+                color = Color.Black,
                 textAlign = TextAlign.Start,
             )
             Spacer(modifier = Modifier.height(8.dp))
 
             Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    text = task.taskGroup.value,
+                    text = stringResource(id = task.taskGroup.idString) ,
                     color = Color.Black,
                     modifier = Modifier.weight(1f),
                 )
@@ -73,13 +76,15 @@ fun Task(task: Task, onTaskListener: (Task) -> Unit) {
                                 .ofPattern("HH:mm")
                                 .format(task.date),
                             modifier = Modifier.padding(end = 20.dp),
+                            color = Color.Black,
                             textAlign = TextAlign.Center,
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = DateTimeFormatter
                                 .ofPattern("yyyy-MM-dd")
-                                .format(task.date)
+                                .format(task.date),
+                            color = Color.Black,
                         )
                     }
                 }
@@ -128,7 +133,7 @@ fun TaskWithFilter(tasks: List<Task>, onDismissListener: (Task) -> Unit, onTaskL
                         contentAlignment = Alignment.CenterEnd
                     ) {
                         Text(
-                            text = "DELETE TASK",
+                            text = stringResource(R.string.delete_task),
                             color = Color.White,
                             fontSize = 25.sp,
                             fontFamily = FontFamily.SansSerif,

@@ -17,7 +17,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            ToDoListWithComposeTheme {
+           ToDoListWithComposeTheme {
                 val navState = rememberNavigationState()
                 AppNavGraph(
                     navController = navState.navHostController,
@@ -57,8 +57,6 @@ class MainActivity : ComponentActivity() {
                             })
                     }
                 )
-
-
             }
         }
     }

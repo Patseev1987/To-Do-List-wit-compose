@@ -11,6 +11,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.todolistwithcompose.domain.TabItem
@@ -35,7 +36,6 @@ fun TabView(onTaskListener: (Task) -> Unit) {
         snapshotFlow { pagerState.currentPage }.collect { page ->
             state.intValue = page
             viewModel.getTasks(page)
-            Log.d("Page change", "Page changed to $page")
         }
     }
 
@@ -50,7 +50,7 @@ fun TabView(onTaskListener: (Task) -> Unit) {
                             pagerState.animateScrollToPage(tab.tabId)
                         }
                     },
-                    text = { Text(text = tab.title) },
+                    text = { Text(text = stringResource(id = tab.titleId)) },
                     icon = {
                         Icon(
                             imageVector = if (tab.tabId == state.intValue) tab.selectedIcon else tab.unselectedIcon,

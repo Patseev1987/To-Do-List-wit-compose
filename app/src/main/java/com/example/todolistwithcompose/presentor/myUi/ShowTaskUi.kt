@@ -1,8 +1,8 @@
 package com.example.todolistwithcompose.presentor.myUi
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+import androidx.compose.foundation.*
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerSize
@@ -11,14 +11,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
+import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.*
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.todolistwithcompose.R
 import com.example.todolistwithcompose.domain.Task
 import com.example.todolistwithcompose.presentor.state.ShowTaskState
 import com.example.todolistwithcompose.presentor.viewModel.ShowTaskViewModel
@@ -56,7 +62,6 @@ fun ShowTask(taskId: Long, updateClickListener: (Long) -> Unit, cancelClickListe
                 }
             }
         }
-
     }
 }
 
@@ -70,60 +75,11 @@ fun MainPartShowTask(task: Task, modifier: Modifier = Modifier) {
             .padding(16.dp)
             .fillMaxSize(),
 
-    ) {
+        ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            TitleLabel(task = task, modifier = Modifier.weight(3f))
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(10f)
-                    .padding(start = 16.dp, end = 16.dp)
-                    .border(BorderStroke(1.dp, Color.Black), shape = CircleShape.copy(CornerSize(8.dp)))
-                    .background(Color.White),
-                contentAlignment = Alignment.Center
-                ) {
-                Text(
-                    text = task.content,
-                    color = Color.Black,
-                    fontSize = 18.sp,
-                    fontFamily = FontFamily.SansSerif
-                )
-            }
-
-            Text(
-                text = "Task group:   ${task.getGroup()}",
-                color = Color.Black,
-                fontSize = 18.sp,
-                fontFamily = FontFamily.SansSerif,
-                modifier = Modifier.weight(1f)
-            )
-
-            if (task.date != null) {
-                Row(
-                    modifier
-                        .fillMaxWidth()
-                        .weight(1f)) {
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalAlignment = CenterHorizontally
-                    ) {
-                        Text(text = "Time for a reminder:", color = Color.Black)
-                        Text(
-                            text = "${task.getDateForLabel()}    ${task.getTimeForLabel()}",
-                            color = Color.Black
-                        )
-                    }
-
-                }
-            }
-
-            Text(
-                text = "Task status:   ${task.getStatusForLabel()}",
-                color = Color.Black,
-                fontSize = 18.sp,
-                fontFamily = FontFamily.SansSerif,
-                modifier = Modifier.weight(1f)
-            )
+            TitleLabel(task = task, modifier = Modifier.weight(2f))
+            Content(task = task, modifier = Modifier.weight(5f))
+            TaskInfo(task = task, modifier = Modifier.weight(3f))
         }
     }
 }
@@ -135,45 +91,194 @@ fun ShowTaskButtons(modifier: Modifier = Modifier, updateClickListener: () -> Un
             onClick = { updateClickListener() },
             shape = RectangleShape
         ) {
-            Text(text = "Update task", fontSize = 20.sp)
+            Text(text = stringResource(R.string.update_task), fontSize = 20.sp)
         }
         OutlinedButton(
             onClick = { cancelClickListener() },
             shape = RectangleShape
         ) {
-            Text(text = "Cancel", fontSize = 20.sp)
+            Text(text = stringResource(R.string.cancel), fontSize = 20.sp)
         }
     }
 }
 
 
 @Composable
-fun TitleLabel(task:Task, modifier: Modifier = Modifier) {
-    Column(modifier = modifier,
+fun TitleLabel(task: Task, modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier,
         horizontalAlignment = CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
         Text(
-            text = "Title: ${task.title}",
-            color = Color.Black,
-            fontSize = 24.sp,
-            fontFamily = FontFamily.SansSerif,
-            modifier = Modifier
-                .padding(top = 16.dp)
-                .weight(1f)
-        )
-        Text(
-            text = "Description:",
-            color = Color.Black,
-            fontSize = 20.sp,
-            fontFamily = FontFamily.SansSerif,
-            modifier = Modifier.weight(1f)
-        )
+            text = buildAnnotatedString {
+                withStyle(
+                    style = ParagraphStyle(
+                        textAlign = TextAlign.Center
+                    )
+                ) {
 
+                }
+                withStyle(
+                    style = SpanStyle(
+                        color = Color.Black,
+                        fontFamily = FontFamily.SansSerif,
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.Bold,
+                    )
+                ) {
+                    append(stringResource(R.string.title))
+                }
+                withStyle(
+                    style = SpanStyle(
+                        color = Color.Black,
+                        fontFamily = FontFamily.SansSerif,
+                        fontSize = 20.sp
+                    )
+                ) {
+                    append("   ${task.title}")
+                }
+            }
+        )
+        Spacer(modifier = Modifier.height(DEFAULT_VALUE_FOR_SPACER))
+        Text(
+            text = stringResource(R.string.description),
+            color = Color.Black,
+            fontSize = 22.sp,
+            fontFamily = FontFamily.SansSerif,
+            fontWeight = FontWeight.Bold,
+        )
     }
 }
 
-private fun Task.getTimeForLabel():String = this.date?.toLocalTime().toString()
-private fun Task.getDateForLabel():String = this.date?.toLocalDate().toString()
-private fun Task.getStatusForLabel() = this.status.value
-private fun Task.getGroup() = this.taskGroup.value
+@Composable
+fun Content(modifier: Modifier = Modifier, task: Task) {
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(start = 16.dp, end = 16.dp),
+        shape = CircleShape.copy(CornerSize(8.dp)),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        border = BorderStroke(width = 1.dp, color = Color.Black)
+
+    ) {
+        val scrollState = rememberScrollState()
+        Box(
+            contentAlignment = Alignment.Center, modifier = Modifier
+                .fillMaxSize()
+                .padding(8.dp)
+                .verticalScroll(scrollState)
+        ) {
+
+            Text(
+                text = task.content,
+                color = Color.Black,
+                fontSize = 18.sp,
+                fontFamily = FontFamily.SansSerif,
+                textAlign = TextAlign.Center
+            )
+        }
+    }
+}
+
+@Composable
+fun TaskInfo(task: Task, modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(8.dp),
+        horizontalAlignment = CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(
+            text = buildAnnotatedString {
+                withStyle(
+                    style = SpanStyle(
+                        color = Color.Black,
+                        fontFamily = FontFamily.SansSerif,
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                ) {
+                    append(stringResource(R.string.task_group))
+                }
+                withStyle(
+                    style = SpanStyle(
+                        color = Color.Black,
+                        fontFamily = FontFamily.SansSerif,
+                        fontSize = 20.sp
+                    )
+                )
+                {
+                    append("   ${stringResource(id = task.taskGroup.idString)}")
+                }
+            })
+
+        Spacer(modifier = Modifier.height(DEFAULT_VALUE_FOR_SPACER))
+        if (task.date != null) {
+            Text(
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .padding(top = 8.dp),
+                text = buildAnnotatedString {
+                    withStyle(
+                        style = SpanStyle(
+                            color = Color.Black,
+                            fontFamily = FontFamily.SansSerif,
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold
+                        ),
+                    ) {
+                        append(stringResource(id = R.string.time_for_a_reminder))
+                    }
+                    append("\n")
+                    withStyle(
+                        style = SpanStyle(
+                            color = Color.Black,
+                            fontFamily = FontFamily.SansSerif,
+                            fontSize = 20.sp,
+                        )
+                    ) {
+                        append("${task.getDateForLabel()}   ${task.getTimeForLabel()}")
+                    }
+                }
+            )
+        }
+        Spacer(modifier = Modifier.height(DEFAULT_VALUE_FOR_SPACER))
+        Text(
+            modifier = Modifier,
+            text = buildAnnotatedString {
+                withStyle(
+                    style = ParagraphStyle(
+                        textAlign = TextAlign.Center
+                    )
+                ) {
+
+                }
+                withStyle(
+                    style = SpanStyle(
+                        color = Color.Black,
+                        fontFamily = FontFamily.SansSerif,
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.Bold,
+                    )
+                ) {
+                    append(stringResource(R.string.task_status))
+                }
+                withStyle(
+                    style = SpanStyle(
+                        color = Color.Black,
+                        fontFamily = FontFamily.SansSerif,
+                        fontSize = 20.sp
+                    )
+                ) {
+                    append("   ${stringResource(id = task.status.idString)}")
+                }
+            }
+        )
+    }
+}
+
+
+private fun Task.getTimeForLabel(): String = this.date?.toLocalTime().toString()
+private fun Task.getDateForLabel(): String = this.date?.toLocalDate().toString()

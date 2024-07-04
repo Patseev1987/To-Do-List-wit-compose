@@ -12,9 +12,6 @@ class ViewModelFactory (private val appContext: Context,private val taskId:Long 
         if(modelClass.isAssignableFrom(TabViewModel::class.java)) {
             return TabViewModel(appContext) as T
         }
-        if (modelClass.isAssignableFrom(ViewModelMainScreen::class.java)) {
-            return ViewModelMainScreen(appContext) as T
-        }
         if( modelClass.isAssignableFrom(ShowTaskViewModel::class.java)){
             if (taskId == 0L){
                 throw IllegalArgumentException("taskId wasn't found")

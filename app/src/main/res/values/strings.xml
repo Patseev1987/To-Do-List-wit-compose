@@ -1,3 +1,34 @@
 <resources>
     <string name="app_name">To Do List with Compose</string>
+    <string name="time_for_a_reminder">Time for a reminder:</string>
+    <string name="task_group">Task group:</string>
+    <string name="task_status">Task status:</string>
+    <string name="title">Title:</string>
+    <string name="description">Description:</string>
+    <string name="choose_the_task_group">Choose the task group</string>
+    <string name="set_date_and_time_for_remind">Set date and time for remind</string>
+    <string name="set_status_for_task">Set status for task</string>
+    <string name="pick_time">Pick time</string>
+    <string name="ok">Ok</string>
+    <string name="cancel">Cancel</string>
+    <string name="pick_a_date">Pick a date</string>
+    <string name="pick_a_time">Pick a time</string>
+    <string name="delete_task">DELETE TASK</string>
+    <string name="update_task">Update task</string>
+    <string name="work_task">Work task</string>
+    <string name="home_task">Home task</string>
+    <string name="family_task">Family task</string>
+    <string name="not_started">Not started</string>
+    <string name="in_progress">In progress</string>
+    <string name="completed">Completed</string>
+    <string name="title_shouldn_t_be_empty">Title shouldn\'t be empty!</string>
+    <string name="description_shouldn_t_be_empty">Description shouldn\'t be empty!</string>
+    <string name="date_shouldn_t_be_early_than">"Date shouldn't be early than "</string>
+    <string name="task_not_found">Task not found</string>
+    <string name="add_task">Add task</string>
+    <string name="work_tasks">Work tasks</string>
+    <string name="home_tasks">Home tasks</string>
+    <string name="family_tasks">Family tasks</string>
+    <string name="all_task">All task</string>
+    <string name="permissions_denied">Permissions denied</string>
 </resources>

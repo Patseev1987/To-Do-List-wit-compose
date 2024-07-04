@@ -1,17 +1,18 @@
 package com.example.todolistwithcompose.presentor.viewModel
 
-import android.annotation.SuppressLint
 import android.app.AlarmManager
 import android.app.PendingIntent
-import android.app.PendingIntent.FLAG_CANCEL_CURRENT
-import android.app.PendingIntent.readPendingIntentOrNullFromParcel
+import android.app.PendingIntent.FLAG_IMMUTABLE
+import android.app.PendingIntent.FLAG_MUTABLE
 import android.content.Context
 import android.content.Context.ALARM_SERVICE
-import android.os.SystemClock
-import android.util.Log
-import androidx.core.content.ContextCompat.getSystemService
+import android.content.Intent
+import android.os.Build
+import android.provider.Settings
+import androidx.core.content.getSystemService
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.todolistwithcompose.R
 import com.example.todolistwithcompose.data.database.TasksDatabase
 import com.example.todolistwithcompose.domain.Task
 import com.example.todolistwithcompose.domain.TaskGroup
@@ -21,12 +22,14 @@ import com.example.todolistwithcompose.utils.AlarmReceiver
 import com.example.todolistwithcompose.utils.toTask
 import com.example.todolistwithcompose.utils.toTaskEntity
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.sql.Timestamp
-import java.time.*
-import java.util.*
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.ZoneId
 
 
 class AddAndUpdateTaskViewModel(private val taskId: Long, private val appContext: Context) : ViewModel() {
@@ -67,13 +70,13 @@ class AddAndUpdateTaskViewModel(private val taskId: Long, private val appContext
     }
 
     fun setTaskGroup(value: String) {
-        val taskGroup = TaskGroup.entries.first { it.value == value }
+        val taskGroup = TaskGroup.entries.first { appContext.getString(it.idString) == value }
         task = task.copy(taskGroup = taskGroup)
         _state.value = AddAndUpdateTaskState.Result(task)
     }
 
     fun setStatus(value: String) {
-        val status = TaskStatus.entries.first { it.value == value }
+        val status = TaskStatus.entries.first { appContext.getString(it.idString) == value }
         task.status = status
         _state.value = AddAndUpdateTaskState.Result(task)
     }
@@ -82,7 +85,6 @@ class AddAndUpdateTaskViewModel(private val taskId: Long, private val appContext
         val date = task.date?.toLocalDate()
         val newDate = LocalDateTime.of(date, time)
         task = task.copy(date = newDate)
-        Log.d("DATE_TIME", newDate.toString())
         _state.value = AddAndUpdateTaskState.Result(task)
     }
 
@@ -90,20 +92,19 @@ class AddAndUpdateTaskViewModel(private val taskId: Long, private val appContext
         val time = task.date?.toLocalTime()
         val newDate = LocalDateTime.of(date, time)
         task = task.copy(date = newDate)
-        Log.d("DATE_TIME", newDate.toString())
         _state.value = AddAndUpdateTaskState.Result(task)
     }
 
     fun saveTask(onButtonListener: () -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
-            if (checkTask(task)){
-                if (task.isRemind){
-                    if (task.id != 0L){
+            if (checkTask(task)) {
+                if (task.isRemind) {
+                    if (task.id != 0L) {
                         cancelAlarm(taskId)
                     }
-                    if (checkDateForRemind()){
+                    if (checkDateForRemind()) {
                         setAlarm()
-                    }else{
+                    } else {
                         _state.value = AddAndUpdateTaskState.Result(
                             task = task,
                             errorDate = true
@@ -135,9 +136,10 @@ class AddAndUpdateTaskViewModel(private val taskId: Long, private val appContext
         }
     }
 
-    fun getLabel() = if (taskId == 0L) "Add task" else "Update task"
+    fun getLabel() = if (taskId == 0L) appContext.getString(R.string.add_task)
+    else appContext.getString(R.string.update_task)
 
-    @SuppressLint("ScheduleExactAlarm")
+
     private fun setAlarm() {
         val alarmManager = appContext.getSystemService(ALARM_SERVICE) as AlarmManager
         val intent = AlarmReceiver.newAlarmIntent(appContext, task.title, task.content)
@@ -149,13 +151,32 @@ class AddAndUpdateTaskViewModel(private val taskId: Long, private val appContext
             appContext,
             requestCodeFromIdTask,
             intent,
-            0
+            FLAG_IMMUTABLE
         )
-        alarmManager.setExact(
-            AlarmManager.RTC_WAKEUP,
-            alarmTime,
-            pendingIntent,
-        )
+        if (isAlarmPermissionGranted()){
+            alarmManager.setExact(
+                AlarmManager.RTC_WAKEUP,
+                alarmTime,
+                pendingIntent,
+            )
+        }else {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                Intent().also { myIntent ->
+                    myIntent.action = Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM
+                    appContext.startActivity(myIntent)
+                }
+            }
+        }
+
+    }
+
+    private fun isAlarmPermissionGranted(): Boolean {
+        val alarmManager = appContext.getSystemService<AlarmManager>()!!
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            alarmManager.canScheduleExactAlarms()
+        } else {
+            true
+        }
     }
 
     private fun cancelAlarm(taskId: Long) {
@@ -165,7 +186,7 @@ class AddAndUpdateTaskViewModel(private val taskId: Long, private val appContext
             appContext,
             taskId.toInt(),
             intent,
-            0
+            FLAG_MUTABLE
         )
         alarmManager.cancel(pendingIntent)
     }
@@ -191,6 +212,10 @@ class AddAndUpdateTaskViewModel(private val taskId: Long, private val appContext
             LocalDateTime.now().minute,
             0,
         )
+    }
+
+    fun permissionsDenied() {
+        _state.value = AddAndUpdateTaskState.Result(task, isGranted = false)
     }
 
 }

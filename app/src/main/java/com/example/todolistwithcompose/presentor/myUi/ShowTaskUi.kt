@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.todolistwithcompose.R
+import com.example.todolistwithcompose.ToDoApplication
 import com.example.todolistwithcompose.di.ApplicationComponent
 import com.example.todolistwithcompose.domain.Task
 import com.example.todolistwithcompose.presentor.state.ShowTaskState
@@ -35,7 +36,7 @@ import com.example.todolistwithcompose.presentor.viewModel.ShowTaskViewModel
 
 @Composable
 fun ShowTask(taskId: Long, updateClickListener: (Long) -> Unit, cancelClickListener: () -> Unit) {
-    val component = (LocalContext.current.applicationContext as ApplicationComponent)
+    val component = (LocalContext.current.applicationContext as ToDoApplication).component
         .getSubComponentFactory().create(taskId)
     val factory = component.getViewModelFactory()
     val viewmodel = viewModel<ShowTaskViewModel>(factory = factory)

@@ -81,4 +81,7 @@ dependencies {
     coreLibraryDesugaring ("com.android.tools:desugar_jdk_libs:2.0.4")
 
     implementation("androidx.work:work-runtime-ktx:2.9.0")
+
+    implementation ("com.google.dagger:dagger:2.51.1")
+    kapt ("com.google.dagger:dagger-compiler:2.51.1")
 }

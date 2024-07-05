@@ -22,6 +22,7 @@ import com.example.todolistwithcompose.R
 import com.example.todolistwithcompose.domain.Task
 import com.example.todolistwithcompose.domain.TaskGroup
 import com.example.todolistwithcompose.presentor.theme.ui.Pink80
+import com.example.todolistwithcompose.presentor.viewModel.ViewModelFactory
 import com.example.todolistwithcompose.utils.getBoarderColor
 import com.example.todolistwithcompose.utils.getBoarderWidth
 import com.example.todolistwithcompose.utils.getColor
@@ -95,8 +96,8 @@ fun Task(task: Task, onTaskListener: (Task) -> Unit) {
 
 
 @Composable
-fun MainScreen(modifier: Modifier = Modifier, onTaskListener: (Task) -> Unit) {
-    TabView(onTaskListener = { onTaskListener(it) })
+fun MainScreen(modifier: Modifier = Modifier,factory:ViewModelFactory ,  onTaskListener: (Task) -> Unit) {
+    TabView(factory = factory, onTaskListener = { onTaskListener(it) })
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

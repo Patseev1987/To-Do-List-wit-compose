@@ -1,8 +1,10 @@
 package com.example.todolistwithcompose.presentor.viewModel
 
+import android.app.Application
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.todolistwithcompose.data.database.Dao
 import com.example.todolistwithcompose.data.database.TasksDatabase
 import com.example.todolistwithcompose.domain.TabItem
 import com.example.todolistwithcompose.domain.Task
@@ -17,10 +19,13 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
+import javax.inject.Inject
 
 
-class TabViewModel(private val appContext: Context) : ViewModel() {
-    private val dao = TasksDatabase.getInstance(appContext).taskDao
+class TabViewModel @Inject constructor (
+    private val appContext: Application,
+    private val dao: Dao
+) : ViewModel() {
 
     private val _state: MutableStateFlow<TabState> = MutableStateFlow(TabState.Init)
     val state = _state.asStateFlow()

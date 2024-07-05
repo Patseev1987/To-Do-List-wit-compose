@@ -1,6 +1,7 @@
 package com.example.todolistwithcompose.presentor.viewModel
 
 import android.app.AlarmManager
+import android.app.Application
 import android.app.PendingIntent
 import android.app.PendingIntent.FLAG_IMMUTABLE
 import android.app.PendingIntent.FLAG_MUTABLE
@@ -13,6 +14,7 @@ import androidx.core.content.getSystemService
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.todolistwithcompose.R
+import com.example.todolistwithcompose.data.database.Dao
 import com.example.todolistwithcompose.data.database.TasksDatabase
 import com.example.todolistwithcompose.domain.Task
 import com.example.todolistwithcompose.domain.TaskGroup
@@ -30,10 +32,14 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZoneId
+import javax.inject.Inject
 
 
-class AddAndUpdateTaskViewModel(private val taskId: Long, private val appContext: Context) : ViewModel() {
-    private val taskDao = TasksDatabase.getInstance(context = appContext).taskDao
+class AddAndUpdateTaskViewModel @Inject constructor(
+    private val taskId: Long,
+    private val appContext: Application,
+    private val taskDao:Dao
+) : ViewModel() {
 
     private lateinit var task: Task
     private val _state: MutableStateFlow<AddAndUpdateTaskState> = MutableStateFlow(AddAndUpdateTaskState.Loading)

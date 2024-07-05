@@ -2,15 +2,9 @@ package com.example.todolistwithcompose.presentor.myUi
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.content.Intent
-import android.content.pm.PackageManager
 import android.os.Build
-import android.provider.Settings
-import android.util.Log
-import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.result.contract.ActivityResultContracts.*
+import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
@@ -30,11 +24,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.todolistwithcompose.R
+import com.example.todolistwithcompose.ToDoApplication
 import com.example.todolistwithcompose.domain.TaskGroup
 import com.example.todolistwithcompose.domain.TaskStatus
 import com.example.todolistwithcompose.presentor.state.AddAndUpdateTaskState
 import com.example.todolistwithcompose.presentor.viewModel.AddAndUpdateTaskViewModel
-import com.example.todolistwithcompose.presentor.viewModel.ViewModelFactory
 import com.vanpra.composematerialdialogs.MaterialDialog
 import com.vanpra.composematerialdialogs.datetime.date.datepicker
 import com.vanpra.composematerialdialogs.datetime.time.timepicker
@@ -54,8 +48,11 @@ fun AddAndUpdateTask(
     onCancelListener: () -> Unit,
     onButtonListener: () -> Unit
 ) {
+    val component = (LocalContext.current.applicationContext as ToDoApplication)
+        .component.getSubComponentFactory().create(taskId)
+    val factory = component.getViewModelFactory()
     val viewmodel =
-        viewModel<AddAndUpdateTaskViewModel>(factory = ViewModelFactory(LocalContext.current, taskId = taskId))
+        viewModel<AddAndUpdateTaskViewModel>(factory = factory)
     val state = viewmodel.state.collectAsState(initial = AddAndUpdateTaskState.Loading)
     val currentState = state.value
     val snackbarHostState = SnackbarHostState()
@@ -429,13 +426,3 @@ fun ShowSnackbares(currentState: AddAndUpdateTaskState.Result, snackbarHost: Sna
         }
     }
 }
-
-private val REQUEST_PERMISSIONS: Array<String> = buildList {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-        add(Manifest.permission.POST_NOTIFICATIONS)
-    }
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-        add(Manifest.permission.SCHEDULE_EXACT_ALARM)
-    }
-
-}.toTypedArray()

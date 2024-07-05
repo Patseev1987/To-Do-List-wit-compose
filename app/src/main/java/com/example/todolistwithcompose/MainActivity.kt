@@ -10,11 +10,18 @@ import com.example.todolistwithcompose.navigation.TestNavigationTab
 import com.example.todolistwithcompose.navigation.rememberNavigationState
 import com.example.todolistwithcompose.presentor.myUi.*
 import com.example.todolistwithcompose.presentor.theme.ui.ToDoListWithComposeTheme
+import com.example.todolistwithcompose.presentor.viewModel.ViewModelFactory
+import javax.inject.Inject
 
 class MainActivity : ComponentActivity() {
-
+    @Inject
+    lateinit var factory:ViewModelFactory
+    private val component by lazy {
+        (this.application as ToDoApplication).component
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        component.inject(this)
         super.onCreate(savedInstanceState)
         setContent {
            ToDoListWithComposeTheme {
@@ -23,6 +30,7 @@ class MainActivity : ComponentActivity() {
                     navController = navState.navHostController,
                     mainScreenContent = {
                         StartScreen(
+                            factory = factory,
                             onFABClickListener = { navState.navigateTo(Screen.AddTaskScreen.route) },
                             onTaskListener = { task ->
                                 navState.navigateTo(Screen.ShowTaskScreen.getRouteWithArgs(task.id))

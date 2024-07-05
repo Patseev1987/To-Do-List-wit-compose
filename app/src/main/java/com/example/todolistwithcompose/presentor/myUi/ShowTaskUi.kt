@@ -1,39 +1,44 @@
 package com.example.todolistwithcompose.presentor.myUi
 
-import androidx.compose.foundation.*
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.scrollable
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerSize
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
-import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.*
+import androidx.compose.ui.text.ParagraphStyle
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.todolistwithcompose.R
+import com.example.todolistwithcompose.di.ApplicationComponent
 import com.example.todolistwithcompose.domain.Task
 import com.example.todolistwithcompose.presentor.state.ShowTaskState
 import com.example.todolistwithcompose.presentor.viewModel.ShowTaskViewModel
-import com.example.todolistwithcompose.presentor.viewModel.ViewModelFactory
 
 
 @Composable
 fun ShowTask(taskId: Long, updateClickListener: (Long) -> Unit, cancelClickListener: () -> Unit) {
-    val viewmodel = viewModel<ShowTaskViewModel>(factory = ViewModelFactory(LocalContext.current, taskId))
+    val component = (LocalContext.current.applicationContext as ApplicationComponent)
+        .getSubComponentFactory().create(taskId)
+    val factory = component.getViewModelFactory()
+    val viewmodel = viewModel<ShowTaskViewModel>(factory = factory)
     val state = viewmodel.state.collectAsState(ShowTaskState.Loading)
     Scaffold { paddingValues ->
         when (val currentState = state.value) {
@@ -278,7 +283,6 @@ fun TaskInfo(task: Task, modifier: Modifier = Modifier) {
         )
     }
 }
-
 
 private fun Task.getTimeForLabel(): String = this.date?.toLocalTime().toString()
 private fun Task.getDateForLabel(): String = this.date?.toLocalDate().toString()

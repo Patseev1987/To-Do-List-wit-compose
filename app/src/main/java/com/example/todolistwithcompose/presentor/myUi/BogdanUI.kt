@@ -20,8 +20,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.todolistwithcompose.R
 import com.example.todolistwithcompose.domain.Task
-import com.example.todolistwithcompose.domain.TaskGroup
-import com.example.todolistwithcompose.presentor.theme.ui.Pink80
 import com.example.todolistwithcompose.presentor.viewModel.ViewModelFactory
 import com.example.todolistwithcompose.utils.getBoarderColor
 import com.example.todolistwithcompose.utils.getBoarderWidth

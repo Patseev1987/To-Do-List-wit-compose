@@ -31,4 +31,6 @@
     <string name="family_tasks">Family tasks</string>
     <string name="all_task">All task</string>
     <string name="permissions_denied">Permissions denied</string>
+    <string name="title_activity_icon_choice">IconChoiceActivity</string>
+    <string name="selected_icon">Selected icon:</string>
 </resources>

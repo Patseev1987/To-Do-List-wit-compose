@@ -1,5 +1,6 @@
 package com.example.todolistwithcompose.presentor.state
 
+
 import com.example.todolistwithcompose.domain.Task
 
 sealed class AddAndUpdateTaskState {
@@ -9,7 +10,7 @@ sealed class AddAndUpdateTaskState {
         val task: Task,
         var errorTitle: Boolean = false,
         var errorContext: Boolean = false,
-        var errorDate:Boolean = false,
-        var isGranted: Boolean = true
+        var errorDate: Boolean = false,
+        var isGranted: Boolean = true,
     ) : AddAndUpdateTaskState()
 }

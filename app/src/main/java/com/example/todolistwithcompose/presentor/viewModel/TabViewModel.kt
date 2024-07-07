@@ -11,6 +11,7 @@ import com.example.todolistwithcompose.domain.Task
 import com.example.todolistwithcompose.domain.TaskGroup
 import com.example.todolistwithcompose.domain.TaskStatus
 import com.example.todolistwithcompose.presentor.state.TabState
+import com.example.todolistwithcompose.utils.toTabItem
 import com.example.todolistwithcompose.utils.toTask
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -29,7 +30,13 @@ class TabViewModel @Inject constructor (
 
     private val _state: MutableStateFlow<TabState> = MutableStateFlow(TabState.Init)
     val state = _state.asStateFlow()
-    val tabs = TabItem.tabs
+    init {
+        viewModelScope.launch(Dispatchers.IO) {
+            dao.getTabItems().collect{
+
+            }
+        }
+    }
 
     fun getTasks(page: Int = 0) {
         when (page) {

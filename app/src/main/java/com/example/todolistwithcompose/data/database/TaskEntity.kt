@@ -8,7 +8,7 @@ import com.example.todolistwithcompose.domain.TaskStatus
 import java.time.LocalDateTime
 import java.util.*
 
-@Entity(tableName = "task")
+@Entity(tableName = "tasks")
 data class TaskEntity(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo("id")

@@ -1,10 +1,10 @@
 package com.example.todolistwithcompose.domain
 
-
 import kotlinx.coroutines.flow.Flow
 
 
 interface ApplicationRepository {
+
 
     suspend fun insert(task: Task)
 

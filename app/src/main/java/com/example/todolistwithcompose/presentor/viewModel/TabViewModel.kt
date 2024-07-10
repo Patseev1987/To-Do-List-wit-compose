@@ -2,6 +2,9 @@ package com.example.todolistwithcompose.presentor.viewModel
 
 import android.app.Application
 import android.content.Context
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AutoAwesomeMotion
+import androidx.compose.material.icons.outlined.AutoAwesomeMotion
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.todolistwithcompose.data.database.Dao
@@ -17,6 +20,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
@@ -31,52 +35,44 @@ class TabViewModel @Inject constructor (
     private val _state: MutableStateFlow<TabState> = MutableStateFlow(TabState.Init)
     val state = _state.asStateFlow()
     init {
-        viewModelScope.launch(Dispatchers.IO) {
-            dao.getTabItems().collect{
-
-            }
-        }
+        loadData()
     }
 
-    fun getTasks(page: Int = 0) {
-        when (page) {
-            1 -> {
-                val filter = TaskGroup.WORK_TASK
-                loadData(filter)
-            }
 
-            2 -> {
-                val filter = TaskGroup.HOME_TASK
-                loadData(filter)
-            }
-            3 -> {
-                val filter = TaskGroup.FAMILY_TASK
-                loadData(filter)
-            }
-            else -> {
-                val filter = null
-                loadData(filter)
-            }
-        }
-    }
 
-    private fun loadData(filter: TaskGroup?) {
-        viewModelScope.launch(Dispatchers.IO) {
-            dao.getTask().map { tasks ->
-                return@map if (filter != null) tasks.filter { it.taskGroup == filter } else tasks
-            }.map { tasks -> tasks.map { it.toTask() } }
-                .map {
-                    it.sortedWith(compareBy<Task>{ task -> task.status }
-                    .thenBy(nullsLast()) { task -> task.date })
+    fun loadData(
+        tab: TabItem =
+    ) {
+    viewModelScope.launch(Dispatchers.IO) {
+        val tabs = dao.getTabItems().map { it.toTabItem() }
+        dao.getTask().map { entity -> entity.map { it.toTask() } }
+            .collect{tasks ->
+                val tasksList = tasks.map {task ->
+                    if (task.tabItemName != ALL_TASKS.name) tasks.filter { tab.name == task.tabItemName } else task
                 }
-                .collect { tasks -> _state.value = TabState.Result(tasks) }
-        }
+                _state.value = TabState.Result(tasksList, tabs)
+            }
+    }
     }
 
     fun deleteTask(task: Task) {
         viewModelScope.launch(Dispatchers.IO) {
             dao.clearTaskById(task.id)
         }
+    }
+
+    fun setSelected(tab: TabItem) {
+
+        dao.
+    }
+
+   private companion object{
+        val ALL_TASKS = TabItem(
+            name = "All",
+            selectedIcon = Icons.Filled.AutoAwesomeMotion,
+            unselectedIcon = Icons.Outlined.AutoAwesomeMotion,
+            isSelected = true
+        )
     }
 
 }

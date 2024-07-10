@@ -28,7 +28,7 @@ fun Task.toTaskEntity(): TaskEntity {
         content = this.content,
         date = this.date,
         status = this.status,
-        taskGroup = this.taskGroup,
+        tabItemName = this.tabItemName,
         createDate = LocalDateTime.now(),
         isRemind = this.isRemind
     )
@@ -41,7 +41,7 @@ fun TaskEntity.toTask(): Task {
         content = this.content,
         date = this.date,
         status = this.status,
-        taskGroup = this.taskGroup,
+        tabItemName = this.tabItemName,
         isRemind = this.isRemind
     )
 }
@@ -63,22 +63,23 @@ fun Task.getBoarderWidth(): Dp {
 
 fun Task.getBoarderColor(): Color {
     val taskDate = this.date
-    if ( taskDate != null && this.status != TaskStatus.COMPLETED) {
-        return when {
+    return if ( taskDate != null && this.status != TaskStatus.COMPLETED) {
+        when {
             LocalDateTime.now().isAfter(taskDate) -> Color.Red
             LocalDateTime.now().isAfter(taskDate.minusDays(2L)) -> Orange
             LocalDateTime.now().isAfter(taskDate.minusDays(7L)) -> Yellow
             else -> Green
         }
     }
-    else return Transparent
+    else Transparent
 }
 
 fun TabItem.toTabItemEntity(): TabItemEntity {
     return TabItemEntity(
         name = this.name,
         iconSelectedName = this.selectedIcon.name,
-        iconUnselectedName = this.unselectedIcon.name
+        iconUnselectedName = this.unselectedIcon.name,
+        isSelected = this.isSelected
     )
 }
 
@@ -87,7 +88,7 @@ fun TabItemEntity.toTabItem(): TabItem {
         name = this.name,
         selectedIcon = selectedIcons.first{ icon -> icon.name == this.iconSelectedName},
         unselectedIcon = unselectedIcons.first{ icon -> icon.name == this.iconUnselectedName},
-        isSelected = false
+        isSelected = this.isSelected
     )
 }
 

@@ -13,4 +13,6 @@ data class TabItemEntity (
     val iconSelectedName:String,
     @ColumnInfo(name = "icon_unselected_name")
     val iconUnselectedName:String,
+    @ColumnInfo(name = "is_selected")
+    val isSelected:Boolean,
 )

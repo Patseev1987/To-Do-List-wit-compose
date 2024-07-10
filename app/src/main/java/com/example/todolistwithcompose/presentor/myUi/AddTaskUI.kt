@@ -3,6 +3,7 @@ package com.example.todolistwithcompose.presentor.myUi
 import android.Manifest
 import android.annotation.SuppressLint
 import android.os.Build
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
 import androidx.compose.foundation.layout.*
@@ -25,6 +26,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.todolistwithcompose.R
 import com.example.todolistwithcompose.ToDoApplication
+import com.example.todolistwithcompose.domain.TabItem
 import com.example.todolistwithcompose.domain.TaskGroup
 import com.example.todolistwithcompose.domain.TaskStatus
 import com.example.todolistwithcompose.presentor.state.AddAndUpdateTaskState
@@ -98,12 +100,13 @@ fun AddAndUpdateTask(
                         MainPartForAddAndUpdateTask(
                             currentState,
                             label = viewmodel.getLabel(),
+                            tabs = currentState.tabs,
                             onChangeTitleListener = { viewmodel.setTitle(it) },
                             onChangeContentListener = { viewmodel.setContent(it) },
                             onChangeDataListener = { viewmodel.setDate(it) },
                             onChangeTimeListener = { viewmodel.setTime(it) },
                             onSelectedStatusListener = { viewmodel.setStatus(it) },
-                            onSelectedGroupListener = { viewmodel.setTaskGroup(it) },
+                            onMenuClickListener = { viewmodel.setGroup(it) },
                             onCheckedListener = { viewmodel.changeIsRemind() }
                         )
                         Spacer(modifier = Modifier.height(40.dp))
@@ -132,12 +135,13 @@ fun AddAndUpdateTask(
 fun MainPartForAddAndUpdateTask(
     currentState: AddAndUpdateTaskState.Result,
     label: String,
-    onSelectedGroupListener: (group: String) -> Unit,
+    tabs:List<TabItem>,
     onSelectedStatusListener: (status: String) -> Unit,
     onChangeTitleListener: (title: String) -> Unit,
     onChangeContentListener: (content: String) -> Unit,
     onChangeDataListener: (LocalDate) -> Unit,
     onChangeTimeListener: (LocalTime) -> Unit,
+    onMenuClickListener: (TabItem) -> Unit,
     onCheckedListener: () -> Unit
 ) {
     Text(text = label, fontSize = 24.sp, fontFamily = FontFamily.SansSerif)
@@ -179,8 +183,12 @@ fun MainPartForAddAndUpdateTask(
         fontFamily = FontFamily.SansSerif
     )
     Spacer(modifier = Modifier.height(DEFAULT_VALUE_FOR_SPACER))
-    RadioButtonsTaskGroup(selected = stringResource(id = currentState.task.taskGroup.idString)) {
-        onSelectedGroupListener(it)
+//    RadioButtonsTaskGroup(selected = stringResource(id = currentState.task.taskGroup.idString)) {
+//        onSelectedGroupListener(it)
+//    }
+
+    ExposedDropDownMenuWithTabItems(tabs = tabs){
+        onMenuClickListener(it)
     }
     Spacer(modifier = Modifier.height(DEFAULT_VALUE_FOR_SPACER))
     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -259,15 +267,65 @@ fun RadioButtons(values: List<String>, selected: String, onSelectedListener: (St
     }
 }
 
+//@Composable
+//fun RadioButtonsTaskGroup(selected: String, onSelectedListener: (String) -> Unit) {
+//    val taskGroups = listOf(
+//        stringResource(id = TaskGroup.WORK_TASK.idString),
+//        stringResource(id = TaskGroup.HOME_TASK.idString),
+//        stringResource(id = TaskGroup.FAMILY_TASK.idString)
+//    )
+//    RadioButtons(taskGroups, selected) {
+//        onSelectedListener(it)
+//    }
+//}
+
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RadioButtonsTaskGroup(selected: String, onSelectedListener: (String) -> Unit) {
-    val taskGroups = listOf(
-        stringResource(id = TaskGroup.WORK_TASK.idString),
-        stringResource(id = TaskGroup.HOME_TASK.idString),
-        stringResource(id = TaskGroup.FAMILY_TASK.idString)
-    )
-    RadioButtons(taskGroups, selected) {
-        onSelectedListener(it)
+fun ExposedDropDownMenuWithTabItems(
+     tabs:List<TabItem>,
+     onClickListener:(TabItem) -> Unit
+){
+    val context = LocalContext.current
+    var expanded by remember { mutableStateOf(false) }
+    var selectedText = remember { tabs.map { it.name }[0]}
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(32.dp)
+    ) {
+        ExposedDropdownMenuBox(
+            expanded = expanded,
+            onExpandedChange = {
+                expanded = !expanded
+            }
+        ) {
+            TextField(
+                value = selectedText,
+                onValueChange = {},
+                readOnly = true,
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                modifier = Modifier.menuAnchor()
+            )
+
+            ExposedDropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
+            ) {
+                tabs.forEach { item ->
+                    DropdownMenuItem(
+                        text = { Text(text = item.name) },
+                        onClick = {
+                            onClickListener(item)
+                            selectedText = item.name
+                            expanded = false
+                            Toast.makeText(context, item.name, Toast.LENGTH_SHORT).show()
+                        }
+                    )
+                }
+            }
+        }
     }
 }
 

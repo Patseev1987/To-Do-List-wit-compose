@@ -4,6 +4,8 @@ import com.example.todolistwithcompose.domain.TabItem
 
 sealed class AddAndUpdateTabState {
     data object Loading : AddAndUpdateTabState()
-    data object Error : AddAndUpdateTabState()
-    data class Result(val tabItem: TabItem) : AddAndUpdateTabState()
+    data class Result(
+        val tabItem: TabItem,
+        val errorMessage: String = ""
+    ) : AddAndUpdateTabState()
 }

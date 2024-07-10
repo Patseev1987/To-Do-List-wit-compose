@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -26,8 +25,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.todolistwithcompose.IconChoiceActivity
 import com.example.todolistwithcompose.R
 import com.example.todolistwithcompose.presentor.state.AddAndUpdateTabState
-import com.example.todolistwithcompose.presentor.state.TabState
-import com.example.todolistwithcompose.presentor.viewModel.AddAndUpdateTaskGroupViewModel
+import com.example.todolistwithcompose.presentor.viewModel.AddAndUpdateTabItemViewModel
 import com.example.todolistwithcompose.utils.selectedIcons
 import com.example.todolistwithcompose.utils.unselectedIcons
 
@@ -48,7 +46,7 @@ fun IconList(icons: List<ImageVector>, onClickListener: (ImageVector) -> Unit) {
 
 @Composable
 fun CreateTab(factory: ViewModelProvider.Factory) {
-    val viewmodel = viewModel<AddAndUpdateTaskGroupViewModel>(factory = factory)
+    val viewmodel = viewModel<AddAndUpdateTabItemViewModel>(factory = factory)
     val state = viewmodel.state.collectAsState(AddAndUpdateTabState.Loading)
     val context = LocalContext.current
     val snackbarHostState = SnackbarHostState()
@@ -121,7 +119,7 @@ fun SetIcon(icon:ImageVector, onClickListener: () -> Unit) {
 
 @Composable
 fun MainPartTabAdd(
-    viewModel: AddAndUpdateTaskGroupViewModel,
+    viewModel: AddAndUpdateTabItemViewModel,
     launcher: ManagedActivityResultLauncher<Intent, String>,
     context: Context,
     currentState: AddAndUpdateTabState.Result

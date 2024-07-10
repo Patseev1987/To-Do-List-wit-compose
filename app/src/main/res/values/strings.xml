@@ -33,4 +33,6 @@
     <string name="permissions_denied">Permissions denied</string>
     <string name="title_activity_icon_choice">IconChoiceActivity</string>
     <string name="selected_icon">Selected icon:</string>
+    <string name="add_group">Add group</string>
+    <string name="update_group">Update group</string>
 </resources>

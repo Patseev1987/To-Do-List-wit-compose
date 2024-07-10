@@ -9,12 +9,6 @@ import com.example.todolistwithcompose.domain.Task
 sealed class TabState {
     data object Init : TabState()
     data class Result(val task:List<Task>,
-                      val tabs: List<TabItem> = listOf(
-                          TabItem(
-                              name = "All tasks",
-                              selectedIcon = Icons.Filled.AutoAwesomeMotion,
-                              unselectedIcon = Icons.Outlined.AutoAwesomeMotion,
-                              isSelected = true
-                          )
-                      )): TabState()
+                      val tabs: List<TabItem>
+                      ): TabState()
 }

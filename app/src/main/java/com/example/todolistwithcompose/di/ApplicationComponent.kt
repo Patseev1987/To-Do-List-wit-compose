@@ -15,6 +15,8 @@ interface ApplicationComponent {
 
  fun getSubComponentFactory(): ComponentWithId.SubComponentFactory
 
+ fun getSubComponentFactoryWithTabName():ComponentWithTabName.SubComponentFactoryWithTabName
+
     @Factory
     interface ComponentFactory {
         fun create(@BindsInstance application: Application): ApplicationComponent

@@ -10,17 +10,7 @@ import dagger.multibindings.IntoMap
 
 
 @Module
-interface ViewModelsWithIdModule {
-
-    @Binds
-    @ViewModelKey(value = AddAndUpdateTaskViewModel::class)
-    @IntoMap
-    fun bindAddAndUpdateViewModel(addAndUpdateViewModel: AddAndUpdateTaskViewModel): ViewModel
-
-    @Binds
-    @ViewModelKey(value = ShowTaskViewModel::class)
-    @IntoMap
-    fun bindShowViewModel(showTaskViewModel: ShowTaskViewModel): ViewModel
+interface ViewModelsWithTabNameModule {
 
     @Binds
     @ViewModelKey(value = TabViewModel::class)

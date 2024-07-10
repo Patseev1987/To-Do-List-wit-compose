@@ -3,8 +3,12 @@ package com.example.todolistwithcompose.presentor.myUi
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
+
+
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -23,63 +27,70 @@ import kotlinx.coroutines.launch
 @Composable
 fun TabView(factory:ViewModelFactory, onTaskListener: (Task) -> Unit) {
     val viewModel = viewModel<TabViewModel>(factory = factory)
-    val stateViewModel by viewModel.state.collectAsState()
-    val tabs = viewModel.tabs
-    val state = remember { mutableIntStateOf(0) }
-    val pagerState = rememberPagerState { tabs.size }
-    val scope = rememberCoroutineScope()
+    val stateViewModel by viewModel.state.collectAsState(TabState.Init)
 
-    LaunchedEffect(pagerState) {
-        snapshotFlow { pagerState.currentPage }.collect { page ->
-            state.intValue = page
-            viewModel.getTasks(page)
+    when (val currentState = stateViewModel){
+        is TabState.Init -> {
+
         }
-    }
+        is TabState.Result -> {
 
-    Column {
-        TabRow(selectedTabIndex = tabs.size) {
-            tabs.forEach { tab ->
-                Tab(
-                    selected = tab.tabId == state.intValue,
-                    onClick = {
-                        state.intValue = tab.tabId
-                        scope.launch {
-                            pagerState.animateScrollToPage(tab.tabId)
-                        }
-                    },
-                    text = { Text(text = stringResource(id = tab.titleId)) },
-                    icon = {
-                        Icon(
-                            imageVector = if (tab.tabId == state.intValue) tab.selectedIcon else tab.unselectedIcon,
-                            contentDescription = ""
-                        )
-                    }
-                )
+            val pagerState = rememberPagerState { currentState.tabs.size }
+            val scope = rememberCoroutineScope()
+
+            LaunchedEffect(pagerState) {
+                snapshotFlow { pagerState.currentPage }.collect { page ->
+                    val oldTAbSelected = pagerState.settledPage
+                    val newTabSelected = currentState.tabs[page]
+                    viewModel.setSelected ( newTabSelected, oldTAbSelected)
+                    viewModel.loadData(newTabSelected)
+                }
             }
-        }
-        HorizontalPager(
-            state = pagerState,
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f),
-            userScrollEnabled = false
-        ) {
 
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
-                when (val currentState = stateViewModel){
-                    is TabState.Result -> {
-                        TaskWithFilter(
-                            tasks = currentState.task,
-                            onDismissListener = { viewModel.deleteTask(it) },
-                            onTaskListener = { onTaskListener(it) })
-                    }
+            Column (modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+            ) {
+                Row(modifier = Modifier.fillMaxWidth()) {
+                IconButton(onClick = {}) {
+                    Icon(Icons.Filled.Add, contentDescription = null, modifier = Modifier.size(8.dp))
+                }
 
-                    is TabState.Init -> {
-                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(100.dp)
+                    TabRow(selectedTabIndex = currentState.tabs.size) {
+                        for ((index, tab) in currentState.tabs.withIndex()) {
+                            Tab(
+                                selected = tab.isSelected,
+                                onClick = {
+                                    viewModel.setSelected(tab)
+                                    scope.launch {
+                                        pagerState.animateScrollToPage(index)
+                                    }
+                                },
+                                text = { Text(text = tab.name) },
+                                icon = {
+                                    Icon(
+                                        imageVector = if (tab.isSelected) tab.selectedIcon else tab.unselectedIcon,
+                                        contentDescription = tab.name
+                                    )
+                                }
                             )
                         }
+                    }
+                }
+            }
+                HorizontalPager(
+                    state = pagerState,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                    userScrollEnabled = false
+                ) {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
+                                TaskWithFilter(
+                                    tasks = currentState.task,
+                                    onDismissListener = { viewModel.deleteTask(it) },
+                                    onTaskListener = { onTaskListener(it) })
+
                     }
                 }
             }

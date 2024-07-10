@@ -5,7 +5,6 @@ import android.app.Application
 import android.app.PendingIntent
 import android.app.PendingIntent.FLAG_IMMUTABLE
 import android.app.PendingIntent.FLAG_MUTABLE
-import android.content.Context
 import android.content.Context.ALARM_SERVICE
 import android.content.Intent
 import android.os.Build
@@ -15,12 +14,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.todolistwithcompose.R
 import com.example.todolistwithcompose.data.database.Dao
-import com.example.todolistwithcompose.data.database.TasksDatabase
+import com.example.todolistwithcompose.domain.TabItem
 import com.example.todolistwithcompose.domain.Task
 import com.example.todolistwithcompose.domain.TaskGroup
 import com.example.todolistwithcompose.domain.TaskStatus
 import com.example.todolistwithcompose.presentor.state.AddAndUpdateTaskState
 import com.example.todolistwithcompose.utils.AlarmReceiver
+import com.example.todolistwithcompose.utils.toTabItem
 import com.example.todolistwithcompose.utils.toTask
 import com.example.todolistwithcompose.utils.toTaskEntity
 import kotlinx.coroutines.Dispatchers
@@ -42,63 +42,74 @@ class AddAndUpdateTaskViewModel @Inject constructor(
 ) : ViewModel() {
 
     private lateinit var task: Task
+    private lateinit var tabs:List<TabItem>
     private val _state: MutableStateFlow<AddAndUpdateTaskState> = MutableStateFlow(AddAndUpdateTaskState.Loading)
     val state = _state.asStateFlow()
 
     init {
-        if (taskId != 0L) {
-            viewModelScope.launch(Dispatchers.IO) {
-                taskDao.getTaskById(taskId).collect {
-                    task = it?.toTask() ?: throw IllegalArgumentException("Task not found")
-                    _state.value = AddAndUpdateTaskState.Result(task)
+        viewModelScope.launch(Dispatchers.IO){
+            tabs = taskDao.getTabItems().map{tabItemEntity -> tabItemEntity.toTabItem() }
+            if (taskId != 0L) {
+                    taskDao.getTaskById(taskId).collect {
+                        task = it?.toTask() ?: throw IllegalArgumentException("Task not found")
+                        _state.value = AddAndUpdateTaskState.Result(task =  task, tabs = tabs)
                 }
+            } else {
+                task = Task(
+                    title = "",
+                    content = "",
+                    date = null,
+                    tabItemName = null,
+                    status = TaskStatus.NOT_STARTED
+                )
+                _state.value = AddAndUpdateTaskState.Result(task =  task, tabs = tabs)
             }
-        } else {
-            task = Task(
-                title = "",
-                content = "",
-                date = null,
-                taskGroup = TaskGroup.WORK_TASK,
-                status = TaskStatus.NOT_STARTED
-            )
-            _state.value = AddAndUpdateTaskState.Result(task)
+
+
+
         }
+
+
     }
 
     fun setTitle(title: String) {
         task = task.copy(title = title)
-        _state.value = AddAndUpdateTaskState.Result(task)
+        _state.value = AddAndUpdateTaskState.Result(task =  task, tabs = tabs)
     }
 
     fun setContent(content: String) {
         task = task.copy(content = content)
-        _state.value = AddAndUpdateTaskState.Result(task)
+        _state.value = AddAndUpdateTaskState.Result(task =  task, tabs = tabs)
     }
 
-    fun setTaskGroup(value: String) {
+    fun setTabItemName(value: String) {
         val taskGroup = TaskGroup.entries.first { appContext.getString(it.idString) == value }
-        task = task.copy(taskGroup = taskGroup)
-        _state.value = AddAndUpdateTaskState.Result(task)
+        task = task.copy(tabItemName = value)
+        _state.value = AddAndUpdateTaskState.Result(task =  task, tabs = tabs)
     }
 
     fun setStatus(value: String) {
         val status = TaskStatus.entries.first { appContext.getString(it.idString) == value }
         task.status = status
-        _state.value = AddAndUpdateTaskState.Result(task)
+        _state.value = AddAndUpdateTaskState.Result(task =  task, tabs = tabs)
     }
 
     fun setTime(time: LocalTime) {
         val date = task.date?.toLocalDate()
         val newDate = LocalDateTime.of(date, time)
         task = task.copy(date = newDate)
-        _state.value = AddAndUpdateTaskState.Result(task)
+        _state.value = AddAndUpdateTaskState.Result(task =  task, tabs = tabs)
     }
 
     fun setDate(date: LocalDate) {
         val time = task.date?.toLocalTime()
         val newDate = LocalDateTime.of(date, time)
         task = task.copy(date = newDate)
-        _state.value = AddAndUpdateTaskState.Result(task)
+        _state.value = AddAndUpdateTaskState.Result(task =  task, tabs = tabs)
+    }
+    fun setGroup(tabItem: TabItem) {
+        task.tabItemName = tabItem.name
+        _state.value = AddAndUpdateTaskState.Result(task =  task, tabs = tabs)
     }
 
     fun saveTask(onButtonListener: () -> Unit) {
@@ -113,12 +124,13 @@ class AddAndUpdateTaskViewModel @Inject constructor(
                     } else {
                         _state.value = AddAndUpdateTaskState.Result(
                             task = task,
-                            errorDate = true
+                            errorDate = true,
+                            tabs = tabs
                         )
                         return@launch
                     }
                 }
-                taskDao.insert(task.toTaskEntity())
+                taskDao.insertTabItem(task.toTaskEntity())
                 withContext(Dispatchers.Main) {
                     onButtonListener()
                 }
@@ -129,12 +141,12 @@ class AddAndUpdateTaskViewModel @Inject constructor(
     private fun checkTask(task: Task): Boolean {
         return when {
             task.title.isEmpty() -> {
-                _state.value = AddAndUpdateTaskState.Result(task, errorTitle = true)
+                _state.value = AddAndUpdateTaskState.Result(task, errorTitle = true, tabs = tabs)
                 false
             }
 
             task.content.isEmpty() -> {
-                _state.value = AddAndUpdateTaskState.Result(task, errorContext = true)
+                _state.value = AddAndUpdateTaskState.Result(task, errorContext = true, tabs = tabs)
                 false
             }
 
@@ -199,7 +211,7 @@ class AddAndUpdateTaskViewModel @Inject constructor(
 
     fun changeIsRemind() {
         task = task.copy(isRemind = !task.isRemind)
-        _state.value = AddAndUpdateTaskState.Result(task)
+        _state.value = AddAndUpdateTaskState.Result(task =  task, tabs = tabs)
         task.apply {
             date = if (isRemind) getNowDateWithoutSeconds() else null
         }
@@ -221,7 +233,8 @@ class AddAndUpdateTaskViewModel @Inject constructor(
     }
 
     fun permissionsDenied() {
-        _state.value = AddAndUpdateTaskState.Result(task, isGranted = false)
+        _state.value = AddAndUpdateTaskState.Result(task, isGranted = false, tabs = tabs)
     }
+
 
 }

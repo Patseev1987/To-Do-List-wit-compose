@@ -1,6 +1,7 @@
 package com.example.todolistwithcompose.presentor.state
 
 
+import com.example.todolistwithcompose.domain.TabItem
 import com.example.todolistwithcompose.domain.Task
 
 sealed class AddAndUpdateTaskState {
@@ -12,5 +13,6 @@ sealed class AddAndUpdateTaskState {
         var errorContext: Boolean = false,
         var errorDate: Boolean = false,
         var isGranted: Boolean = true,
+        var tabs: List<TabItem>
     ) : AddAndUpdateTaskState()
 }

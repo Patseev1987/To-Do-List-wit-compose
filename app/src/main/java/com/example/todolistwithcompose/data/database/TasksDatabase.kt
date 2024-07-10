@@ -3,8 +3,9 @@ package com.example.todolistwithcompose.data.database
 import android.app.Application
 import android.content.Context
 import androidx.room.*
+import com.example.todolistwithcompose.data.database.tabEntity.TabItemEntity
 
-@Database(entities = [TaskEntity::class], exportSchema = false, version = 5)
+@Database(entities = [TaskEntity::class, TabItemEntity::class], exportSchema = false, version = 1)
 @TypeConverters(Convertor::class)
 abstract class TasksDatabase() : RoomDatabase() {
 
@@ -21,7 +22,7 @@ abstract class TasksDatabase() : RoomDatabase() {
                     instance = Room.databaseBuilder(
                         context.applicationContext,
                         TasksDatabase::class.java,
-                        "tasks"
+                        "tasks_db"
                     )
                         .fallbackToDestructiveMigration()
                         .build()

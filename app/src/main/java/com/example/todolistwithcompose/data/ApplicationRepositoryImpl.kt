@@ -11,7 +11,7 @@ import javax.inject.Inject
 
 class ApplicationRepositoryImpl @Inject constructor (private val dao:Dao) : ApplicationRepository {
     override suspend fun insert(task: Task) {
-        dao.insert(task.toTaskEntity())
+        dao.insertTabItem(task.toTaskEntity())
     }
 
     override fun getTask(): Flow<List<Task>> {

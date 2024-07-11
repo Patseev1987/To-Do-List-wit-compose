@@ -8,9 +8,7 @@ import com.example.todolistwithcompose.data.database.Dao
 import com.example.todolistwithcompose.domain.TabItem
 import com.example.todolistwithcompose.utils.*
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -71,10 +69,9 @@ class AddAndUpdateTabItemViewModel @Inject constructor(
     else appContext.getString(R.string.update_group)
 
     private suspend fun checkTabItem(tabItem: TabItem): Boolean {
-        var tabs: List<TabItem> = listOf()
-        dao.getTabItems().map { entity ->
+        val tabs = dao.getTabItems().map { entity ->
             entity.map { it.toTabItem() }
-        }.collect { tabs = it }
+        }.firstOrNull() ?: return false
         return (!(tabs.contains(tabItem) and (tabItem.name.isNotBlank())))
     }
 

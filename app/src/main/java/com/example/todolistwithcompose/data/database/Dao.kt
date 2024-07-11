@@ -3,6 +3,7 @@ package com.example.todolistwithcompose.data.database
 import androidx.room.*
 import androidx.room.Dao
 import com.example.todolistwithcompose.data.database.tabEntity.TabItemEntity
+import com.example.todolistwithcompose.domain.TabItem
 import kotlinx.coroutines.flow.Flow
 
 
@@ -15,6 +16,9 @@ interface Dao {
     @Query("select * from tasks")
     fun getTask(): Flow<List<TaskEntity>>
 
+    @Query("select * from tasks where tab_item_name = :filter")
+    fun getTaskWithFilter(filter:String): Flow<List<TaskEntity>>
+
     @Query("select * from tasks where id = :id")
     fun getTaskById(id: Long):Flow <TaskEntity?>
 
@@ -26,6 +30,9 @@ interface Dao {
 
     @Query("select * from tab_items where name = :name")
     suspend fun getTabItemByName(name: String):TabItemEntity?
+
+    @Query("select * from tab_items where is_selected = :isSelected")
+    suspend fun getSelectedTabItem(isSelected: Boolean = true):TabItemEntity?
 
     @Query("select * from tab_items")
     fun getTabItems():Flow <List<TabItemEntity>>

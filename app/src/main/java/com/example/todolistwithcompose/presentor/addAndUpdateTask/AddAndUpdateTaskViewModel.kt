@@ -1,4 +1,4 @@
-package com.example.todolistwithcompose.presentor.viewModel
+package com.example.todolistwithcompose.presentor.addAndUpdateTask
 
 import android.app.AlarmManager
 import android.app.Application
@@ -18,7 +18,7 @@ import com.example.todolistwithcompose.domain.TabItem
 import com.example.todolistwithcompose.domain.Task
 import com.example.todolistwithcompose.domain.TaskGroup
 import com.example.todolistwithcompose.domain.TaskStatus
-import com.example.todolistwithcompose.presentor.state.AddAndUpdateTaskState
+import com.example.todolistwithcompose.presentor.mainScreen.TabViewModel
 import com.example.todolistwithcompose.utils.AlarmReceiver
 import com.example.todolistwithcompose.utils.toTabItem
 import com.example.todolistwithcompose.utils.toTask
@@ -55,18 +55,9 @@ class AddAndUpdateTaskViewModel @Inject constructor(
                         _state.value = AddAndUpdateTaskState.Result(task =  task, tabs = tabs)
                 }
             } else {
-                task = Task(
-                    title = "",
-                    content = "",
-                    date = null,
-                    tabItemName = null,
-                    status = TaskStatus.NOT_STARTED
-                )
+                task = DEFAULT_TASK
                 _state.value = AddAndUpdateTaskState.Result(task =  task, tabs = tabs)
             }
-
-
-
         }
 
 
@@ -130,7 +121,7 @@ class AddAndUpdateTaskViewModel @Inject constructor(
                         return@launch
                     }
                 }
-                taskDao.insertTabItem(task.toTaskEntity())
+                taskDao.insertTask(task.toTaskEntity())
                 withContext(Dispatchers.Main) {
                     onButtonListener()
                 }
@@ -237,4 +228,13 @@ class AddAndUpdateTaskViewModel @Inject constructor(
     }
 
 
+    private companion object{
+        val DEFAULT_TASK = Task(
+            title = "",
+            content = "",
+            date = null,
+            tabItemName = TabViewModel.ALL_TASKS.name,
+            status = TaskStatus.NOT_STARTED
+        )
+    }
 }

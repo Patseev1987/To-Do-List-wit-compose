@@ -10,7 +10,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import com.example.todolistwithcompose.presentor.myUi.IconList
+import com.example.todolistwithcompose.presentor.addAndUpdateTabItem.IconList
 import com.example.todolistwithcompose.ui.theme.ToDoListWithComposeTheme
 import com.example.todolistwithcompose.utils.selectedIcons
 import com.example.todolistwithcompose.utils.unselectedIcons
@@ -37,7 +37,7 @@ class IconChoiceActivity : ComponentActivity() {
     }
 
     private fun parseIntent(){
-        typeIcon = intent.getIntExtra("typeIcon", UNKNOWN_TYPE)
+        typeIcon = intent.getIntExtra(EXTRA_TYPE_ICON, UNKNOWN_TYPE)
     }
 
     private fun saveData(icon:ImageVector){

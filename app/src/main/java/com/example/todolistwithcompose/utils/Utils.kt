@@ -121,6 +121,8 @@ val selectedIcons = listOf(
     Icons.Filled.FamilyRestroom,
     Icons.Filled.Home,
     Icons.Filled.Hotel,
+    Icons.Filled.AutoAwesomeMotion,
+    Icons.Filled.QuestionMark
 )
 
 val unselectedIcons = listOf(
@@ -150,4 +152,6 @@ val unselectedIcons = listOf(
     Icons.Outlined.FamilyRestroom,
     Icons.Outlined.Home,
     Icons.Outlined.Hotel,
+    Icons.Outlined.AutoAwesomeMotion,
+    Icons.Outlined.QuestionMark
 )

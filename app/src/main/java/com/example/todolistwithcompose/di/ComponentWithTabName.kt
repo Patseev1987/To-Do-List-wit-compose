@@ -1,6 +1,6 @@
 package com.example.todolistwithcompose.di
 
-import com.example.todolistwithcompose.presentor.viewModel.ViewModelFactory
+import com.example.todolistwithcompose.presentor.ViewModelFactory
 import dagger.BindsInstance
 import dagger.Subcomponent
 
@@ -11,7 +11,7 @@ interface ComponentWithTabName {
 
     @Subcomponent.Factory
     interface SubComponentFactoryWithTabName{
-        fun create(@BindsInstance tabItemName:String): ComponentWithTabName
+        fun create(@BindsInstance tabItemName:String?): ComponentWithTabName
     }
 
 

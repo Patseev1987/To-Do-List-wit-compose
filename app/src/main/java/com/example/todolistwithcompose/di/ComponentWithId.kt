@@ -1,6 +1,6 @@
 package com.example.todolistwithcompose.di
 
-import com.example.todolistwithcompose.presentor.viewModel.ViewModelFactory
+import com.example.todolistwithcompose.presentor.ViewModelFactory
 import dagger.BindsInstance
 import dagger.Subcomponent
 

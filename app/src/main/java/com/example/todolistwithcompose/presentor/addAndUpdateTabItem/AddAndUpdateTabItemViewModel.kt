@@ -1,4 +1,4 @@
-package com.example.todolistwithcompose.presentor.viewModel
+package com.example.todolistwithcompose.presentor.addAndUpdateTabItem
 
 import android.app.Application
 import androidx.lifecycle.ViewModel
@@ -6,12 +6,12 @@ import androidx.lifecycle.viewModelScope
 import com.example.todolistwithcompose.R
 import com.example.todolistwithcompose.data.database.Dao
 import com.example.todolistwithcompose.domain.TabItem
-import com.example.todolistwithcompose.presentor.state.AddAndUpdateTabState
 import com.example.todolistwithcompose.utils.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 
@@ -49,8 +49,8 @@ class AddAndUpdateTabItemViewModel @Inject constructor(
         _state.value = AddAndUpdateTabState.Result(tabItem)
     }
 
-    fun setUnselectedIcon(selectedItemName: String) {
-        tabItem = tabItem.copy(selectedIcon = unselectedIcons.first { it.name == selectedItemName })
+    fun setUnselectedIcon(unselectedItemName: String) {
+        tabItem = tabItem.copy(unselectedIcon = unselectedIcons.first { it.name == unselectedItemName })
         _state.value = AddAndUpdateTabState.Result(tabItem)
     }
 
@@ -59,7 +59,9 @@ class AddAndUpdateTabItemViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             if (checkTabItem(tabItem)) {
                 dao.insertTabItem(tabItem.toTabItemEntity())
-                onButtonListener()
+                withContext(Dispatchers.Main) {
+                    onButtonListener()
+                }
             }
         }
     }

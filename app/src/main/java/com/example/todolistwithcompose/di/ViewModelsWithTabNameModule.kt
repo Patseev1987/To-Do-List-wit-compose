@@ -1,9 +1,8 @@
 package com.example.todolistwithcompose.di
 
 import androidx.lifecycle.ViewModel
-import com.example.todolistwithcompose.presentor.viewModel.AddAndUpdateTaskViewModel
-import com.example.todolistwithcompose.presentor.viewModel.ShowTaskViewModel
-import com.example.todolistwithcompose.presentor.viewModel.TabViewModel
+import com.example.todolistwithcompose.presentor.addAndUpdateTabItem.AddAndUpdateTabItemViewModel
+import com.example.todolistwithcompose.presentor.mainScreen.TabViewModel
 import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoMap
@@ -13,8 +12,8 @@ import dagger.multibindings.IntoMap
 interface ViewModelsWithTabNameModule {
 
     @Binds
-    @ViewModelKey(value = TabViewModel::class)
+    @ViewModelKey(value = AddAndUpdateTabItemViewModel::class)
     @IntoMap
-    fun bindTabViewModel(tabViewModel: TabViewModel): ViewModel
+    fun bindTabViewModel(addAndUpdateTabItemViewModel: AddAndUpdateTabItemViewModel): ViewModel
 
 }

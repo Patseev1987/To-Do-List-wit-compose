@@ -9,7 +9,7 @@ data class Task(
     var title: String,
     var content: String,
     var date: LocalDateTime?,
-    var tabItemName: String?,
+    var tabItemName: String,
     var status: TaskStatus,
     var isRemind: Boolean = false,
 )

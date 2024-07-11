@@ -1,4 +1,4 @@
-package com.example.todolistwithcompose.presentor.myUi
+package com.example.todolistwithcompose.presentor.mainScreen
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.BorderStroke
@@ -20,7 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.todolistwithcompose.R
 import com.example.todolistwithcompose.domain.Task
-import com.example.todolistwithcompose.presentor.viewModel.ViewModelFactory
+import com.example.todolistwithcompose.presentor.ViewModelFactory
 import com.example.todolistwithcompose.utils.getBoarderColor
 import com.example.todolistwithcompose.utils.getBoarderWidth
 import com.example.todolistwithcompose.utils.getColor
@@ -64,7 +64,7 @@ fun Task(task: Task, onTaskListener: (Task) -> Unit) {
 
             Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    text = stringResource(id = task.taskGroup.idString) ,
+                    text = task.tabItemName ,
                     color = Color.Black,
                     modifier = Modifier.weight(1f),
                 )
@@ -94,8 +94,17 @@ fun Task(task: Task, onTaskListener: (Task) -> Unit) {
 
 
 @Composable
-fun MainScreen(modifier: Modifier = Modifier,factory:ViewModelFactory ,  onTaskListener: (Task) -> Unit) {
-    TabView(factory = factory, onTaskListener = { onTaskListener(it) })
+fun MainScreen(
+    modifier: Modifier = Modifier,
+    factory: ViewModelFactory,
+    onTaskListener: (Task) -> Unit,
+    onAddTabItemListener: () -> Unit
+) {
+    TabView(
+        factory = factory,
+        onTaskListener = { onTaskListener(it) },
+        onAddTabItemListener = { onAddTabItemListener() }
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

@@ -1,29 +1,22 @@
-package com.example.todolistwithcompose.presentor.viewModel
+package com.example.todolistwithcompose.presentor.mainScreen
 
 import android.app.Application
-import android.content.Context
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoAwesomeMotion
 import androidx.compose.material.icons.outlined.AutoAwesomeMotion
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.todolistwithcompose.data.database.Dao
-import com.example.todolistwithcompose.data.database.TasksDatabase
 import com.example.todolistwithcompose.domain.TabItem
 import com.example.todolistwithcompose.domain.Task
-import com.example.todolistwithcompose.domain.TaskGroup
-import com.example.todolistwithcompose.domain.TaskStatus
-import com.example.todolistwithcompose.presentor.state.TabState
 import com.example.todolistwithcompose.utils.toTabItem
+import com.example.todolistwithcompose.utils.toTabItemEntity
 import com.example.todolistwithcompose.utils.toTask
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import java.time.LocalDateTime
 import javax.inject.Inject
 
 
@@ -35,38 +28,60 @@ class TabViewModel @Inject constructor (
     private val _state: MutableStateFlow<TabState> = MutableStateFlow(TabState.Init)
     val state = _state.asStateFlow()
     init {
-        loadData()
+        viewModelScope.launch(Dispatchers.IO) {
+            firstInitTabTAble()
+            val selectedTAb = dao.getTabItems()
+                .first { it.isSelected }
+                .toTabItem()
+            loadData(selectedTAb)
+        }
     }
 
 
 
-    fun loadData(
-        tab: TabItem =
-    ) {
+    fun loadData( tab: TabItem ) {
     viewModelScope.launch(Dispatchers.IO) {
         val tabs = dao.getTabItems().map { it.toTabItem() }
         dao.getTask().map { entity -> entity.map { it.toTask() } }
-            .collect{tasks ->
-                val tasksList = tasks.map {task ->
-                    if (task.tabItemName != ALL_TASKS.name) tasks.filter { tab.name == task.tabItemName } else task
-                }
+            .collect{ tasks ->
+                val tasksList = if (tab.name != ALL_TASKS.name)
+                    tasks.filter { it.tabItemName == tab.name }
+                else tasks
                 _state.value = TabState.Result(tasksList, tabs)
             }
     }
     }
 
-    fun deleteTask(task: Task) {
+    fun deleteTabItem(tab: TabItem) {
+        viewModelScope.launch(Dispatchers.IO) {
+            dao.clearTabItemByName(tab.name)
+        }
+    }
+
+    fun deleteTask (task: Task) {
         viewModelScope.launch(Dispatchers.IO) {
             dao.clearTaskById(task.id)
         }
     }
 
-    fun setSelected(tab: TabItem) {
+    fun setSelected(newSelected:TabItem, oldSelected:TabItem) {
+        viewModelScope.launch(Dispatchers.IO) {
 
-        dao.
+        }
+
     }
 
-   private companion object{
+    private suspend fun firstInitTabTAble(){
+      if (dao.getTabItems().map { entity -> entity.toTabItem() }.isEmpty()){
+          dao.insertTabItem(ALL_TASKS.toTabItemEntity())
+      }
+    }
+
+    private suspend fun updateTabItem( tabItem: TabItem){
+        dao.insertTabItem(tabItem.toTabItemEntity())
+    }
+
+    companion object{
         val ALL_TASKS = TabItem(
             name = "All",
             selectedIcon = Icons.Filled.AutoAwesomeMotion,

@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 interface Dao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertTabItem(task: TaskEntity)
+    suspend fun insertTask(task: TaskEntity)
 
     @Query("select * from tasks")
     fun getTask(): Flow<List<TaskEntity>>
@@ -35,4 +35,5 @@ interface Dao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertTabItem(tabItemEntity: TabItemEntity)
+
 }

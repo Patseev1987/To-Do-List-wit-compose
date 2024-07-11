@@ -10,6 +10,7 @@ sealed class Screen(val route: String) {
    data object HomeTaskScreen : Screen(HOME_TASK_SCREEN)
    data object FamilyTaskScreen : Screen(FAMILY_TASK_SCREEN)
    data object WorkTaskScreen : Screen(WORK_TASK_SCREEN)
+   data object AddTAbItemScreen : Screen(ADD_TAB_ITEM_SCREEN)
    data object UpdateScreen : Screen(UPDATE_TASK_SCREEN){
        private const val UPDATE_TASK_ROUTE = "update_screen"
        fun getRouteWithArgs(taskId: Long) = "$UPDATE_TASK_ROUTE/$taskId"
@@ -32,5 +33,6 @@ sealed class Screen(val route: String) {
         const val WORK_TASK_SCREEN = "work_task_screen"
         const val HOME_TASK_SCREEN = "home_task_screen"
         const val FAMILY_TASK_SCREEN = "family_task_screen"
+        const val ADD_TAB_ITEM_SCREEN = "add_tab_item_screen"
     }
 }

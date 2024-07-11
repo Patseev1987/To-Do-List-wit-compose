@@ -20,6 +20,7 @@ fun AppNavGraph(
     homeTaskScreenContent: @Composable () -> Unit = {},
     familyTaskScreenContent: @Composable () -> Unit = {},
     allTaskScreenContent: @Composable () -> Unit = {},
+    addTAbItemContent: @Composable () -> Unit = {},
 ) {
     NavHost(navController, startDestination = Screen.MainScreen.route) {
         composable(Screen.MainScreen.route) {
@@ -55,7 +56,6 @@ fun AppNavGraph(
             updateTaskScreenContent(taskId)
         }
 
-    //Test Tab navigate
 
         composable(
             route = Screen.WorkTaskScreen.route
@@ -79,6 +79,12 @@ fun AppNavGraph(
             route = Screen.AllTaskScreen.route
         ){
             allTaskScreenContent()
+        }
+
+        composable(
+            route = Screen.AddTAbItemScreen.route
+        ){
+            addTAbItemContent()
         }
 
     }

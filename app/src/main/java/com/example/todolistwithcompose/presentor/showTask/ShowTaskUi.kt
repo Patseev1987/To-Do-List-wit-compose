@@ -1,4 +1,4 @@
-package com.example.todolistwithcompose.presentor.myUi
+package com.example.todolistwithcompose.presentor.showTask
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
@@ -28,10 +28,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.todolistwithcompose.R
 import com.example.todolistwithcompose.ToDoApplication
-import com.example.todolistwithcompose.di.ApplicationComponent
 import com.example.todolistwithcompose.domain.Task
-import com.example.todolistwithcompose.presentor.state.ShowTaskState
-import com.example.todolistwithcompose.presentor.viewModel.ShowTaskViewModel
+import com.example.todolistwithcompose.presentor.mainScreen.DEFAULT_VALUE_FOR_SPACER
 
 
 @Composable
@@ -216,7 +214,7 @@ fun TaskInfo(task: Task, modifier: Modifier = Modifier) {
                     )
                 )
                 {
-                    append("   ${stringResource(id = task.taskGroup.idString)}")
+                    append(task.tabItemName)
                 }
             })
 

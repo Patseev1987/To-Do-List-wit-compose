@@ -1,4 +1,4 @@
-package com.example.todolistwithcompose.presentor.myUi
+package com.example.todolistwithcompose.presentor.addAndUpdateTask
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -27,10 +27,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.todolistwithcompose.R
 import com.example.todolistwithcompose.ToDoApplication
 import com.example.todolistwithcompose.domain.TabItem
-import com.example.todolistwithcompose.domain.TaskGroup
 import com.example.todolistwithcompose.domain.TaskStatus
-import com.example.todolistwithcompose.presentor.state.AddAndUpdateTaskState
-import com.example.todolistwithcompose.presentor.viewModel.AddAndUpdateTaskViewModel
+import com.example.todolistwithcompose.presentor.mainScreen.DEFAULT_VALUE_FOR_SPACER
 import com.vanpra.composematerialdialogs.MaterialDialog
 import com.vanpra.composematerialdialogs.datetime.date.datepicker
 import com.vanpra.composematerialdialogs.datetime.time.timepicker
@@ -266,19 +264,6 @@ fun RadioButtons(values: List<String>, selected: String, onSelectedListener: (St
         }
     }
 }
-
-//@Composable
-//fun RadioButtonsTaskGroup(selected: String, onSelectedListener: (String) -> Unit) {
-//    val taskGroups = listOf(
-//        stringResource(id = TaskGroup.WORK_TASK.idString),
-//        stringResource(id = TaskGroup.HOME_TASK.idString),
-//        stringResource(id = TaskGroup.FAMILY_TASK.idString)
-//    )
-//    RadioButtons(taskGroups, selected) {
-//        onSelectedListener(it)
-//    }
-//}
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

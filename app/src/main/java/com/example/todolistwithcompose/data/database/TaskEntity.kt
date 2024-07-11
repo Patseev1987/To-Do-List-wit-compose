@@ -20,7 +20,7 @@ data class TaskEntity(
     @ColumnInfo("date")
     var date: LocalDateTime?,
     @ColumnInfo("tab_item_name")
-    val tabItemName: String?,
+    val tabItemName: String,
     @ColumnInfo("status")
     var status: TaskStatus,
     @ColumnInfo("create_date")

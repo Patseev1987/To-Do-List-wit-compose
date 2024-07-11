@@ -1,10 +1,12 @@
-package com.example.todolistwithcompose.presentor.myUi
+package com.example.todolistwithcompose.presentor.mainScreen
 
 
+import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
-
-
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
@@ -13,19 +15,22 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.todolistwithcompose.domain.Task
-import com.example.todolistwithcompose.presentor.state.TabState
-import com.example.todolistwithcompose.presentor.viewModel.TabViewModel
-import com.example.todolistwithcompose.presentor.viewModel.ViewModelFactory
+import com.example.todolistwithcompose.presentor.ViewModelFactory
 import kotlinx.coroutines.launch
 
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun TabView(factory:ViewModelFactory, onTaskListener: (Task) -> Unit) {
+fun TabView(
+    factory: ViewModelFactory,
+    onTaskListener: (Task) -> Unit,
+    onAddTabItemListener:() -> Unit
+) {
+
     val viewModel = viewModel<TabViewModel>(factory = factory)
     val stateViewModel by viewModel.state.collectAsState(TabState.Init)
 
@@ -40,28 +45,32 @@ fun TabView(factory:ViewModelFactory, onTaskListener: (Task) -> Unit) {
 
             LaunchedEffect(pagerState) {
                 snapshotFlow { pagerState.currentPage }.collect { page ->
-                    val oldTAbSelected = pagerState.settledPage
-                    val newTabSelected = currentState.tabs[page]
-                    viewModel.setSelected ( newTabSelected, oldTAbSelected)
-                    viewModel.loadData(newTabSelected)
+
                 }
             }
-
             Column (modifier = Modifier
                 .fillMaxSize()
                 .padding(16.dp)
             ) {
                 Row(modifier = Modifier.fillMaxWidth()) {
-                IconButton(onClick = {}) {
-                    Icon(Icons.Filled.Add, contentDescription = null, modifier = Modifier.size(8.dp))
+                OutlinedButton(
+                    onClick = {onAddTabItemListener()}
+                ) {
+                    Icon(Icons.Filled.Add, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
                 }
+                    var selectedIndex = 0
 
-                    TabRow(selectedTabIndex = currentState.tabs.size) {
+                    currentState.tabs.forEachIndexed { index, tab -> if(tab.isSelected) selectedIndex = index }
+
+                    ScrollableTabRow(
+                        selectedTabIndex = selectedIndex,
+                        modifier = Modifier.weight(1f)) {
                         for ((index, tab) in currentState.tabs.withIndex()) {
                             Tab(
                                 selected = tab.isSelected,
                                 onClick = {
-                                    viewModel.setSelected(tab)
+                                    viewModel.loadData(tab)
+                               // viewModel.deleteTabItem(tab)
                                     scope.launch {
                                         pagerState.animateScrollToPage(index)
                                     }
@@ -77,7 +86,6 @@ fun TabView(factory:ViewModelFactory, onTaskListener: (Task) -> Unit) {
                         }
                     }
                 }
-            }
                 HorizontalPager(
                     state = pagerState,
                     modifier = Modifier

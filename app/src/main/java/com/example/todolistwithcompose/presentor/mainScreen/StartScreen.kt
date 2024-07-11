@@ -1,4 +1,4 @@
-package com.example.todolistwithcompose.presentor.myUi
+package com.example.todolistwithcompose.presentor.mainScreen
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.padding
@@ -10,7 +10,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.example.todolistwithcompose.domain.Task
-import com.example.todolistwithcompose.presentor.viewModel.ViewModelFactory
+import com.example.todolistwithcompose.presentor.ViewModelFactory
 
 
 @Composable
@@ -18,6 +18,7 @@ fun StartScreen(
     factory: ViewModelFactory,
     onFABClickListener: () -> Unit,
     onTaskListener:(Task) -> Unit,
+    onAddTabItemListener: () -> Unit,
 ) {
     Scaffold(
         floatingActionButton = {
@@ -32,6 +33,11 @@ fun StartScreen(
             )
         }
     ) { paddingValues ->
-        MainScreen(modifier = Modifier.padding(paddingValues),factory = factory ,onTaskListener = {onTaskListener(it)})
+        MainScreen(
+            modifier = Modifier.padding(paddingValues),
+            factory = factory,
+            onTaskListener = { onTaskListener(it) },
+            onAddTabItemListener = { onAddTabItemListener() }
+        )
     }
 }

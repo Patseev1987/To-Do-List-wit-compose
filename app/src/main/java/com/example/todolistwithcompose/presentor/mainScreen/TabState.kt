@@ -1,8 +1,5 @@
-package com.example.todolistwithcompose.presentor.state
+package com.example.todolistwithcompose.presentor.mainScreen
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AutoAwesomeMotion
-import androidx.compose.material.icons.outlined.AutoAwesomeMotion
 import com.example.todolistwithcompose.domain.TabItem
 import com.example.todolistwithcompose.domain.Task
 

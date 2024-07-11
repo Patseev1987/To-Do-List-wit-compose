@@ -1,4 +1,4 @@
-package com.example.todolistwithcompose.presentor.state
+package com.example.todolistwithcompose.presentor.mainScreen
 
 import com.example.todolistwithcompose.domain.Task
 

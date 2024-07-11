@@ -25,10 +25,10 @@ interface Dao {
     fun getLastId(): Long
 
     @Query("select * from tab_items where name = :name")
-    fun getTabItemByName(name: String):Flow <TabItemEntity?>
+    suspend fun getTabItemByName(name: String):TabItemEntity?
 
     @Query("select * from tab_items")
-    suspend fun getTabItems():List<TabItemEntity>
+    fun getTabItems():Flow <List<TabItemEntity>>
 
     @Query("delete  from tab_items where name = :name")
     suspend fun clearTabItemByName(name: String)

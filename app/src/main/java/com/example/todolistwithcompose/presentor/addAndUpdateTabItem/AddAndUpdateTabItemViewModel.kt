@@ -10,6 +10,7 @@ import com.example.todolistwithcompose.utils.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -27,17 +28,17 @@ class AddAndUpdateTabItemViewModel @Inject constructor(
 
     init {
         if (tabItemName.isNullOrBlank()) {
-            tabItem = TabItem(DEFAULT_NAME)
+            tabItem = TabItem(name = DEFAULT_NAME)
             _state.value = AddAndUpdateTabState.Result(tabItem)
         } else {
             viewModelScope.launch(Dispatchers.IO) {
-                dao.getTabItemByName(tabItemName).collect {
-                    tabItem = it?.toTabItem() ?: throw RuntimeException("Unknown tabItem")
+
+                    tabItem = dao.getTabItemByName(tabItemName)?.toTabItem() ?: throw RuntimeException("Unknown tabItem")
                     _state.value = AddAndUpdateTabState.Result(tabItem)
                 }
             }
         }
-    }
+
 
     fun setTabName(name: String) {
         tabItem = tabItem.copy(name = name)
@@ -70,8 +71,11 @@ class AddAndUpdateTabItemViewModel @Inject constructor(
     else appContext.getString(R.string.update_group)
 
     private suspend fun checkTabItem(tabItem: TabItem): Boolean {
-        val tabs = dao.getTabItems().map{ entity -> entity.toTabItem() }
-        return  (!(tabs.contains(tabItem) and (tabItem.name.isNotBlank())))
+        var tabs: List<TabItem> = listOf()
+        dao.getTabItems().map { entity ->
+            entity.map { it.toTabItem() }
+        }.collect { tabs = it }
+        return (!(tabs.contains(tabItem) and (tabItem.name.isNotBlank())))
     }
 
 

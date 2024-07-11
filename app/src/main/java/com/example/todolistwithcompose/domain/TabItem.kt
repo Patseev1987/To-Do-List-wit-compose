@@ -8,6 +8,7 @@ import com.example.todolistwithcompose.R
 import com.example.todolistwithcompose.navigation.Screen
 
 data class TabItem(
+    val id:Int = 0,
     var name: String,
     var selectedIcon: ImageVector = Icons.Filled.QuestionMark,
     var unselectedIcon: ImageVector = Icons.Outlined.QuestionMark,

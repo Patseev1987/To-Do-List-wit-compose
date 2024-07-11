@@ -26,6 +26,7 @@ import com.example.todolistwithcompose.utils.toTaskEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
@@ -48,7 +49,9 @@ class AddAndUpdateTaskViewModel @Inject constructor(
 
     init {
         viewModelScope.launch(Dispatchers.IO){
-            tabs = taskDao.getTabItems().map{tabItemEntity -> tabItemEntity.toTabItem() }
+             taskDao.getTabItems().map{tabEntities ->
+                 tabEntities.map { tabEntity -> tabEntity.toTabItem() }
+                  }.collect { tabItemList -> tabs = tabItemList }
             if (taskId != 0L) {
                     taskDao.getTaskById(taskId).collect {
                         task = it?.toTask() ?: throw IllegalArgumentException("Task not found")

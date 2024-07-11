@@ -36,7 +36,7 @@ fun TabView(
 
     when (val currentState = stateViewModel){
         is TabState.Init -> {
-
+                Text(text = "INIT")
         }
         is TabState.Result -> {
 

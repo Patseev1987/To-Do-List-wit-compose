@@ -76,6 +76,7 @@ fun Task.getBoarderColor(): Color {
 
 fun TabItem.toTabItemEntity(): TabItemEntity {
     return TabItemEntity(
+        id = this.id,
         name = this.name,
         iconSelectedName = this.selectedIcon.name,
         iconUnselectedName = this.unselectedIcon.name,
@@ -85,6 +86,7 @@ fun TabItem.toTabItemEntity(): TabItemEntity {
 
 fun TabItemEntity.toTabItem(): TabItem {
     return TabItem(
+        id = this.id,
         name = this.name,
         selectedIcon = selectedIcons.first{ icon -> icon.name == this.iconSelectedName},
         unselectedIcon = unselectedIcons.first{ icon -> icon.name == this.iconUnselectedName},

@@ -6,9 +6,9 @@ import androidx.lifecycle.viewModelScope
 import com.example.todolistwithcompose.R
 import com.example.todolistwithcompose.data.database.Dao
 import com.example.todolistwithcompose.utils.toTask
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class ShowTaskViewModel @Inject constructor(
@@ -17,10 +17,13 @@ class ShowTaskViewModel @Inject constructor(
     private val dao:Dao
 ):ViewModel() {
 
+    private val _state = MutableStateFlow<ShowTaskState>(ShowTaskState.Loading)
+    val state = _state.asStateFlow()
 
-    val state = dao.getTaskById(taskId)
-        .map { taskEntity -> taskEntity?.toTask() ?: throw Exception(appContext.getString(R.string.task_not_found)) }
-        .map { task -> ShowTaskState.Result(task) as ShowTaskState }
-        .stateIn(viewModelScope, SharingStarted.Lazily, ShowTaskState.Loading)
-
+    init {
+        viewModelScope.launch(Dispatchers.IO) {
+            val task = dao.getTaskById(taskId)?.toTask() ?: throw Exception("Task not found")
+            _state.value = ShowTaskState.Result(task)
+        }
+    }
 }

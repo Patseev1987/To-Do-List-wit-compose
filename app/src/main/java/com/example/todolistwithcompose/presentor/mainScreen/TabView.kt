@@ -76,7 +76,6 @@ fun TabView(
                             Tab(
                                 selected = tab.isSelected,
                                 onClick = {
-                                    viewModel.emitInLoadingFlow(tab)
                                     viewModel.setSelected(tab)
                                     scope.launch {
                                         pagerState.animateScrollToPage(index)
@@ -102,7 +101,7 @@ fun TabView(
                 ) {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
                         TaskWithFilter(
-                            tasks = currentState.task,
+                            tasks = currentState.tasks,
                             onDismissListener = { viewModel.deleteTask(it) },
                             onTaskListener = { onTaskListener(it) })
 

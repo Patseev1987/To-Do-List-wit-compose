@@ -113,11 +113,11 @@ fun AddAndUpdateTask(
                         MyButtons(
                             label = viewmodel.getLabel(),
                             addClickListener = {
-                              if  (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                                  launcherNotificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
-                              }else{
-                                  viewmodel.saveTask(onButtonListener)
-                              }
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                    launcherNotificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
+                                } else {
+                                    viewmodel.saveTask(onButtonListener)
+                                }
                             },
                             cancelClickListener = { onCancelListener() })
                     }
@@ -133,7 +133,7 @@ fun AddAndUpdateTask(
 fun MainPartForAddAndUpdateTask(
     currentState: AddAndUpdateTaskState.Result,
     label: String,
-    tabs:List<TabItem>,
+    tabs: List<TabItem>,
     onSelectedStatusListener: (status: String) -> Unit,
     onChangeTitleListener: (title: String) -> Unit,
     onChangeContentListener: (content: String) -> Unit,
@@ -181,11 +181,7 @@ fun MainPartForAddAndUpdateTask(
         fontFamily = FontFamily.SansSerif
     )
     Spacer(modifier = Modifier.height(DEFAULT_VALUE_FOR_SPACER))
-//    RadioButtonsTaskGroup(selected = stringResource(id = currentState.task.taskGroup.idString)) {
-//        onSelectedGroupListener(it)
-//    }
-
-    ExposedDropDownMenuWithTabItems(tabs = tabs){
+    ExposedDropDownMenuWithTabItems(tabs = tabs) {
         onMenuClickListener(it)
     }
     Spacer(modifier = Modifier.height(DEFAULT_VALUE_FOR_SPACER))
@@ -268,17 +264,18 @@ fun RadioButtons(values: List<String>, selected: String, onSelectedListener: (St
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExposedDropDownMenuWithTabItems(
-     tabs:List<TabItem>,
-     onClickListener:(TabItem) -> Unit
-){
+    tabs: List<TabItem>,
+    onClickListener: (TabItem) -> Unit
+) {
     val context = LocalContext.current
     var expanded by remember { mutableStateOf(false) }
-    var selectedText = remember { tabs.map { it.name }[0]}
+    var selectedText by remember { mutableStateOf(tabs[0].name) }
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(32.dp)
+            .padding(start = 25.dp, end = 25.dp),
+        contentAlignment = Alignment.Center
     ) {
         ExposedDropdownMenuBox(
             expanded = expanded,

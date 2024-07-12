@@ -15,11 +15,11 @@ class ApplicationRepositoryImpl @Inject constructor (private val dao:Dao) : Appl
     }
 
     override fun getTask(): Flow<List<Task>> {
-        return dao.getTask().map{ tasks -> tasks.map{it.toTask()} }
+        return dao.getTasks().map{ tasks -> tasks.map{it.toTask()} }
     }
 
-    override fun getTaskById(id: Long): Flow<Task?> {
-        return dao.getTaskById(id).map{ task -> task?.toTask()}
+    override fun getTaskById(id: Long): Task? {
+        return dao.getTaskById(id)?.toTask()
     }
 
     override suspend fun clearTaskById(id: Long) {

@@ -28,17 +28,16 @@ import kotlinx.coroutines.launch
 fun TabView(
     factory: ViewModelFactory,
     onTaskListener: (Task) -> Unit,
-    onAddTabItemListener: () -> Unit
+    onAddTabItemListener:() -> Unit
 ) {
 
     val viewModel = viewModel<TabViewModel>(factory = factory)
     val stateViewModel by viewModel.state.collectAsState(TabState.Init)
 
-    when (val currentState = stateViewModel) {
+    when (val currentState = stateViewModel){
         is TabState.Init -> {
-            Text(text = "INIT")
+                Text(text = "INIT")
         }
-
         is TabState.Result -> {
 
             val pagerState = rememberPagerState { currentState.tabs.size }
@@ -49,34 +48,27 @@ fun TabView(
 
                 }
             }
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp)
+            Column (modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
             ) {
                 Row(modifier = Modifier.fillMaxWidth()) {
-                    OutlinedButton(
-                        onClick = { onAddTabItemListener() }
-                    ) {
-                        Icon(
-                            Icons.Filled.Add,
-                            contentDescription = null,
-                            modifier = Modifier.size(ButtonDefaults.IconSize)
-                        )
-                    }
+                OutlinedButton(
+                    onClick = {onAddTabItemListener()}
+                ) {
+                    Icon(Icons.Filled.Add, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
+                }
                     var selectedIndex = 0
 
-                    currentState.tabs.forEachIndexed { index, tab -> if (tab.isSelected) selectedIndex = index }
+                    currentState.tabs.forEachIndexed { index, tab -> if(tab.isSelected) selectedIndex = index }
 
                     ScrollableTabRow(
                         selectedTabIndex = selectedIndex,
-                        modifier = Modifier.weight(1f)
-                    ) {
+                        modifier = Modifier.weight(1f)) {
                         for ((index, tab) in currentState.tabs.withIndex()) {
                             Tab(
                                 selected = tab.isSelected,
                                 onClick = {
-                                    viewModel.emitInLoadingFlow(tab)
                                     viewModel.setSelected(tab)
                                     scope.launch {
                                         pagerState.animateScrollToPage(index)
@@ -101,10 +93,10 @@ fun TabView(
                     userScrollEnabled = false
                 ) {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
-                        TaskWithFilter(
-                            tasks = currentState.task,
-                            onDismissListener = { viewModel.deleteTask(it) },
-                            onTaskListener = { onTaskListener(it) })
+                                TaskWithFilter(
+                                    tasks = currentState.task,
+                                    onDismissListener = { viewModel.deleteTask(it) },
+                                    onTaskListener = { onTaskListener(it) })
 
                     }
                 }

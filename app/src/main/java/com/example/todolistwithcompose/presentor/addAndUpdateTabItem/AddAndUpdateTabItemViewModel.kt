@@ -8,7 +8,10 @@ import com.example.todolistwithcompose.data.database.Dao
 import com.example.todolistwithcompose.domain.TabItem
 import com.example.todolistwithcompose.utils.*
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -30,7 +33,6 @@ class AddAndUpdateTabItemViewModel @Inject constructor(
             _state.value = AddAndUpdateTabState.Result(tabItem)
         } else {
             viewModelScope.launch(Dispatchers.IO) {
-
                     tabItem = dao.getTabItemByName(tabItemName)?.toTabItem() ?: throw RuntimeException("Unknown tabItem")
                     _state.value = AddAndUpdateTabState.Result(tabItem)
                 }
@@ -71,7 +73,7 @@ class AddAndUpdateTabItemViewModel @Inject constructor(
     private suspend fun checkTabItem(tabItem: TabItem): Boolean {
         val tabs = dao.getTabItems().map { entity ->
             entity.map { it.toTabItem() }
-        }.firstOrNull() ?: return false
+        }.firstOrNull() ?: throw IllegalStateException("selected tab is null")
         return (!(tabs.contains(tabItem) and (tabItem.name.isNotBlank())))
     }
 

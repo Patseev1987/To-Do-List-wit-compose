@@ -15,6 +15,7 @@ import com.example.todolistwithcompose.utils.toTabItem
 import com.example.todolistwithcompose.utils.toTabItemEntity
 import com.example.todolistwithcompose.utils.toTask
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -25,35 +26,49 @@ class TabViewModel @Inject constructor (
     private val dao: Dao
 ) : ViewModel() {
 
-    private val loadingTaskFlow:MutableSharedFlow<TabState> = MutableSharedFlow()
-    val state = dao.getTabItems().map { entities ->
-        entities.map { it.toTabItem() }
-    }.map {
-        val selected = dao.getSelectedTabItem()?.name ?: throw IllegalArgumentException ()
-        val tasks = dao.getTaskWithFilter(selected)
-            .firstOrNull()
-            ?.map { entity -> entity.toTask() } ?: emptyList()
-        TabState.Result(tabs = it , task = tasks)as TabState
-    }
-        .mergeWith(loadingTaskFlow)
-        .stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.Eagerly,
-        initialValue = TabState.Init
-    )
 
-    private fun <T> Flow<T>.mergeWith(anotherFlow: Flow<T>): Flow<T> {
-        return merge(this, anotherFlow)
-    }
+    private var cacheTabs = listOf<TabItem>()
+    private var cacheTasks = listOf<Task>()
+    private val _state: MutableStateFlow<TabState> = MutableStateFlow(TabState.Init)
+    val state = _state.asStateFlow()
 
-    fun emitInLoadingFlow(tabItem: TabItem){
-        viewModelScope.launch {
-              val task = dao.getTaskWithFilter(tabItem.name).map { it.map { it.toTask() } }.firstOrNull() ?: emptyList()
-            loadingTaskFlow.emit(
-                TabState.Result(task = task, tabs = (state.value as TabState.Result).tabs)
-            )
-        }
-    }
+   init {
+       viewModelScope.launch(Dispatchers.IO) {
+            dao.getTabItems().map{ entities ->
+                entities.map { entity -> entity.toTabItem() }
+            }.collect{
+                if (it.isEmpty()){
+                    dao.insertTabItem(ALL_TASKS.toTabItemEntity())
+                    val tabsList = listOf(dao.getSelectedTabItem()?.toTabItem()
+                        ?: throw IllegalStateException("Selected tab is null"))
+                        cacheTabs = tabsList
+                    _state.value = TabState.Result(
+                        task = cacheTasks,
+                        tabs = cacheTabs.sortedBy{tab -> tab.id}
+                    )
+                }
+                cacheTabs = it
+                _state.value = TabState.Result(
+                    task = emptyList(),
+                    tabs = cacheTabs.sortedBy{tab -> tab.id}
+                )
+            }
+       }
+       viewModelScope.launch(Dispatchers.IO) {
+           dao.getTask().map{ entities ->
+               entities.map { task -> task.toTask() }
+           }.collect{ tasks ->
+               cacheTasks = tasks
+               _state.value = TabState.Result(
+                   task = tasks,
+                   tabs = cacheTabs.sortedBy{task -> task.id}
+               )
+           }
+       }
+   }
+
+
+
 
     fun deleteTabItem(tab: TabItem) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -68,29 +83,15 @@ class TabViewModel @Inject constructor (
     }
 
     fun setSelected(tab:TabItem) {
-        viewModelScope.launch {
-            val oldSelected = dao.getSelectedTabItem()?.toTabItem()
-                ?: throw IllegalStateException("Selected tab must be!")
-            val unselected = oldSelected.copy(isSelected = false)
-            val newSelected = tab.copy(isSelected = true)
-            dao.insertTabItem(unselected.toTabItemEntity())
-            dao.insertTabItem(newSelected.toTabItemEntity())
-        }
-
-    }
-
-
-    private suspend fun updateTabItem( tabItem: TabItem){
-        dao.insertTabItem(tabItem.toTabItemEntity())
-    }
-
-
-    private suspend fun checkFirstStart(){
-        val tabs = dao.getTabItems().firstOrNull() ?: emptyList()
-        if (tabs.isEmpty()) {
-            dao.insertTabItem(ALL_TASKS.toTabItemEntity())
+        viewModelScope.launch(Dispatchers.IO) {
+            val newTabSelected = tab.copy(isSelected = true)
+            val oldSelectedTab = dao.getSelectedTabItem()?.copy(isSelected = false)
+                ?: throw IllegalStateException("tab selected is null")
+            dao.insertTabItem(oldSelectedTab)
+            dao.insertTabItem(newTabSelected.toTabItemEntity())
         }
     }
+
 
     companion object{
         val ALL_TASKS = TabItem(
@@ -100,5 +101,4 @@ class TabViewModel @Inject constructor (
             isSelected = true
         )
     }
-
 }

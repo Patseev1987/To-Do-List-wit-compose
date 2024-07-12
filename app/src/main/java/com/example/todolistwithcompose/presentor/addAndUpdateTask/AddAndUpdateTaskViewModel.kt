@@ -26,6 +26,7 @@ import com.example.todolistwithcompose.utils.toTaskEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -39,7 +40,7 @@ import javax.inject.Inject
 class AddAndUpdateTaskViewModel @Inject constructor(
     private val taskId: Long,
     private val appContext: Application,
-    private val taskDao:Dao
+    private val dao:Dao
 ) : ViewModel() {
 
     private lateinit var task: Task
@@ -49,11 +50,11 @@ class AddAndUpdateTaskViewModel @Inject constructor(
 
     init {
         viewModelScope.launch(Dispatchers.IO){
-             taskDao.getTabItems().map{tabEntities ->
+           tabs = dao.getTabItems().map{ tabEntities ->
                  tabEntities.map { tabEntity -> tabEntity.toTabItem() }
-                  }.collect { tabItemList -> tabs = tabItemList }
+                  }.firstOrNull() ?: throw IllegalStateException("tabs must be not empty")
             if (taskId != 0L) {
-                    taskDao.getTaskById(taskId).collect {
+                    dao.getTaskById(taskId).collect {
                         task = it?.toTask() ?: throw IllegalArgumentException("Task not found")
                         _state.value = AddAndUpdateTaskState.Result(task =  task, tabs = tabs)
                 }
@@ -124,7 +125,7 @@ class AddAndUpdateTaskViewModel @Inject constructor(
                         return@launch
                     }
                 }
-                taskDao.insertTask(task.toTaskEntity())
+                dao.insertTask(task.toTaskEntity())
                 withContext(Dispatchers.Main) {
                     onButtonListener()
                 }
@@ -158,7 +159,7 @@ class AddAndUpdateTaskViewModel @Inject constructor(
         val time = task.date?.atZone(ZoneId.systemDefault())?.toInstant()?.toEpochMilli()
         val alarmTime = time
             ?: throw RuntimeException("wrong time")
-        val requestCodeFromIdTask = if (taskId == 0L) taskDao.getLastId().toInt() else taskId.toInt()
+        val requestCodeFromIdTask = if (taskId == 0L) dao.getLastId().toInt() else taskId.toInt()
         val pendingIntent = PendingIntent.getBroadcast(
             appContext,
             requestCodeFromIdTask,

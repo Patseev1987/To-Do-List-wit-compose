@@ -39,7 +39,7 @@ class TabViewModel @Inject constructor(
             }.collect { tabs ->
                 cacheTabs = tabs
                 _state.value = TabState.Result(
-                    tasks = cacheTasks.withFilter(cacheSelectedTab),
+                    tasks = cacheTasks.withFilter(cacheSelectedTab).specialSort(),
                     tabs = cacheTabs
                 )
                 Log.d("TabViewModel", "Tab collect: $cacheTabs \n $cacheTasks")
@@ -51,7 +51,7 @@ class TabViewModel @Inject constructor(
             }.collect { tasks ->
                 cacheTasks = tasks
                 _state.value = TabState.Result(
-                    tasks = cacheTasks.withFilter(cacheSelectedTab),
+                    tasks = cacheTasks.withFilter(cacheSelectedTab).specialSort(),
                     tabs = cacheTabs
                 )
                 Log.d("TabViewModel", "Task collect: $cacheTabs \n $cacheTasks")
@@ -90,12 +90,16 @@ class TabViewModel @Inject constructor(
         return if (tab.name == ALL_TASKS.name) this else this.filter { it.tabItemName == tab.name }
     }
 
+    private fun List<Task>.specialSort(): List<Task> = this.sortedWith(compareBy<Task>{ task -> task.status }
+        .thenBy(nullsLast()) { task -> task.date })
+
     private suspend fun checkFirstStart() {
         val tabs = dao.getTabItems().firstOrNull() ?: emptyList()
         if (tabs.isEmpty()) {
             dao.insertTabItem(ALL_TASKS.toTabItemEntity())
         }
     }
+
 
     companion object {
         val ALL_TASKS = TabItem(

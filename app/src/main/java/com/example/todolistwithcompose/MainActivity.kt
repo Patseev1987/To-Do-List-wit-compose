@@ -11,7 +11,8 @@ import com.example.todolistwithcompose.presentor.mainScreen.*
 import com.example.todolistwithcompose.presentor.showTask.ShowTask
 import com.example.todolistwithcompose.presentor.theme.ui.ToDoListWithComposeTheme
 import com.example.todolistwithcompose.presentor.ViewModelFactory
-import com.example.todolistwithcompose.presentor.addAndUpdateTabItem.AddTabItem
+import com.example.todolistwithcompose.presentor.addTabItem.AddTabItem
+import com.example.todolistwithcompose.presentor.deleteTabItem.DeleteItemView
 import javax.inject.Inject
 
 class MainActivity : ComponentActivity() {
@@ -22,12 +23,11 @@ class MainActivity : ComponentActivity() {
     }
 
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         component.inject(this)
         super.onCreate(savedInstanceState)
         setContent {
-           ToDoListWithComposeTheme {
+            ToDoListWithComposeTheme {
                 val navState = rememberNavigationState()
                 AppNavGraph(
                     navController = navState.navHostController,
@@ -40,14 +40,17 @@ class MainActivity : ComponentActivity() {
                             },
                             onAddTabItemListener = {
                                 navState.navigateTo(Screen.AddTAbItemScreen.route)
+                            },
+                            onDeleteTabItemListener = {
+                                navState.navigateTo(Screen.DeleteTAbItemScreen.route)
                             }
                         )
                     },
                     addScreenContent = {
                         AddAndUpdateTask(
-                            onCancelListener =  {
-                            onBackPressedDispatcher.onBackPressed()
-                        },
+                            onCancelListener = {
+                                onBackPressedDispatcher.onBackPressed()
+                            },
                             onButtonListener = {
                                 onBackPressedDispatcher.onBackPressed()
                             }
@@ -63,7 +66,7 @@ class MainActivity : ComponentActivity() {
                         )
                     },
                     updateTaskScreenContent = { taskId ->
-                        AddAndUpdateTask(taskId = taskId,           onCancelListener =  {
+                        AddAndUpdateTask(taskId = taskId, onCancelListener = {
                             onBackPressedDispatcher.onBackPressed()
                         },
                             onButtonListener = {
@@ -72,9 +75,13 @@ class MainActivity : ComponentActivity() {
                     },
                     addTAbItemContent = {
                         AddTabItem(
+                            factory = factory,
                             onButtonClick = { onBackPressedDispatcher.onBackPressed() },
                             onCancel = { onBackPressedDispatcher.onBackPressed() }
-                            )
+                        )
+                    },
+                    deleteTAbItemContent = {
+                        DeleteItemView(factory = factory)
                     }
                 )
             }

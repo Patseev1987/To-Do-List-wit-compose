@@ -64,7 +64,7 @@ fun Task(task: Task, onTaskListener: (Task) -> Unit) {
 
             Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    text = task.tabItemName ,
+                    text = task.tabItemName,
                     color = Color.Black,
                     modifier = Modifier.weight(1f),
                 )
@@ -98,13 +98,14 @@ fun MainScreen(
     modifier: Modifier = Modifier,
     factory: ViewModelFactory,
     onTaskListener: (Task) -> Unit,
-    onAddTabItemListener: () -> Unit
+    onAddTabItemListener: () -> Unit,
+    onDeleteTabItemListener: () -> Unit,
 ) {
     TabView(
         factory = factory,
         onTaskListener = { onTaskListener(it) },
         onAddTabItemListener = { onAddTabItemListener() },
-        onDeleteTabItemListener = {}
+        onDeleteTabItemListener = { onDeleteTabItemListener() }
     )
 }
 

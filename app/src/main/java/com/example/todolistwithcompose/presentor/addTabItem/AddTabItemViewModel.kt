@@ -1,4 +1,4 @@
-package com.example.todolistwithcompose.presentor.addAndUpdateTabItem
+package com.example.todolistwithcompose.presentor.addTabItem
 
 import android.app.Application
 import androidx.lifecycle.ViewModel
@@ -17,13 +17,12 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 
-class AddAndUpdateTabItemViewModel @Inject constructor(
-    private val loadedMode: Int = ADD_MODE,
+class AddTabItemViewModel @Inject constructor(
     private val appContext: Application,
     private val dao: Dao
 ) : ViewModel() {
 
-    private lateinit var tabItem: TabItem
+    private var tabItem: TabItem
     private val _state: MutableStateFlow<AddAndUpdateTabState> = MutableStateFlow(AddAndUpdateTabState.Loading)
     val state = _state.asStateFlow()
 
@@ -60,8 +59,8 @@ class AddAndUpdateTabItemViewModel @Inject constructor(
         }
     }
 
-    fun getLabel(): String = if (loadedMode == ADD_MODE) appContext.getString(R.string.add_group)
-    else appContext.getString(R.string.delete_group)
+    fun getLabel(): String = appContext.getString(R.string.add_group)
+
 
     private suspend fun checkTabItem(tabItem: TabItem): Boolean {
         val tabs = dao.getTabItems().map { entity ->

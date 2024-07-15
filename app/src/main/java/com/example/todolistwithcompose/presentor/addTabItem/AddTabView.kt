@@ -1,4 +1,4 @@
-package com.example.todolistwithcompose.presentor.addAndUpdateTabItem
+package com.example.todolistwithcompose.presentor.addTabItem
 
 import android.annotation.SuppressLint
 import android.app.Activity
@@ -21,8 +21,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.todolistwithcompose.IconChoiceActivity
-import com.example.todolistwithcompose.ToDoApplication
 import com.example.todolistwithcompose.domain.TabItem
+import com.example.todolistwithcompose.presentor.ViewModelFactory
 import com.example.todolistwithcompose.presentor.addAndUpdateTask.MyButtons
 import com.example.todolistwithcompose.utils.selectedIcons
 import com.example.todolistwithcompose.utils.unselectedIcons
@@ -35,15 +35,12 @@ private const val FILLED = "Filled"
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 fun AddTabItem(
-    loadedMode: Int = AddAndUpdateTabItemViewModel.ADD_MODE,
+    factory:ViewModelFactory,
     onButtonClick: () -> Unit,
     onCancel: () -> Unit,
 ) {
     val context = LocalContext.current
-    val component = (context.applicationContext as ToDoApplication)
-        .component.getSubComponentFactoryWithLoadedMode().create(loadedMode)
-    val factory = component.getViewModelFactory()
-    val viewModel = viewModel<AddAndUpdateTabItemViewModel>(factory = factory)
+    val viewModel = viewModel<AddTabItemViewModel>(factory = factory)
     val state = viewModel.state.collectAsState(initial = AddAndUpdateTabState.Loading)
     val snackbarHostState = SnackbarHostState()
     val coroutineScope = rememberCoroutineScope()

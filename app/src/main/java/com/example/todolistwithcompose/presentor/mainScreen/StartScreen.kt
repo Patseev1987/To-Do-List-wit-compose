@@ -19,6 +19,7 @@ fun StartScreen(
     onFABClickListener: () -> Unit,
     onTaskListener:(Task) -> Unit,
     onAddTabItemListener: () -> Unit,
+    onDeleteTabItemListener: () -> Unit,
 ) {
     Scaffold(
         floatingActionButton = {
@@ -37,7 +38,8 @@ fun StartScreen(
             modifier = Modifier.padding(paddingValues),
             factory = factory,
             onTaskListener = { onTaskListener(it) },
-            onAddTabItemListener = { onAddTabItemListener() }
+            onAddTabItemListener = { onAddTabItemListener() },
+            onDeleteTabItemListener = { onDeleteTabItemListener() },
         )
     }
 }

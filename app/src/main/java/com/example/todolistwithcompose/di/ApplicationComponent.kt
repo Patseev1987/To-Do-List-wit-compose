@@ -14,7 +14,7 @@ interface ApplicationComponent {
 
  fun getSubComponentFactory(): ComponentWithId.SubComponentFactory
 
- fun getSubComponentFactoryWithLoadedMode():ComponentWithLoadedMode.SubComponentFactoryWithTabName
+
 
     @Factory
     interface ComponentFactory {

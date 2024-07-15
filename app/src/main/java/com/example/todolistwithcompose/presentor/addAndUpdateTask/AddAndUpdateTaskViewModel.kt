@@ -16,7 +16,6 @@ import com.example.todolistwithcompose.R
 import com.example.todolistwithcompose.data.database.Dao
 import com.example.todolistwithcompose.domain.TabItem
 import com.example.todolistwithcompose.domain.Task
-import com.example.todolistwithcompose.domain.TaskGroup
 import com.example.todolistwithcompose.domain.TaskStatus
 import com.example.todolistwithcompose.presentor.mainScreen.TabViewModel
 import com.example.todolistwithcompose.utils.AlarmReceiver
@@ -26,8 +25,8 @@ import com.example.todolistwithcompose.utils.toTaskEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
@@ -40,71 +39,63 @@ import javax.inject.Inject
 class AddAndUpdateTaskViewModel @Inject constructor(
     private val taskId: Long,
     private val appContext: Application,
-    private val dao:Dao
+    private val dao: Dao
 ) : ViewModel() {
 
     private lateinit var task: Task
-    private lateinit var tabs:List<TabItem>
+    private lateinit var tabs: List<TabItem>
     private val _state: MutableStateFlow<AddAndUpdateTaskState> = MutableStateFlow(AddAndUpdateTaskState.Loading)
     val state = _state.asStateFlow()
 
     init {
-        viewModelScope.launch(Dispatchers.IO){
-           tabs = dao.getTabItems().map{ tabEntities ->
-                 tabEntities.map { tabEntity -> tabEntity.toTabItem() }
-                  }.firstOrNull() ?: throw IllegalStateException("tabs must be not empty")
-            if (taskId != 0L) {
-                    dao.getTaskById(taskId).collect {
-                        task = it?.toTask() ?: throw IllegalArgumentException("Task not found")
-                        _state.value = AddAndUpdateTaskState.Result(task =  task, tabs = tabs)
-                }
-            } else {
-                task = DEFAULT_TASK
-                _state.value = AddAndUpdateTaskState.Result(task =  task, tabs = tabs)
-            }
+        viewModelScope.launch(Dispatchers.IO) {
+            tabs = dao.getTabItems().first().map { it.toTabItem() }
+            task = if (taskId != 0L) dao.getTaskById(taskId)?.toTask()
+                ?: throw Exception("Task with id=${taskId} not found")
+            else DEFAULT_TASK
+
+            _state.value = AddAndUpdateTaskState.Result(
+                task = task,
+                tabs = tabs
+            )
         }
-
-
     }
+
 
     fun setTitle(title: String) {
         task = task.copy(title = title)
-        _state.value = AddAndUpdateTaskState.Result(task =  task, tabs = tabs)
+        _state.value = AddAndUpdateTaskState.Result(task = task, tabs = tabs)
     }
 
     fun setContent(content: String) {
         task = task.copy(content = content)
-        _state.value = AddAndUpdateTaskState.Result(task =  task, tabs = tabs)
+        _state.value = AddAndUpdateTaskState.Result(task = task, tabs = tabs)
     }
 
-    fun setTabItemName(value: String) {
-        val taskGroup = TaskGroup.entries.first { appContext.getString(it.idString) == value }
-        task = task.copy(tabItemName = value)
-        _state.value = AddAndUpdateTaskState.Result(task =  task, tabs = tabs)
-    }
 
     fun setStatus(value: String) {
         val status = TaskStatus.entries.first { appContext.getString(it.idString) == value }
         task.status = status
-        _state.value = AddAndUpdateTaskState.Result(task =  task, tabs = tabs)
+        _state.value = AddAndUpdateTaskState.Result(task = task, tabs = tabs)
     }
 
     fun setTime(time: LocalTime) {
         val date = task.date?.toLocalDate()
         val newDate = LocalDateTime.of(date, time)
         task = task.copy(date = newDate)
-        _state.value = AddAndUpdateTaskState.Result(task =  task, tabs = tabs)
+        _state.value = AddAndUpdateTaskState.Result(task = task, tabs = tabs)
     }
 
     fun setDate(date: LocalDate) {
         val time = task.date?.toLocalTime()
         val newDate = LocalDateTime.of(date, time)
         task = task.copy(date = newDate)
-        _state.value = AddAndUpdateTaskState.Result(task =  task, tabs = tabs)
+        _state.value = AddAndUpdateTaskState.Result(task = task, tabs = tabs)
     }
+
     fun setGroup(tabItem: TabItem) {
         task.tabItemName = tabItem.name
-        _state.value = AddAndUpdateTaskState.Result(task =  task, tabs = tabs)
+        _state.value = AddAndUpdateTaskState.Result(task = task, tabs = tabs)
     }
 
     fun saveTask(onButtonListener: () -> Unit) {
@@ -166,13 +157,13 @@ class AddAndUpdateTaskViewModel @Inject constructor(
             intent,
             FLAG_IMMUTABLE
         )
-        if (isAlarmPermissionGranted()){
+        if (isAlarmPermissionGranted()) {
             alarmManager.setExact(
                 AlarmManager.RTC_WAKEUP,
                 alarmTime,
                 pendingIntent,
             )
-        }else {
+        } else {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 Intent().also { myIntent ->
                     myIntent.action = Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM
@@ -206,7 +197,7 @@ class AddAndUpdateTaskViewModel @Inject constructor(
 
     fun changeIsRemind() {
         task = task.copy(isRemind = !task.isRemind)
-        _state.value = AddAndUpdateTaskState.Result(task =  task, tabs = tabs)
+        _state.value = AddAndUpdateTaskState.Result(task = task, tabs = tabs)
         task.apply {
             date = if (isRemind) getNowDateWithoutSeconds() else null
         }
@@ -232,7 +223,7 @@ class AddAndUpdateTaskViewModel @Inject constructor(
     }
 
 
-    private companion object{
+    private companion object {
         val DEFAULT_TASK = Task(
             title = "",
             content = "",

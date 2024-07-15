@@ -10,7 +10,7 @@ interface ApplicationRepository {
 
     fun getTask(): Flow<List<Task>>
 
-    fun getTaskById(id: Long): Flow<Task?>
+    fun getTaskById(id: Long): Task?
 
     suspend fun clearTaskById(id: Long)
 

@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class GetTaskByIdUseCase @Inject constructor (private val repository: ApplicationRepository){
-    operator fun invoke(id: Long): Flow<Task?> {
+    operator fun invoke(id: Long): Task? {
        return repository.getTaskById(id)
     }
 }

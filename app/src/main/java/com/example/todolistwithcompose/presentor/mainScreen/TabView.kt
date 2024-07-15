@@ -3,20 +3,26 @@ package com.example.todolistwithcompose.presentor.mainScreen
 
 import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.todolistwithcompose.domain.Task
 import com.example.todolistwithcompose.presentor.ViewModelFactory
@@ -28,7 +34,8 @@ import kotlinx.coroutines.launch
 fun TabView(
     factory: ViewModelFactory,
     onTaskListener: (Task) -> Unit,
-    onAddTabItemListener: () -> Unit
+    onAddTabItemListener: () -> Unit,
+    onDeleteTabItemListener: () -> Unit,
 ) {
 
     val viewModel = viewModel<TabViewModel>(factory = factory)
@@ -36,7 +43,9 @@ fun TabView(
 
     when (val currentState = stateViewModel) {
         is TabState.Init -> {
-            Text(text = "INIT")
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
         }
 
         is TabState.Result -> {
@@ -46,7 +55,6 @@ fun TabView(
 
             LaunchedEffect(pagerState) {
                 snapshotFlow { pagerState.currentPage }.collect { page ->
-
                 }
             }
             Column(
@@ -54,16 +62,12 @@ fun TabView(
                     .fillMaxSize()
                     .padding(16.dp)
             ) {
-                Row(modifier = Modifier.fillMaxWidth()) {
-                    OutlinedButton(
-                        onClick = { onAddTabItemListener() }
-                    ) {
-                        Icon(
-                            Icons.Filled.Add,
-                            contentDescription = null,
-                            modifier = Modifier.size(ButtonDefaults.IconSize)
-                        )
-                    }
+                Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    MySegmentButton(
+                        onPlusClicked = { onAddTabItemListener() },
+                        onMinusClicked = { onDeleteTabItemListener() },
+                    )
+                    Spacer(Modifier.width(8.dp))
                     var selectedIndex = 0
 
                     currentState.tabs.forEachIndexed { index, tab -> if (tab.isSelected) selectedIndex = index }
@@ -113,3 +117,36 @@ fun TabView(
 }
 
 
+@Composable
+fun MySegmentButton(
+    modifier: Modifier = Modifier,
+    onPlusClicked: () -> Unit,
+    onMinusClicked: () -> Unit,
+) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Box(contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
+                .border(1.dp, Color.Black, RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
+                .width(40.dp)
+                .height(30.dp)
+                .clickable { onPlusClicked() }
+        ) {
+            Text(text = "+")
+        }
+        Box(contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .clip(RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp))
+                .border(1.dp, Color.Black, RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp))
+                .width(40.dp)
+                .height(30.dp)
+                .clickable { onMinusClicked() }
+        ) {
+            Text(text = "-", fontSize = 20.sp)
+        }
+    }
+}

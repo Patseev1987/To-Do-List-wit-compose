@@ -18,7 +18,7 @@ import javax.inject.Inject
 
 
 class AddAndUpdateTabItemViewModel @Inject constructor(
-    private val tabItemName: String? = null,
+    private val loadedMode: Int = ADD_MODE,
     private val appContext: Application,
     private val dao: Dao
 ) : ViewModel() {
@@ -28,15 +28,8 @@ class AddAndUpdateTabItemViewModel @Inject constructor(
     val state = _state.asStateFlow()
 
     init {
-        if (tabItemName.isNullOrBlank()) {
             tabItem = TabItem(name = DEFAULT_NAME)
             _state.value = AddAndUpdateTabState.Result(tabItem)
-        } else {
-            viewModelScope.launch(Dispatchers.IO) {
-                    tabItem = dao.getTabItemByName(tabItemName)?.toTabItem() ?: throw RuntimeException("Unknown tabItem")
-                    _state.value = AddAndUpdateTabState.Result(tabItem)
-                }
-            }
         }
 
 
@@ -67,8 +60,8 @@ class AddAndUpdateTabItemViewModel @Inject constructor(
         }
     }
 
-    fun getLabel(): String = if (tabItemName == null) appContext.getString(R.string.add_group)
-    else appContext.getString(R.string.update_group)
+    fun getLabel(): String = if (loadedMode == ADD_MODE) appContext.getString(R.string.add_group)
+    else appContext.getString(R.string.delete_group)
 
     private suspend fun checkTabItem(tabItem: TabItem): Boolean {
         val tabs = dao.getTabItems().map { entity ->
@@ -80,6 +73,8 @@ class AddAndUpdateTabItemViewModel @Inject constructor(
 
     companion object {
         private const val DEFAULT_NAME = "default_name"
+        const val ADD_MODE = 101
+        const val DELETE_MODE = 102
     }
 
 

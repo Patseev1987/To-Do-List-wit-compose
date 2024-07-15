@@ -35,15 +35,15 @@ private const val FILLED = "Filled"
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 fun AddTabItem(
-    tabItemName:String? = null,
+    loadedMode: Int = AddAndUpdateTabItemViewModel.ADD_MODE,
     onButtonClick: () -> Unit,
     onCancel: () -> Unit,
 ) {
     val context = LocalContext.current
     val component = (context.applicationContext as ToDoApplication)
-        .component.getSubComponentFactoryWithTabName().create(tabItemName)
+        .component.getSubComponentFactoryWithLoadedMode().create(loadedMode)
     val factory = component.getViewModelFactory()
-   val viewModel = viewModel<AddAndUpdateTabItemViewModel>(factory = factory)
+    val viewModel = viewModel<AddAndUpdateTabItemViewModel>(factory = factory)
     val state = viewModel.state.collectAsState(initial = AddAndUpdateTabState.Loading)
     val snackbarHostState = SnackbarHostState()
     val coroutineScope = rememberCoroutineScope()
@@ -52,6 +52,7 @@ fun AddTabItem(
         override fun createIntent(context: Context, input: Intent): Intent {
             return input
         }
+
         override fun parseResult(resultCode: Int, intent: Intent?): String {
             if (resultCode == Activity.RESULT_OK) {
                 val iconName = intent?.getStringExtra(IconChoiceActivity.EXTRA_ICON_NAME)
@@ -71,10 +72,10 @@ fun AddTabItem(
             throw IllegalArgumentException("Unknown icon type")
         }
     }
-    val launcher = rememberLauncherForActivityResult(contract = contract, onResult = {iconName ->
+    val launcher = rememberLauncherForActivityResult(contract = contract, onResult = { iconName ->
         if (iconName.contains(FILLED)) {
             viewModel.setSelectedIcon(iconName)
-        }else {
+        } else {
             viewModel.setUnselectedIcon(iconName)
         }
     })
@@ -83,8 +84,8 @@ fun AddTabItem(
         snackbarHost = {
             SnackbarHost(hostState = snackbarHostState)
         }
-    ) {paddingValues ->
-        when (val currentSate = state.value ) {
+    ) { paddingValues ->
+        when (val currentSate = state.value) {
             is AddAndUpdateTabState.Loading -> {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator(modifier = Modifier.size(100.dp))
@@ -94,30 +95,34 @@ fun AddTabItem(
 
             is AddAndUpdateTabState.Result -> {
 
-                 MainPartAddTabItem(
-                     label = viewModel.getLabel(),
-                     tabItem = currentSate.tabItem,
-                     onTextChangeListener = {
-                         viewModel.setTabName(it)
-                     },
-                     onCancelListener = {
-                         onCancel()
-                     },
-                     onOkListener = {
-                         viewModel.saveTabItem {
-                             onButtonClick()
-                         }
-                     },
-                     onTabItemSelectedListener = {
-                         launcher.launch(IconChoiceActivity
-                             .getIntent(context = context, IconChoiceActivity.FILLED_TYPE_ICON ))
-                     },
-                     onTabItemUnselectedListener = {
-                         launcher.launch(IconChoiceActivity
-                             .getIntent(context = context, IconChoiceActivity.OUTLINE_TYPE_ICON ))
-                     }
-                     )
-                if (currentSate.errorMessage.isNotEmpty()){
+                MainPartAddTabItem(
+                    label = viewModel.getLabel(),
+                    tabItem = currentSate.tabItem,
+                    onTextChangeListener = {
+                        viewModel.setTabName(it)
+                    },
+                    onCancelListener = {
+                        onCancel()
+                    },
+                    onOkListener = {
+                        viewModel.saveTabItem {
+                            onButtonClick()
+                        }
+                    },
+                    onTabItemSelectedListener = {
+                        launcher.launch(
+                            IconChoiceActivity
+                                .getIntent(context = context, IconChoiceActivity.FILLED_TYPE_ICON)
+                        )
+                    },
+                    onTabItemUnselectedListener = {
+                        launcher.launch(
+                            IconChoiceActivity
+                                .getIntent(context = context, IconChoiceActivity.OUTLINE_TYPE_ICON)
+                        )
+                    }
+                )
+                if (currentSate.errorMessage.isNotEmpty()) {
                     coroutineScope.launch {
                         snackbarHostState.showSnackbar(currentSate.errorMessage)
                     }
@@ -130,14 +135,14 @@ fun AddTabItem(
 
 @Composable
 fun MainPartAddTabItem(
-    label:String,
-    tabItem:TabItem,
+    label: String,
+    tabItem: TabItem,
     onTextChangeListener: (String) -> Unit,
     onCancelListener: () -> Unit,
     onOkListener: () -> Unit,
     onTabItemSelectedListener: () -> Unit,
     onTabItemUnselectedListener: () -> Unit,
-){
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -145,6 +150,8 @@ fun MainPartAddTabItem(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Text(label, style = TextStyle(fontSize = 20.sp))
+        Spacer(modifier = Modifier.size(20.dp))
         TextField(
             singleLine = true,
             textStyle = TextStyle().copy(fontSize = 24.sp),
@@ -171,19 +178,19 @@ fun MainPartAddTabItem(
 }
 
 @Composable
-fun RowWithIconAndText(text:String, icon:ImageVector, onClickIconListener: () -> Unit){
-    Row (
+fun RowWithIconAndText(text: String, icon: ImageVector, onClickIconListener: () -> Unit) {
+    Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(30.dp, Alignment.CenterHorizontally),
         verticalAlignment = Alignment.CenterVertically
-    ){
+    ) {
         Icon(
-            imageVector =  icon,
+            imageVector = icon,
             contentDescription = icon.name,
             modifier = Modifier
                 .size(100.dp)
                 .clickable { onClickIconListener() }
-            )
+        )
         Text(text = text, fontSize = 24.sp)
     }
 }

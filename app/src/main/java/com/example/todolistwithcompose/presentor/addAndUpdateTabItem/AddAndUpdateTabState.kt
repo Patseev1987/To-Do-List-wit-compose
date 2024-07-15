@@ -6,6 +6,7 @@ sealed class AddAndUpdateTabState {
     data object Loading : AddAndUpdateTabState()
     data class Result(
         val tabItem: TabItem,
-        val errorMessage: String = ""
+        val errorMessage: String = "",
+        var isProblemWithTasks: Boolean = false
     ) : AddAndUpdateTabState()
 }

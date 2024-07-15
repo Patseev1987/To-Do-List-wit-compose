@@ -103,7 +103,8 @@ fun MainScreen(
     TabView(
         factory = factory,
         onTaskListener = { onTaskListener(it) },
-        onAddTabItemListener = { onAddTabItemListener() }
+        onAddTabItemListener = { onAddTabItemListener() },
+        onDeleteTabItemListener = {}
     )
 }
 

@@ -86,6 +86,8 @@ class TabViewModel @Inject constructor(
     }
 
 
+
+
     private fun List<Task>.withFilter(tab: TabItem): List<Task> {
         return if (tab.name == ALL_TASKS.name) this else this.filter { it.tabItemName == tab.name }
     }
@@ -99,6 +101,8 @@ class TabViewModel @Inject constructor(
             dao.insertTabItem(ALL_TASKS.toTabItemEntity())
         }
     }
+
+
 
 
     companion object {

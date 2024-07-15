@@ -5,7 +5,6 @@ import com.example.todolistwithcompose.MainActivity
 import dagger.BindsInstance
 import dagger.Component
 import dagger.Component.Factory
-import dagger.Subcomponent
 
 @ApplicationScope
 @Component(modules = [DataModule::class, ViewModelsModule::class])
@@ -15,7 +14,7 @@ interface ApplicationComponent {
 
  fun getSubComponentFactory(): ComponentWithId.SubComponentFactory
 
- fun getSubComponentFactoryWithTabName():ComponentWithTabName.SubComponentFactoryWithTabName
+ fun getSubComponentFactoryWithLoadedMode():ComponentWithLoadedMode.SubComponentFactoryWithTabName
 
     @Factory
     interface ComponentFactory {

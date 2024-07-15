@@ -21,6 +21,7 @@ fun AppNavGraph(
     familyTaskScreenContent: @Composable () -> Unit = {},
     allTaskScreenContent: @Composable () -> Unit = {},
     addTAbItemContent: @Composable () -> Unit = {},
+    deleteTAbItemContent: @Composable (loadedMode:Int) -> Unit = {},
 ) {
     NavHost(navController, startDestination = Screen.MainScreen.route) {
         composable(Screen.MainScreen.route) {

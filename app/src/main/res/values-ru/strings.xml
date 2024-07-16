@@ -32,4 +32,17 @@
     <string name="family_tasks">Семейные задачи</string>
     <string name="all_task">Все задачи</string>
     <string name="permissions_denied">Разрешения не предоставленны</string>
+    <string name="selected_icon">Выбраная иконка</string>
+    <string name="add_group">Добавить группу</string>
+    <string name="update_group">Обновить группу</string>
+    <string name="delete_group">Удалить грппу</string>
+    <string name="choose_tab_item_for_delete">Выберите группу задач для удаления</string>
+    <string name="delete_task_group">Удалить группу задач</string>
+    <string name="dismiss">Отклонить</string>
+    <string name="confirm">Подтвердить</string>
+    <string name="are_you_sure">Вы уверены?</string>
+    <string name="you_have_tasks_with_group_are_you_sure_you_want_to_delete_this_tasks">"У Вас %1$d задач с группой
+        %2$s! Вы хотите удалить эти задачи? "
+    </string>
+    <string name="you_can_t_delete_all_tasks">Вы не можете удалить группу \"Все\"</string>
 </resources>

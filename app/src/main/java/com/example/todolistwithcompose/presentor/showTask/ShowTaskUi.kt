@@ -73,7 +73,7 @@ fun ShowTask(taskId: Long, updateClickListener: (Long) -> Unit, cancelClickListe
 fun MainPartShowTask(task: Task, modifier: Modifier = Modifier) {
     Card(
         shape = CardDefaults.outlinedShape,
-        colors = CardDefaults.cardColors(containerColor = Color.Gray.copy(alpha = 0.6f)),
+        colors = CardDefaults.cardColors(containerColor = Color.Gray.copy(alpha = 0.2f)),
         border = BorderStroke(2.dp, Color.Black),
         modifier = modifier
             .padding(16.dp)
@@ -195,6 +195,7 @@ fun TaskInfo(task: Task, modifier: Modifier = Modifier) {
         verticalArrangement = Arrangement.Center
     ) {
         Text(
+            textAlign = TextAlign.Center,
             text = buildAnnotatedString {
                 withStyle(
                     style = SpanStyle(
@@ -210,11 +211,11 @@ fun TaskInfo(task: Task, modifier: Modifier = Modifier) {
                     style = SpanStyle(
                         color = Color.Black,
                         fontFamily = FontFamily.SansSerif,
-                        fontSize = 20.sp
+                        fontSize = 25.sp
                     )
                 )
                 {
-                    append(task.tabItemName)
+                    append("\n\n${task.tabItemName}")
                 }
             })
 

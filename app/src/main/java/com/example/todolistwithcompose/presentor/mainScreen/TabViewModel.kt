@@ -34,6 +34,8 @@ class TabViewModel @Inject constructor(
     init {
         viewModelScope.launch(Dispatchers.IO) {
             checkFirstStart()
+            cacheSelectedTab = dao.getSelectedTabItem(true)?.toTabItem()
+                ?: throw IllegalArgumentException("Selected TabItem is null")
             dao.getTabItems().map { entities ->
                 entities.map { entity -> entity.toTabItem() }
             }.collect { tabs ->
@@ -60,11 +62,6 @@ class TabViewModel @Inject constructor(
     }
 
 
-    fun deleteTabItem(tab: TabItem) {
-        viewModelScope.launch(Dispatchers.IO) {
-            dao.clearTabItemByName(tab.name)
-        }
-    }
 
     fun deleteTask(task: Task) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -84,9 +81,6 @@ class TabViewModel @Inject constructor(
         }
 
     }
-
-
-
 
     private fun List<Task>.withFilter(tab: TabItem): List<Task> {
         return if (tab.name == ALL_TASKS.name) this else this.filter { it.tabItemName == tab.name }

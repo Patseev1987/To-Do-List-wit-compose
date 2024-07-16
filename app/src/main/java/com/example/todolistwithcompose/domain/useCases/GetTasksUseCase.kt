@@ -7,6 +7,6 @@ import javax.inject.Inject
 
 class GetTasksUseCase @Inject constructor (private val repository: ApplicationRepository) {
     operator fun invoke(): Flow<List<Task>> {
-        return repository.getTask()
+        return repository.getTasks()
     }
 }

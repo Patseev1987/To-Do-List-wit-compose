@@ -1,6 +1,7 @@
 package com.example.todolistwithcompose
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import com.example.todolistwithcompose.navigation.AppNavGraph
@@ -42,7 +43,7 @@ class MainActivity : ComponentActivity() {
                                 navState.navigateTo(Screen.AddTAbItemScreen.route)
                             },
                             onDeleteTabItemListener = {
-                                navState.navigateTo(Screen.DeleteTAbItemScreen.route)
+                                    navState.navigateTo(Screen.DeleteTAbItemScreen.route)
                             }
                         )
                     },
@@ -81,7 +82,15 @@ class MainActivity : ComponentActivity() {
                         )
                     },
                     deleteTAbItemContent = {
-                        DeleteItemView(factory = factory)
+                            DeleteItemView(
+                                factory = factory,
+                                cancelButtonListener = {
+                                    onBackPressedDispatcher.onBackPressed()
+                                },
+                                confirmButtonListener = {
+                                    onBackPressedDispatcher.onBackPressed()
+                                }
+                            )
                     }
                 )
             }

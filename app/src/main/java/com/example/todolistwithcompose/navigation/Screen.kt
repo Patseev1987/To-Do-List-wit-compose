@@ -11,7 +11,7 @@ sealed class Screen(val route: String) {
    data object FamilyTaskScreen : Screen(FAMILY_TASK_SCREEN)
    data object WorkTaskScreen : Screen(WORK_TASK_SCREEN)
    data object AddTAbItemScreen : Screen(ADD_TAB_ITEM_SCREEN)
-   data object DeleteTAbItemScreen : Screen(ADD_TAB_ITEM_SCREEN)
+   data object DeleteTAbItemScreen : Screen(DELETE_TAB_ITEM_SCREEN)
    data object UpdateScreen : Screen(UPDATE_TASK_SCREEN){
        private const val UPDATE_TASK_ROUTE = "update_screen"
        fun getRouteWithArgs(taskId: Long) = "$UPDATE_TASK_ROUTE/$taskId"

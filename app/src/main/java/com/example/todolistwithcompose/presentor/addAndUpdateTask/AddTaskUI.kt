@@ -6,6 +6,7 @@ import android.os.Build
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
@@ -264,6 +265,7 @@ fun RadioButtons(values: List<String>, selected: String, onSelectedListener: (St
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExposedDropDownMenuWithTabItems(
+    modifier: Modifier = Modifier,
     tabs: List<TabItem>,
     onClickListener: (TabItem) -> Unit
 ) {
@@ -272,7 +274,7 @@ fun ExposedDropDownMenuWithTabItems(
     var selectedText by remember { mutableStateOf(tabs[0].name) }
 
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(start = 25.dp, end = 25.dp),
         contentAlignment = Alignment.Center
@@ -415,8 +417,16 @@ fun MyDataPicker(
 }
 
 @Composable
-fun MyButtons(label: String, addClickListener: () -> Unit, cancelClickListener: () -> Unit) {
-    Row(horizontalArrangement = Arrangement.spacedBy(50.dp)) {
+fun MyButtons(
+    label: String,
+    addClickListener: () -> Unit,
+    cancelClickListener: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(50.dp),
+        modifier = modifier
+    ) {
         OutlinedButton(
             onClick = { addClickListener() },
             shape = RectangleShape,

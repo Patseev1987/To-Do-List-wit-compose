@@ -1,26 +1,20 @@
 package com.example.todolistwithcompose.presentor.mainScreen
 
 
-import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -131,22 +125,22 @@ fun MySegmentButton(
         Box(contentAlignment = Alignment.Center,
             modifier = Modifier
                 .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
-                .border(1.dp, Color.Black, RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
+                .border(2.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
                 .width(40.dp)
                 .height(30.dp)
                 .clickable { onPlusClicked() }
         ) {
-            Text(text = "+")
+            Text(text = "+", fontSize = 20.sp, fontWeight = FontWeight.Bold)
         }
         Box(contentAlignment = Alignment.Center,
             modifier = Modifier
                 .clip(RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp))
-                .border(1.dp, Color.Black, RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp))
+                .border(2.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp))
                 .width(40.dp)
                 .height(30.dp)
                 .clickable { onMinusClicked() }
         ) {
-            Text(text = "-", fontSize = 20.sp)
+            Text(text = "-", fontSize = 25.sp, fontWeight = FontWeight.Bold)
         }
     }
 }

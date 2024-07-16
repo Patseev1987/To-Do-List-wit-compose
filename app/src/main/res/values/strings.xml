@@ -36,5 +36,13 @@
     <string name="add_group">Add group</string>
     <string name="update_group">Update group</string>
     <string name="delete_group">Delete group</string>
-    <string name="choose_tab_item_for_delete">Choose tab item for delete</string>
+    <string name="choose_tab_item_for_delete">Choose task group for delete</string>
+    <string name="delete_task_group">Delete task group</string>
+    <string name="dismiss">Dismiss</string>
+    <string name="confirm">Confirm</string>
+    <string name="are_you_sure">Are you sure?</string>
+    <string name="you_have_tasks_with_group_are_you_sure_you_want_to_delete_this_tasks">You have %1$d tasks with group
+        %2$s!\n Are you sure you want to delete this tasks?
+    </string>
+    <string name="you_can_t_delete_all_tasks">You can\'t delete All tasks</string>
 </resources>

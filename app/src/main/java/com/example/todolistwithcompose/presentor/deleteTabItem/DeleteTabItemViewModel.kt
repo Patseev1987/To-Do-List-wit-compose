@@ -7,6 +7,8 @@ import com.example.todolistwithcompose.R
 import com.example.todolistwithcompose.data.database.Dao
 import com.example.todolistwithcompose.data.database.TaskEntity
 import com.example.todolistwithcompose.domain.TabItem
+import com.example.todolistwithcompose.domain.Task
+import com.example.todolistwithcompose.domain.useCases.*
 import com.example.todolistwithcompose.presentor.mainScreen.TabViewModel
 import com.example.todolistwithcompose.utils.*
 import kotlinx.coroutines.Dispatchers
@@ -18,7 +20,13 @@ import javax.inject.Inject
 
 class DeleteTabItemViewModel @Inject constructor(
     private val appContext: Application,
-    private val dao: Dao
+    private val getTabItemsUseCase: GetTabItemsUseCase,
+    private val getTasksUseCase: GetTasksUseCase,
+    private val deleteTaskUseCase: DeleteTaskUseCase,
+    private val deleteTabItemUseCase: DeleteTabItemUseCase,
+    private val getTabItemByNameUseCase: GetTabItemByNameUseCase,
+    private val getSelectedTabItemUseCase: GetSelectedTabItemUseCase,
+    private val insertTabItemUseCase: InsertTabItemUseCase
 ) : ViewModel() {
     var tabItem: TabItem? = null
     private val _state: MutableStateFlow<DeleteItemState> = MutableStateFlow(DeleteItemState.Loading)
@@ -26,13 +34,7 @@ class DeleteTabItemViewModel @Inject constructor(
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            val items = dao
-                .getTabItems()
-                .map { entities ->
-                    entities.map { entity ->
-                        entity.toTabItem()
-                    }
-                }.firstOrNull()
+            val items = getTabItemsUseCase().firstOrNull()
                 ?: throw IllegalArgumentException("Items must exist!")
             tabItem = items.first()
             _state.value = DeleteItemState.Result(items = items)
@@ -46,17 +48,17 @@ class DeleteTabItemViewModel @Inject constructor(
 
     fun deleteItem() = viewModelScope.launch(Dispatchers.IO) {
         val tab = tabItem ?: return@launch
-        dao.clearTabItemByName(tab.name)
-        val taskIds = dao.getTasks()
-            .firstOrNull()?.filter { entity -> entity.tabItemName == tab.name }
+        deleteTabItemUseCase(tab.name)
+        val taskIds = getTasksUseCase()
+            .firstOrNull()
+            ?.filter { entity -> entity.tabItemName == tab.name }
             ?.map { entity -> entity.id } ?: emptyList()
-        taskIds.forEach { taskId -> dao.clearTaskById(taskId) }
-        val selected = dao.getSelectedTabItem(true)
+        taskIds.forEach { taskId -> deleteTaskUseCase(taskId) }
+        val selected = getSelectedTabItemUseCase()
         if (selected?.name == null) {
-            var tabItem = dao.getTabItemByName(TabViewModel.ALL_TASKS.name)
-                ?: throw IllegalArgumentException("All tasks must be")
+            var tabItem = getTabItemByNameUseCase(TabViewModel.ALL_TASKS.name)
             tabItem = tabItem.copy(isSelected = true)
-            dao.insertTabItem(tabItem)
+            insertTabItemUseCase(tabItem)
         }
     }
 
@@ -66,8 +68,9 @@ class DeleteTabItemViewModel @Inject constructor(
             return@launch
         }
         val tab = tabItem ?: return@launch
-        val tasks = dao.getTasks()
-            .firstOrNull()?.filter { entity -> entity.tabItemName == tab.name } ?: emptyList()
+        val tasks = getTasksUseCase()
+            .firstOrNull()
+            ?.filter { entity -> entity.tabItemName == tab.name } ?: emptyList()
         if (tasks.isNotEmpty()) {
             _state.value = (_state.value as DeleteItemState.Result).copy(
                 isProblemWithTasks = true,
@@ -81,7 +84,7 @@ class DeleteTabItemViewModel @Inject constructor(
         }
     }
 
-    private fun getMessage(tasks: List<TaskEntity>): String {
+    private fun getMessage(tasks: List<Task>): String {
         return appContext.getString(
             R.string.you_have_tasks_with_group_are_you_sure_you_want_to_delete_this_tasks,
             tasks.size,

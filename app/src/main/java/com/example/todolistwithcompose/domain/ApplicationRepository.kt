@@ -5,7 +5,6 @@ import kotlinx.coroutines.flow.Flow
 
 interface ApplicationRepository {
 
-
     suspend fun insertTask(task: Task)
 
     fun getTasks(): Flow<List<Task>>
@@ -16,13 +15,13 @@ interface ApplicationRepository {
 
     fun getLastId(): Long
 
-    fun getTaskWithFilter(filter:String): Flow<List<Task>>
+    fun getTaskWithFilter(filter: String): Flow<List<Task>>
 
     suspend fun getTabItemByName(name: String): TabItem
 
-    suspend fun getSelectedTabItem(isSelected: Boolean = true): TabItem
+    suspend fun getSelectedTabItem(isSelected: Boolean = true): TabItem?
 
-    fun getTabItems():Flow <List<TabItem>>
+    fun getTabItems(): Flow<List<TabItem>>
 
     suspend fun clearTabItemByName(name: String)
 

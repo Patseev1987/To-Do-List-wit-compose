@@ -6,6 +6,9 @@ import androidx.lifecycle.viewModelScope
 import com.example.todolistwithcompose.R
 import com.example.todolistwithcompose.data.database.Dao
 import com.example.todolistwithcompose.domain.TabItem
+import com.example.todolistwithcompose.domain.useCases.GetTabItemsUseCase
+import com.example.todolistwithcompose.domain.useCases.InsertTabItemUseCase
+import com.example.todolistwithcompose.domain.useCases.InsertTaskUseCase
 import com.example.todolistwithcompose.utils.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,7 +22,8 @@ import javax.inject.Inject
 
 class AddTabItemViewModel @Inject constructor(
     private val appContext: Application,
-    private val dao: Dao
+    private val insertTabItemsUseCase: InsertTabItemUseCase,
+    private val getTabItemsUseCase: GetTabItemsUseCase,
 ) : ViewModel() {
 
     private var tabItem: TabItem
@@ -31,27 +35,25 @@ class AddTabItemViewModel @Inject constructor(
             _state.value = AddAndUpdateTabState.Result(tabItem)
         }
 
-
     fun setTabName(name: String) {
         tabItem = tabItem.copy(name = name)
         _state.value = AddAndUpdateTabState.Result(tabItem)
     }
 
     fun setSelectedIcon(selectedItemName: String) {
-        tabItem = tabItem.copy(selectedIcon = selectedIcons.first { it.name == selectedItemName })
+        tabItem = tabItem.copy(selectedIcon = selectedIcons.first { it.name.contains(selectedItemName) })
         _state.value = AddAndUpdateTabState.Result(tabItem)
     }
 
     fun setUnselectedIcon(unselectedItemName: String) {
-        tabItem = tabItem.copy(unselectedIcon = unselectedIcons.first { it.name == unselectedItemName })
+        tabItem = tabItem.copy(unselectedIcon = unselectedIcons.first { it.name.contains(unselectedItemName) })
         _state.value = AddAndUpdateTabState.Result(tabItem)
     }
-
 
     fun saveTabItem(onButtonListener: () -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             if (checkTabItem(tabItem)) {
-                dao.insertTabItem(tabItem.toTabItemEntity())
+                insertTabItemsUseCase(tabItem)
                 withContext(Dispatchers.Main) {
                     onButtonListener()
                 }
@@ -61,19 +63,14 @@ class AddTabItemViewModel @Inject constructor(
 
     fun getLabel(): String = appContext.getString(R.string.add_group)
 
-
     private suspend fun checkTabItem(tabItem: TabItem): Boolean {
-        val tabs = dao.getTabItems().map { entity ->
-            entity.map { it.toTabItem() }
-        }.firstOrNull() ?: throw IllegalStateException("selected tab is null")
+        val tabs = getTabItemsUseCase().firstOrNull()
+            ?: throw IllegalStateException("selected tab is null")
         return (!(tabs.contains(tabItem) and (tabItem.name.isNotBlank())))
     }
 
-
     companion object {
         private const val DEFAULT_NAME = "default_name"
-        const val ADD_MODE = 101
-        const val DELETE_MODE = 102
     }
 
 

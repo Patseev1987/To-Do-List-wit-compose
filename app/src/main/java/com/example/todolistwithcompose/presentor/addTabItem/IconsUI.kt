@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.ArrowDropDown
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -21,7 +23,6 @@ fun IconList(icons: List<ImageVector>, onClickListener: (ImageVector) -> Unit) {
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 24.dp),
     ) {
         items(items = icons, key = { icon -> icon.name }) { icon ->
-
                 Icon(
                     modifier = Modifier
                         .clickable { onClickListener(icon) }
@@ -29,8 +30,6 @@ fun IconList(icons: List<ImageVector>, onClickListener: (ImageVector) -> Unit) {
                     imageVector = icon,
                     contentDescription = icon.name
                 )
-
-
         }
     }
 }

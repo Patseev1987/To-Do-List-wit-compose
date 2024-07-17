@@ -11,7 +11,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.example.todolistwithcompose.presentor.addTabItem.IconList
-import com.example.todolistwithcompose.ui.theme.ToDoListWithComposeTheme
+import com.example.todolistwithcompose.presentor.theme.ui.ToDoListWithComposeTheme
 import com.example.todolistwithcompose.utils.selectedIcons
 import com.example.todolistwithcompose.utils.unselectedIcons
 

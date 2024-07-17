@@ -10,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.todolistwithcompose.data.database.Dao
 import com.example.todolistwithcompose.domain.TabItem
 import com.example.todolistwithcompose.domain.Task
+import com.example.todolistwithcompose.domain.useCases.*
 import com.example.todolistwithcompose.utils.toTabItem
 import com.example.todolistwithcompose.utils.toTabItemEntity
 import com.example.todolistwithcompose.utils.toTask
@@ -21,8 +22,11 @@ import javax.inject.Inject
 
 
 class TabViewModel @Inject constructor(
-    private val appContext: Application,
-    private val dao: Dao
+    private val getSelectedTabItemUseCase: GetSelectedTabItemUseCase,
+    private val getTabItemsUseCase: GetTabItemsUseCase,
+    private val getTasksUseCase: GetTasksUseCase,
+    private val deleteTaskUseCase: DeleteTaskUseCase,
+    private val insertTabItemUseCase: InsertTabItemUseCase
 ) : ViewModel() {
 
     private var cacheTabs = listOf<TabItem>()
@@ -34,11 +38,9 @@ class TabViewModel @Inject constructor(
     init {
         viewModelScope.launch(Dispatchers.IO) {
             checkFirstStart()
-            cacheSelectedTab = dao.getSelectedTabItem(true)?.toTabItem()
+            cacheSelectedTab = getSelectedTabItemUseCase()
                 ?: throw IllegalArgumentException("Selected TabItem is null")
-            dao.getTabItems().map { entities ->
-                entities.map { entity -> entity.toTabItem() }
-            }.collect { tabs ->
+            getTabItemsUseCase().collect { tabs ->
                 cacheTabs = tabs
                 _state.value = TabState.Result(
                     tasks = cacheTasks.withFilter(cacheSelectedTab).specialSort(),
@@ -48,9 +50,7 @@ class TabViewModel @Inject constructor(
             }
         }
         viewModelScope.launch(Dispatchers.IO) {
-            dao.getTasks().map { entities ->
-                entities.map { entity -> entity.toTask() }
-            }.collect { tasks ->
+            getTasksUseCase().collect { tasks ->
                 cacheTasks = tasks
                 _state.value = TabState.Result(
                     tasks = cacheTasks.withFilter(cacheSelectedTab).specialSort(),
@@ -62,22 +62,21 @@ class TabViewModel @Inject constructor(
     }
 
 
-
     fun deleteTask(task: Task) {
         viewModelScope.launch(Dispatchers.IO) {
-            dao.clearTaskById(task.id)
+            deleteTaskUseCase(task.id)
         }
     }
 
     fun setSelected(tab: TabItem) {
         viewModelScope.launch {
-            val oldSelected = dao.getSelectedTabItem()?.toTabItem()
+            val oldSelected = getSelectedTabItemUseCase()
                 ?: throw IllegalStateException("Selected tab must be!")
             val unselected = oldSelected.copy(isSelected = false)
             val newSelected = tab.copy(isSelected = true)
             cacheSelectedTab = newSelected
-            dao.insertTabItem(unselected.toTabItemEntity())
-            dao.insertTabItem(newSelected.toTabItemEntity())
+            insertTabItemUseCase(unselected)
+            insertTabItemUseCase(newSelected)
         }
 
     }
@@ -86,18 +85,15 @@ class TabViewModel @Inject constructor(
         return if (tab.name == ALL_TASKS.name) this else this.filter { it.tabItemName == tab.name }
     }
 
-    private fun List<Task>.specialSort(): List<Task> = this.sortedWith(compareBy<Task>{ task -> task.status }
+    private fun List<Task>.specialSort(): List<Task> = this.sortedWith(compareBy<Task> { task -> task.status }
         .thenBy(nullsLast()) { task -> task.date })
 
     private suspend fun checkFirstStart() {
-        val tabs = dao.getTabItems().firstOrNull() ?: emptyList()
+        val tabs = getTabItemsUseCase().firstOrNull() ?: emptyList()
         if (tabs.isEmpty()) {
-            dao.insertTabItem(ALL_TASKS.toTabItemEntity())
+            insertTabItemUseCase(ALL_TASKS)
         }
     }
-
-
-
 
     companion object {
         val ALL_TASKS = TabItem(
@@ -107,5 +103,4 @@ class TabViewModel @Inject constructor(
             isSelected = true
         )
     }
-
 }

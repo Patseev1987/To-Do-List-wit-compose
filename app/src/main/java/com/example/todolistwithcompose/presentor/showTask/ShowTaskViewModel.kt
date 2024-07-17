@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.todolistwithcompose.R
 import com.example.todolistwithcompose.data.database.Dao
+import com.example.todolistwithcompose.domain.useCases.GetTaskByIdUseCase
 import com.example.todolistwithcompose.utils.toTask
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
@@ -13,8 +14,7 @@ import javax.inject.Inject
 
 class ShowTaskViewModel @Inject constructor(
     private val taskId: Long,
-    private val appContext: Application,
-    private val dao:Dao
+    private val getTaskByIdUseCase: GetTaskByIdUseCase,
 ):ViewModel() {
 
     private val _state = MutableStateFlow<ShowTaskState>(ShowTaskState.Loading)
@@ -22,7 +22,7 @@ class ShowTaskViewModel @Inject constructor(
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            val task = dao.getTaskById(taskId)?.toTask() ?: throw Exception("Task not found")
+            val task = getTaskByIdUseCase(taskId) ?: throw Exception("Task not found")
             _state.value = ShowTaskState.Result(task)
         }
     }

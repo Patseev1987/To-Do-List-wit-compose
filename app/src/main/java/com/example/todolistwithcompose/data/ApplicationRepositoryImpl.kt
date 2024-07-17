@@ -43,9 +43,8 @@ class ApplicationRepositoryImpl @Inject constructor (private val dao:Dao) : Appl
             ?: throw RuntimeException("TabItem with name $name not found")
     }
 
-    override suspend fun getSelectedTabItem(isSelected: Boolean ): TabItem{
+    override suspend fun getSelectedTabItem(isSelected: Boolean ): TabItem?{
         return dao.getSelectedTabItem(isSelected)?.toTabItem()
-            ?: throw RuntimeException("Selected TabItem must exist")
     }
 
     override fun getTabItems():Flow <List<TabItem>>{

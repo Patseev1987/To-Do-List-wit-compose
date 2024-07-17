@@ -17,6 +17,10 @@ import com.example.todolistwithcompose.data.database.Dao
 import com.example.todolistwithcompose.domain.TabItem
 import com.example.todolistwithcompose.domain.Task
 import com.example.todolistwithcompose.domain.TaskStatus
+import com.example.todolistwithcompose.domain.useCases.GetLastIdUseCase
+import com.example.todolistwithcompose.domain.useCases.GetTabItemsUseCase
+import com.example.todolistwithcompose.domain.useCases.GetTaskByIdUseCase
+import com.example.todolistwithcompose.domain.useCases.InsertTaskUseCase
 import com.example.todolistwithcompose.presentor.mainScreen.TabViewModel
 import com.example.todolistwithcompose.utils.AlarmReceiver
 import com.example.todolistwithcompose.utils.toTabItem
@@ -39,7 +43,10 @@ import javax.inject.Inject
 class AddAndUpdateTaskViewModel @Inject constructor(
     private val taskId: Long,
     private val appContext: Application,
-    private val dao: Dao
+    private val getTabItemsUseCase: GetTabItemsUseCase,
+    private val getTaskByIdUseCase: GetTaskByIdUseCase,
+    private val insertTaskUseCase: InsertTaskUseCase,
+    private val getLastIdUseCase: GetLastIdUseCase
 ) : ViewModel() {
 
     private lateinit var task: Task
@@ -49,8 +56,8 @@ class AddAndUpdateTaskViewModel @Inject constructor(
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            tabs = dao.getTabItems().first().map { it.toTabItem() }
-            task = if (taskId != 0L) dao.getTaskById(taskId)?.toTask()
+            tabs = getTabItemsUseCase().first()
+            task = if (taskId != 0L) getTaskByIdUseCase(taskId)
                 ?: throw Exception("Task with id=${taskId} not found")
             else DEFAULT_TASK
 
@@ -116,7 +123,7 @@ class AddAndUpdateTaskViewModel @Inject constructor(
                         return@launch
                     }
                 }
-                dao.insertTask(task.toTaskEntity())
+               insertTaskUseCase(task)
                 withContext(Dispatchers.Main) {
                     onButtonListener()
                 }
@@ -150,7 +157,7 @@ class AddAndUpdateTaskViewModel @Inject constructor(
         val time = task.date?.atZone(ZoneId.systemDefault())?.toInstant()?.toEpochMilli()
         val alarmTime = time
             ?: throw RuntimeException("wrong time")
-        val requestCodeFromIdTask = if (taskId == 0L) dao.getLastId().toInt() else taskId.toInt()
+        val requestCodeFromIdTask = if (taskId == 0L)  getLastIdUseCase().toInt() else taskId.toInt()
         val pendingIntent = PendingIntent.getBroadcast(
             appContext,
             requestCodeFromIdTask,

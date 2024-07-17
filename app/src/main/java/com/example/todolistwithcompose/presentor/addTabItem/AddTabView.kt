@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.compose.foundation.clickable
@@ -54,10 +55,11 @@ fun AddTabItem(
             if (resultCode == Activity.RESULT_OK) {
                 val iconName = intent?.getStringExtra(IconChoiceActivity.EXTRA_ICON_NAME)
                 return when (val iconType = intent?.getIntExtra(IconChoiceActivity.EXTRA_TYPE_ICON, -1)) {
-                    IconChoiceActivity.FILLED_TYPE_ICON -> selectedIcons
-                        .map { it.name }
-                        .first { it == iconName }
-
+                    IconChoiceActivity.FILLED_TYPE_ICON -> {
+                        selectedIcons
+                            .map { it.name }
+                            .first { it == iconName }
+                    }
                     IconChoiceActivity.OUTLINE_TYPE_ICON -> unselectedIcons
                         .map { it.name }
                         .first { it == iconName }
@@ -70,11 +72,9 @@ fun AddTabItem(
         }
     }
     val launcher = rememberLauncherForActivityResult(contract = contract, onResult = { iconName ->
-        if (iconName.contains(FILLED)) {
-            viewModel.setSelectedIcon(iconName)
-        } else {
-            viewModel.setUnselectedIcon(iconName)
-        }
+        val name = iconName.split(".").last()
+            viewModel.setSelectedIcon(name)
+            viewModel.setUnselectedIcon(name)
     })
 
     Scaffold(

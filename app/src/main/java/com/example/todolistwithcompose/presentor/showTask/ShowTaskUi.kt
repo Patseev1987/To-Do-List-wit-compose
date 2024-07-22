@@ -15,7 +15,6 @@ import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.ParagraphStyle
 import androidx.compose.ui.text.SpanStyle
@@ -28,7 +27,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.todolistwithcompose.R
-import com.example.todolistwithcompose.ToDoApplication
 import com.example.todolistwithcompose.domain.Task
 import com.example.todolistwithcompose.getApplicationComponent
 import com.example.todolistwithcompose.presentor.mainScreen.DEFAULT_VALUE_FOR_SPACER

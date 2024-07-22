@@ -20,7 +20,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.todolistwithcompose.R
 import com.example.todolistwithcompose.domain.Task
-import com.example.todolistwithcompose.presentor.ViewModelFactory
 import com.example.todolistwithcompose.utils.getBoarderColor
 import com.example.todolistwithcompose.utils.getBoarderWidth
 import com.example.todolistwithcompose.utils.getColor
@@ -86,13 +85,12 @@ fun Task(task: Task, onTaskListener: (Task) -> Unit) {
 @Composable
 fun MainScreen(
     modifier: Modifier = Modifier,
-    factory: ViewModelFactory,
     onTaskListener: (Task) -> Unit,
     onAddTabItemListener: () -> Unit,
     onDeleteTabItemListener: () -> Unit,
 ) {
     TabView(
-        factory = factory,
+        modifier = modifier,
         onTaskListener = { onTaskListener(it) },
         onAddTabItemListener = { onAddTabItemListener() },
         onDeleteTabItemListener = { onDeleteTabItemListener() }

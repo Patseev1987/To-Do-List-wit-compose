@@ -20,32 +20,35 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.todolistwithcompose.R
 import com.example.todolistwithcompose.domain.TabItem
+import com.example.todolistwithcompose.getApplicationComponent
 import com.example.todolistwithcompose.presentor.ViewModelFactory
 import com.example.todolistwithcompose.presentor.addAndUpdateTask.ExposedDropDownMenuWithTabItems
 import com.example.todolistwithcompose.presentor.addAndUpdateTask.MyButtons
 
 @Composable
 fun DeleteItemView(
-    factory: ViewModelFactory,
     cancelButtonListener: () -> Unit,
     confirmButtonListener: () -> Unit,
 ) {
+    val component = getApplicationComponent()
+    val factory = component.getViewModelFactory()
     val viewModel = viewModel<DeleteTabItemViewModel>(factory = factory)
     val state = viewModel.state.collectAsState(DeleteItemState.Loading)
 
-        when (val currentState = state.value) {
-            is DeleteItemState.Loading -> {
-                CircularProgressIndicator()
-            }
-            is DeleteItemState.Result -> {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+    when (val currentState = state.value) {
+        is DeleteItemState.Loading -> {
+            CircularProgressIndicator()
+        }
+
+        is DeleteItemState.Result -> {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 MainPartDeleteItemView(
                     items = currentState.items,
                     label = viewModel.getLabel(),
-                    cancelButtonListener = { cancelButtonListener() },
+                    cancelButtonListener = cancelButtonListener,
                     confirmButtonListener = {
                         viewModel.checkTaskFromTaskGroup(confirmButtonListener)
-                         },
+                    },
                     tabItemListener = {
                         viewModel.tabItem = it
                     }
@@ -57,20 +60,19 @@ fun DeleteItemView(
                         onConfirmButtonClick = {
                             viewModel.deleteItem()
                             confirmButtonListener()
-
                         },
                         onDismissButtonClick = {
                             viewModel.setIsProblemWithTasks()
                         }
-                        )
+                    )
                 }
-                    if (currentState.isError){
-                        Toast.makeText(
-                            LocalContext.current,
-                            stringResource(R.string.you_can_t_delete_all_tasks),
-                            Toast.LENGTH_LONG
-                        ).show()
-                    }
+                if (currentState.isError) {
+                    Toast.makeText(
+                        LocalContext.current,
+                        stringResource(R.string.you_can_t_delete_all_tasks),
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
             }
         }
     }
@@ -78,15 +80,16 @@ fun DeleteItemView(
 
 @Composable
 fun MainPartDeleteItemView(
-    items: List<TabItem>, label:String,
-    confirmButtonListener:() -> Unit,
-    cancelButtonListener:() -> Unit,
-    tabItemListener:(TabItem) -> Unit
+    items: List<TabItem>, label: String,
+    confirmButtonListener: () -> Unit,
+    cancelButtonListener: () -> Unit,
+    tabItemListener: (TabItem) -> Unit
 ) {
-    Column(modifier = Modifier.fillMaxSize(),
+    Column(
+        modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -102,27 +105,27 @@ fun MainPartDeleteItemView(
             )
             Spacer(modifier = Modifier.height(150.dp))
             ExposedDropDownMenuWithTabItems(
-                tabs = items, selected =  items.first{it.isSelected}.name
+                tabs = items, selected = items[0].name
             ) {
                 tabItemListener(it)
             }
         }
-            MyButtons(
-                modifier = Modifier.weight(0.3f),
-                label = label,
-                addClickListener = { confirmButtonListener() },
-                cancelClickListener = { cancelButtonListener() }
-            )
+        MyButtons(
+            modifier = Modifier.weight(0.3f),
+            label = label,
+            addClickListener = { confirmButtonListener() },
+            cancelClickListener = { cancelButtonListener() }
+        )
     }
 }
 
 @Composable
 fun MyDeleteItemDialog(
-    message:String,
+    message: String,
     onDismissRequest: () -> Unit,
     onConfirmButtonClick: () -> Unit,
     onDismissButtonClick: () -> Unit,
-){
+) {
     AlertDialog(
         onDismissRequest = {
             onDismissRequest()
@@ -149,10 +152,11 @@ fun MyDeleteItemDialog(
                 )
             }
         },
-        icon = { Icon(
-            imageVector =  Icons.Default.Info,
-            "Info",
-            tint = Color.Red
+        icon = {
+            Icon(
+                imageVector = Icons.Default.Info,
+                "Info",
+                tint = Color.Red
             )
         },
         title = {

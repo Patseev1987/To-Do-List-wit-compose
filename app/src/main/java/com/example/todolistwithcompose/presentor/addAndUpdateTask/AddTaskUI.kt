@@ -25,9 +25,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.todolistwithcompose.R
-import com.example.todolistwithcompose.ToDoApplication
 import com.example.todolistwithcompose.domain.TabItem
 import com.example.todolistwithcompose.domain.TaskStatus
+import com.example.todolistwithcompose.getApplicationComponent
 import com.example.todolistwithcompose.presentor.mainScreen.DEFAULT_VALUE_FOR_SPACER
 import com.vanpra.composematerialdialogs.MaterialDialog
 import com.vanpra.composematerialdialogs.datetime.date.datepicker
@@ -48,13 +48,11 @@ fun AddAndUpdateTask(
     onCancelListener: () -> Unit,
     onButtonListener: () -> Unit
 ) {
-    val component = (LocalContext.current.applicationContext as ToDoApplication)
-        .component.getSubComponentFactory().create(taskId)
+    val component = getApplicationComponent().getSubComponentFactory().create(taskId)
     val factory = component.getViewModelFactory()
-    val viewmodel =
-        viewModel<AddAndUpdateTaskViewModel>(factory = factory)
+    val viewmodel = viewModel<AddAndUpdateTaskViewModel>(factory = factory)
     val state = viewmodel.state.collectAsState(initial = AddAndUpdateTaskState.Loading)
-    val currentState = state.value
+
     val snackbarHostState = SnackbarHostState()
     val launcherNotificationPermission = rememberLauncherForActivityResult(
         contract = RequestPermission(),
@@ -71,63 +69,98 @@ fun AddAndUpdateTask(
             SnackbarHost(hostState = snackbarHostState)
         }
     ) { paddingValues ->
-        when (currentState) {
-            is AddAndUpdateTaskState.Loading -> {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(modifier = Modifier.size(100.dp))
+        AddAndUpdateTaskContent(
+            paddingValues = paddingValues,
+            state = state,
+            snackbarHostState = snackbarHostState,
+            modifier = modifier,
+            onChangeTitleListener = { viewmodel.setTitle(it) },
+            onChangeContentListener = { viewmodel.setContent(it) },
+            onChangeDataListener = { viewmodel.setDate(it) },
+            onChangeTimeListener = { viewmodel.setTime(it) },
+            onSelectedStatusListener = { viewmodel.setStatus(it) },
+            onMenuClickListener = { viewmodel.setGroup(it) },
+            onCheckedListener = { viewmodel.changeIsRemind() },
+            label = viewmodel.getLabel(),
+            addClickListener = {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    launcherNotificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
+                } else {
+                    viewmodel.saveTask(onButtonListener)
                 }
-            }
-
-            is AddAndUpdateTaskState.InitState -> {
-            }
-
-            is AddAndUpdateTaskState.Result -> {
-                Box(
-                    modifier = modifier
-                        .padding(paddingValues)
-                        .fillMaxSize()
-                        .padding(top = 16.dp)
-                ) {
-                    val scrollState = rememberScrollState()
-                    Column(
-                        horizontalAlignment = CenterHorizontally,
-                        modifier = modifier
-                            .fillMaxWidth()
-                            .verticalScroll(scrollState)
-                    ) {
-                        MainPartForAddAndUpdateTask(
-                            currentState,
-                            label = viewmodel.getLabel(),
-                            tabs = currentState.tabs,
-                            onChangeTitleListener = { viewmodel.setTitle(it) },
-                            onChangeContentListener = { viewmodel.setContent(it) },
-                            onChangeDataListener = { viewmodel.setDate(it) },
-                            onChangeTimeListener = { viewmodel.setTime(it) },
-                            onSelectedStatusListener = { viewmodel.setStatus(it) },
-                            onMenuClickListener = { viewmodel.setGroup(it) },
-                            onCheckedListener = { viewmodel.changeIsRemind() }
-                        )
-                        Spacer(modifier = Modifier.height(40.dp))
-
-
-                        MyButtons(
-                            label = viewmodel.getLabel(),
-                            addClickListener = {
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                                    launcherNotificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
-                                } else {
-                                    viewmodel.saveTask(onButtonListener)
-                                }
-                            },
-                            cancelClickListener = { onCancelListener() })
-                    }
-                }
-                ShowSnackbares(currentState = currentState, snackbarHost = snackbarHostState)
-            }
-        }
+            },
+            cancelClickListener = { onCancelListener() }
+        )
     }
 }
 
+
+@Composable
+fun AddAndUpdateTaskContent(
+    paddingValues: PaddingValues,
+    state: State<AddAndUpdateTaskState>,
+    snackbarHostState: SnackbarHostState,
+    modifier: Modifier,
+    onSelectedStatusListener: (status: String) -> Unit,
+    onChangeTitleListener: (title: String) -> Unit,
+    onChangeContentListener: (content: String) -> Unit,
+    onChangeDataListener: (LocalDate) -> Unit,
+    onChangeTimeListener: (LocalTime) -> Unit,
+    onMenuClickListener: (TabItem) -> Unit,
+    onCheckedListener: () -> Unit,
+    addClickListener: () -> Unit,
+    cancelClickListener: () -> Unit,
+    label: String
+) {
+    when (val currentState = state.value) {
+        is AddAndUpdateTaskState.Loading -> {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator(modifier = Modifier.size(100.dp))
+            }
+        }
+
+        is AddAndUpdateTaskState.InitState -> {
+        }
+
+        is AddAndUpdateTaskState.Result -> {
+            Box(
+                modifier = modifier
+                    .padding(paddingValues)
+                    .fillMaxSize()
+                    .padding(top = 16.dp)
+            ) {
+                val scrollState = rememberScrollState()
+                Column(
+                    horizontalAlignment = CenterHorizontally,
+                    modifier = modifier
+                        .fillMaxWidth()
+                        .verticalScroll(scrollState)
+                ) {
+                    MainPartForAddAndUpdateTask(
+                        currentState,
+                        label = label,
+                        tabs = currentState.tabs,
+                        onChangeTitleListener = { onChangeTitleListener(it) },
+                        onChangeContentListener = { onChangeContentListener(it) },
+                        onChangeDataListener = { onChangeDataListener(it) },
+                        onChangeTimeListener = { onChangeTimeListener(it) },
+                        onSelectedStatusListener = { onSelectedStatusListener(it) },
+                        onMenuClickListener = { onMenuClickListener(it) },
+                        onCheckedListener = { onCheckedListener() }
+                    )
+                    Spacer(modifier = Modifier.height(40.dp))
+
+
+                    MyButtons(
+                        label = label,
+                        addClickListener = { addClickListener() },
+                        cancelClickListener = { cancelClickListener() })
+                }
+            }
+            ShowSnackbares(currentState = currentState, snackbarHost = snackbarHostState)
+        }
+    }
+}
 
 @Composable
 fun MainPartForAddAndUpdateTask(
@@ -266,7 +299,7 @@ fun RadioButtons(values: List<String>, selected: String, onSelectedListener: (St
 fun ExposedDropDownMenuWithTabItems(
     modifier: Modifier = Modifier,
     tabs: List<TabItem>,
-    selected:String,
+    selected: String,
     onClickListener: (TabItem) -> Unit
 ) {
     val context = LocalContext.current

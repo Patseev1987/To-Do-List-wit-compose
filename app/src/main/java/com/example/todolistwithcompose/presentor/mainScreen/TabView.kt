@@ -13,46 +13,66 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.todolistwithcompose.domain.TabItem
 import com.example.todolistwithcompose.domain.Task
-import com.example.todolistwithcompose.presentor.ViewModelFactory
+import com.example.todolistwithcompose.getApplicationComponent
 import kotlinx.coroutines.launch
 
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun TabView(
-    factory: ViewModelFactory,
+    modifier: Modifier,
     onTaskListener: (Task) -> Unit,
     onAddTabItemListener: () -> Unit,
     onDeleteTabItemListener: () -> Unit,
 ) {
-
+    val component = getApplicationComponent()
+    val factory = component.getViewModelFactory()
     val viewModel = viewModel<TabViewModel>(factory = factory)
-    val stateViewModel by viewModel.state.collectAsState(TabState.Init)
+    val stateViewModel = viewModel.state.collectAsState(TabState.Init)
 
-    when (val currentState = stateViewModel) {
+    TabViewContent(
+        modifier = modifier,
+        stateViewModel = stateViewModel,
+        onTaskListener = onTaskListener,
+        onAddTabItemListener = onAddTabItemListener,
+        onDeleteTabItemListener = onDeleteTabItemListener,
+        onClick = {
+            viewModel.setSelected(it)
+        },
+        onDismissListener = { viewModel.deleteTask(it) }
+    )
+
+}
+
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun TabViewContent(
+    modifier: Modifier,
+    stateViewModel: State<TabState>,
+    onTaskListener: (Task) -> Unit,
+    onAddTabItemListener: () -> Unit,
+    onDeleteTabItemListener: () -> Unit,
+    onClick: (TabItem) -> Unit,
+    onDismissListener: (Task) -> Unit
+) {
+    when (val currentState = stateViewModel.value) {
         is TabState.Init -> {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator()
             }
         }
-
         is TabState.Result -> {
-
             val pagerState = rememberPagerState { currentState.tabs.size }
             val scope = rememberCoroutineScope()
 
-            LaunchedEffect(pagerState) {
-                snapshotFlow { pagerState.currentPage }.collect { page ->
-                }
-            }
             Column(
-                modifier = Modifier
+                modifier = modifier
                     .fillMaxSize()
                     .padding(16.dp)
             ) {
@@ -63,9 +83,7 @@ fun TabView(
                     )
                     Spacer(Modifier.width(8.dp))
                     var selectedIndex = 0
-
                     currentState.tabs.forEachIndexed { index, tab -> if (tab.isSelected) selectedIndex = index }
-
                     ScrollableTabRow(
                         selectedTabIndex = selectedIndex,
                         modifier = Modifier.weight(1f)
@@ -74,7 +92,7 @@ fun TabView(
                             Tab(
                                 selected = tab.isSelected,
                                 onClick = {
-                                    viewModel.setSelected(tab)
+                                    onClick(tab)
                                     scope.launch {
                                         pagerState.animateScrollToPage(index)
                                     }
@@ -100,16 +118,14 @@ fun TabView(
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
                         TaskWithFilter(
                             tasks = currentState.tasks,
-                            onDismissListener = { viewModel.deleteTask(it) },
+                            onDismissListener = { onDismissListener(it) },
                             onTaskListener = { onTaskListener(it) })
-
                     }
                 }
             }
         }
     }
 }
-
 
 @Composable
 fun MySegmentButton(
@@ -135,7 +151,11 @@ fun MySegmentButton(
         Box(contentAlignment = Alignment.Center,
             modifier = Modifier
                 .clip(RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp))
-                .border(2.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp))
+                .border(
+                    2.dp,
+                    MaterialTheme.colorScheme.primary,
+                    RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp)
+                )
                 .width(40.dp)
                 .height(30.dp)
                 .clickable { onMinusClicked() }

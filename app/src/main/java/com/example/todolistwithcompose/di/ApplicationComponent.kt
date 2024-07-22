@@ -2,6 +2,7 @@ package com.example.todolistwithcompose.di
 
 import android.app.Application
 import com.example.todolistwithcompose.MainActivity
+import com.example.todolistwithcompose.presentor.ViewModelFactory
 import dagger.BindsInstance
 import dagger.Component
 import dagger.Component.Factory
@@ -10,11 +11,9 @@ import dagger.Component.Factory
 @Component(modules = [DataModule::class, ViewModelsModule::class])
 interface ApplicationComponent {
 
- fun  inject (main : MainActivity)
+    fun getViewModelFactory(): ViewModelFactory
 
- fun getSubComponentFactory(): ComponentWithId.SubComponentFactory
-
-
+    fun getSubComponentFactory(): ComponentWithId.SubComponentFactory
 
     @Factory
     interface ComponentFactory {

@@ -4,13 +4,13 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -23,29 +23,54 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.todolistwithcompose.IconChoiceActivity
 import com.example.todolistwithcompose.domain.TabItem
-import com.example.todolistwithcompose.presentor.ViewModelFactory
+import com.example.todolistwithcompose.getApplicationComponent
 import com.example.todolistwithcompose.presentor.addAndUpdateTask.MyButtons
 import com.example.todolistwithcompose.utils.selectedIcons
 import com.example.todolistwithcompose.utils.unselectedIcons
 import kotlinx.coroutines.launch
 
 
-private const val FILLED = "Filled"
+@Composable
+fun AddTabItem(
+
+    onButtonClick: () -> Unit,
+    onCancel: () -> Unit,
+) {
+    val component = getApplicationComponent()
+    val factory = component.getViewModelFactory()
+    val viewModel = viewModel<AddTabItemViewModel>(factory = factory)
+    val state = viewModel.state.collectAsState(initial = AddAndUpdateTabState.Loading)
+    val snackbarHostState = SnackbarHostState()
+
+    Scaffold(
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState)
+        }
+    ) { paddingValues ->
+        AddItemContent(
+            onButtonClick = onButtonClick,
+            onCancel = onCancel,
+            viewModel = viewModel,
+            state = state,
+            paddingValues = paddingValues,
+            snackbarHostState = snackbarHostState
+        )
+    }
+}
 
 
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
-fun AddTabItem(
-    factory:ViewModelFactory,
+fun AddItemContent(
+    paddingValues: PaddingValues,
+    state: State<AddAndUpdateTabState>,
+    viewModel: AddTabItemViewModel,
     onButtonClick: () -> Unit,
     onCancel: () -> Unit,
+    snackbarHostState: SnackbarHostState,
 ) {
-    val context = LocalContext.current
-    val viewModel = viewModel<AddTabItemViewModel>(factory = factory)
-    val state = viewModel.state.collectAsState(initial = AddAndUpdateTabState.Loading)
-    val snackbarHostState = SnackbarHostState()
     val coroutineScope = rememberCoroutineScope()
-
+    val context = LocalContext.current
     val contract = object : ActivityResultContract<Intent, String>() {
         override fun createIntent(context: Context, input: Intent): Intent {
             return input
@@ -60,73 +85,70 @@ fun AddTabItem(
                             .map { it.name }
                             .first { it == iconName }
                     }
+
                     IconChoiceActivity.OUTLINE_TYPE_ICON -> unselectedIcons
                         .map { it.name }
                         .first { it == iconName }
 
                     else -> throw IllegalArgumentException("Unknown icon type $iconType")
                 }
-
             }
             throw IllegalArgumentException("Unknown icon type")
         }
     }
+
     val launcher = rememberLauncherForActivityResult(contract = contract, onResult = { iconName ->
         val name = iconName.split(".").last()
-            viewModel.setSelectedIcon(name)
-            viewModel.setUnselectedIcon(name)
+        viewModel.setSelectedIcon(name)
+        viewModel.setUnselectedIcon(name)
     })
 
-    Scaffold(
-        snackbarHost = {
-            SnackbarHost(hostState = snackbarHostState)
-        }
-    ) { paddingValues ->
-        when (val currentSate = state.value) {
-            is AddAndUpdateTabState.Loading -> {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(modifier = Modifier.size(100.dp))
-                }
-                paddingValues
+
+    when (val currentSate = state.value) {
+        is AddAndUpdateTabState.Loading -> {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator(modifier = Modifier
+                    .size(100.dp)
+                    .padding(paddingValues))
             }
 
-            is AddAndUpdateTabState.Result -> {
+        }
 
-                MainPartAddTabItem(
-                    label = viewModel.getLabel(),
-                    tabItem = currentSate.tabItem,
-                    onTextChangeListener = {
-                        viewModel.setTabName(it)
-                    },
-                    onCancelListener = {
-                        onCancel()
-                    },
-                    onOkListener = {
-                        viewModel.saveTabItem {
-                            onButtonClick()
-                        }
-                    },
-                    onTabItemSelectedListener = {
-                        launcher.launch(
-                            IconChoiceActivity
-                                .getIntent(context = context, IconChoiceActivity.FILLED_TYPE_ICON)
-                        )
-                    },
-                    onTabItemUnselectedListener = {
-                        launcher.launch(
-                            IconChoiceActivity
-                                .getIntent(context = context, IconChoiceActivity.OUTLINE_TYPE_ICON)
-                        )
+        is AddAndUpdateTabState.Result -> {
+
+            MainPartAddTabItem(
+                label = viewModel.getLabel(),
+                tabItem = currentSate.tabItem,
+                onTextChangeListener = {
+                    viewModel.setTabName(it)
+                },
+                onCancelListener = {
+                    onCancel()
+                },
+                onOkListener = {
+                    viewModel.saveTabItem {
+                        onButtonClick()
                     }
-                )
-                if (currentSate.errorMessage.isNotEmpty()) {
-                    coroutineScope.launch {
-                        snackbarHostState.showSnackbar(currentSate.errorMessage)
-                    }
+                },
+                onTabItemSelectedListener = {
+                    launcher.launch(
+                        IconChoiceActivity
+                            .getIntent(context = context, IconChoiceActivity.FILLED_TYPE_ICON)
+                    )
+                },
+                onTabItemUnselectedListener = {
+                    launcher.launch(
+                        IconChoiceActivity
+                            .getIntent(context = context, IconChoiceActivity.OUTLINE_TYPE_ICON)
+                    )
+                }
+            )
+            if (currentSate.errorMessage.isNotEmpty()) {
+                coroutineScope.launch {
+                    snackbarHostState.showSnackbar(currentSate.errorMessage)
                 }
             }
         }
-
     }
 }
 

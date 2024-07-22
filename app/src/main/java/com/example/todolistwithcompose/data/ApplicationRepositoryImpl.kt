@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class ApplicationRepositoryImpl @Inject constructor (private val dao:Dao) : ApplicationRepository {
+
     override suspend fun insertTask(task: Task) {
         dao.insertTask(task.toTaskEntity())
     }
@@ -58,6 +59,5 @@ class ApplicationRepositoryImpl @Inject constructor (private val dao:Dao) : Appl
     override suspend fun insertTabItem(tabItem: TabItem){
         dao.insertTabItem(tabItem.toTabItemEntity())
     }
-
 
 }

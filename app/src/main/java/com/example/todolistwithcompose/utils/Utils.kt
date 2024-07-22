@@ -30,7 +30,8 @@ fun Task.toTaskEntity(): TaskEntity {
         status = this.status,
         tabItemName = this.tabItemName,
         createDate = LocalDateTime.now(),
-        isRemind = this.isRemind
+        isRemind = this.isRemind,
+        completedDate = this.completedDate,
     )
 }
 
@@ -42,7 +43,8 @@ fun TaskEntity.toTask(): Task {
         date = this.date,
         status = this.status,
         tabItemName = this.tabItemName,
-        isRemind = this.isRemind
+        isRemind = this.isRemind,
+        completedDate = this.completedDate,
     )
 }
 

@@ -21,6 +21,15 @@ class NavigationState (val navHostController: NavHostController) {
         }
     }
 
+    fun navigateToWithoutSaveState(route: String) {
+        navHostController.navigate(route) {
+            popUpTo(navHostController.graph.findStartDestination().id) {
+            }
+            launchSingleTop = true
+
+        }
+    }
+
 
 }
 

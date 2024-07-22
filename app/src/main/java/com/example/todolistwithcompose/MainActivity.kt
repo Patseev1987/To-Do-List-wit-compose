@@ -61,7 +61,7 @@ class MainActivity : ComponentActivity() {
                         ShowTask(
                             taskId = taskId,
                             updateClickListener = { id ->
-                                navState.navigateTo(Screen.UpdateScreen.getRouteWithArgs(id))
+                                navState.navigateToWithoutSaveState(Screen.UpdateScreen.getRouteWithArgs(id))
                             },
                             cancelClickListener = { onBackPressedDispatcher.onBackPressed() }
                         )

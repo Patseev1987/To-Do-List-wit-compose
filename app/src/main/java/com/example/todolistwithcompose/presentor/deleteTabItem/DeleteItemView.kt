@@ -102,7 +102,7 @@ fun MainPartDeleteItemView(
             )
             Spacer(modifier = Modifier.height(150.dp))
             ExposedDropDownMenuWithTabItems(
-                tabs = items,
+                tabs = items, selected =  items.first{it.isSelected}.name
             ) {
                 tabItemListener(it)
             }

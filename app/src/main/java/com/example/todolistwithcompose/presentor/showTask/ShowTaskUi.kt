@@ -8,6 +8,7 @@ import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
@@ -29,41 +30,56 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.todolistwithcompose.R
 import com.example.todolistwithcompose.ToDoApplication
 import com.example.todolistwithcompose.domain.Task
+import com.example.todolistwithcompose.getApplicationComponent
 import com.example.todolistwithcompose.presentor.mainScreen.DEFAULT_VALUE_FOR_SPACER
 
 
 @Composable
 fun ShowTask(taskId: Long, updateClickListener: (Long) -> Unit, cancelClickListener: () -> Unit) {
-    val component = (LocalContext.current.applicationContext as ToDoApplication).component
-        .getSubComponentFactory().create(taskId)
+    val component = getApplicationComponent().getSubComponentFactory().create(taskId)
     val factory = component.getViewModelFactory()
     val viewmodel = viewModel<ShowTaskViewModel>(factory = factory)
     val state = viewmodel.state.collectAsState(ShowTaskState.Loading)
     Scaffold { paddingValues ->
-        when (val currentState = state.value) {
-            is ShowTaskState.Loading -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(16.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator(modifier = Modifier.size(100.dp))
-                }
-            }
+       ShowTaskContent(
+           paddingValues = paddingValues,
+           state = state,
+           updateClickListener = updateClickListener,
+           cancelClickListener = cancelClickListener
+       )
+    }
+}
 
-            is ShowTaskState.Result -> {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues)
-                ) {
-                    MainPartShowTask(task = currentState.task, modifier = Modifier.weight(1f))
-                    ShowTaskButtons(modifier = Modifier.padding(bottom = 35.dp),
-                        updateClickListener = { updateClickListener(taskId) },
-                        cancelClickListener = { cancelClickListener() }
-                    )
-                }
+@Composable
+fun ShowTaskContent(
+    paddingValues: PaddingValues,
+    state: State<ShowTaskState>,
+    updateClickListener: (Long) -> Unit,
+    cancelClickListener: () -> Unit
+){
+    when (val currentState = state.value) {
+        is ShowTaskState.Loading -> {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(modifier = Modifier.size(100.dp))
+            }
+        }
+
+        is ShowTaskState.Result -> {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+            ) {
+                MainPartShowTask(task = currentState.task, modifier = Modifier.weight(1f))
+                ShowTaskButtons(modifier = Modifier.padding(bottom = 35.dp),
+                    updateClickListener = { updateClickListener(currentState.task.id) },
+                    cancelClickListener = { cancelClickListener() }
+                )
             }
         }
     }
@@ -80,7 +96,7 @@ fun MainPartShowTask(task: Task, modifier: Modifier = Modifier) {
             .fillMaxSize(),
 
         ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Column(horizontalAlignment = CenterHorizontally) {
             TitleLabel(task = task, modifier = Modifier.weight(2f))
             Content(task = task, modifier = Modifier.weight(5f))
             TaskInfo(task = task, modifier = Modifier.weight(3f))
@@ -221,32 +237,17 @@ fun TaskInfo(task: Task, modifier: Modifier = Modifier) {
 
         Spacer(modifier = Modifier.height(DEFAULT_VALUE_FOR_SPACER))
         if (task.date != null) {
-            Text(
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .padding(top = 8.dp),
-                text = buildAnnotatedString {
-                    withStyle(
-                        style = SpanStyle(
-                            color = Color.Black,
-                            fontFamily = FontFamily.SansSerif,
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold
-                        ),
-                    ) {
-                        append(stringResource(id = R.string.time_for_a_reminder))
-                    }
-                    append("\n")
-                    withStyle(
-                        style = SpanStyle(
-                            color = Color.Black,
-                            fontFamily = FontFamily.SansSerif,
-                            fontSize = 20.sp,
-                        )
-                    ) {
-                        append("${task.getDateForLabel()}   ${task.getTimeForLabel()}")
-                    }
-                }
+            TextWithDate(
+                time = task.getTimeForLabel(),
+                date = task.getDateForLabel(),
+                textLabel = stringResource(id = R.string.time_for_a_reminder)
+            )
+        }
+        if (task.completedDate != null) {
+            TextWithDate(
+                time = task.getCompletedTimeForLabel(),
+                date = task.getCompletedDateForLabel(),
+                textLabel = stringResource(id = R.string.completed_date)
             )
         }
         Spacer(modifier = Modifier.height(DEFAULT_VALUE_FOR_SPACER))
@@ -284,5 +285,39 @@ fun TaskInfo(task: Task, modifier: Modifier = Modifier) {
     }
 }
 
+@Composable
+fun TextWithDate(time: String, date: String, textLabel:String) {
+    Text(
+        textAlign = TextAlign.Center,
+        modifier = Modifier
+            .padding(top = 8.dp),
+        text = buildAnnotatedString {
+            withStyle(
+                style = SpanStyle(
+                    color = Color.Black,
+                    fontFamily = FontFamily.SansSerif,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold
+                ),
+            ) {
+                append(textLabel)
+            }
+            append("\n\n")
+            withStyle(
+                style = SpanStyle(
+                    color = Color.Black,
+                    fontFamily = FontFamily.SansSerif,
+                    fontSize = 20.sp,
+                )
+            ) {
+                append("$time   $date")
+            }
+        }
+    )
+}
+
 private fun Task.getTimeForLabel(): String = this.date?.toLocalTime().toString()
 private fun Task.getDateForLabel(): String = this.date?.toLocalDate().toString()
+private fun Task.getCompletedTimeForLabel(): String = this.completedDate?.toLocalTime().toString()
+private fun Task.getCompletedDateForLabel(): String = this.completedDate?.toLocalDate().toString()
+

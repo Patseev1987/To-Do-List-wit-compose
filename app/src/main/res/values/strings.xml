@@ -45,4 +45,6 @@
         %2$s! Are you sure you want to delete this tasks? "
     </string>
     <string name="you_can_t_delete_all_tasks">You can\'t delete task group \"All\"</string>
+    <string name="reminder_date">Reminder date:</string>
+    <string name="completed_date">Completed date:</string>
 </resources>

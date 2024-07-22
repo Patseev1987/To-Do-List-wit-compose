@@ -4,7 +4,6 @@ import android.app.AlarmManager
 import android.app.Application
 import android.app.PendingIntent
 import android.app.PendingIntent.FLAG_IMMUTABLE
-import android.app.PendingIntent.FLAG_MUTABLE
 import android.content.Context.ALARM_SERVICE
 import android.content.Intent
 import android.os.Build
@@ -14,7 +13,6 @@ import androidx.core.content.getSystemService
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.todolistwithcompose.R
-import com.example.todolistwithcompose.data.database.Dao
 import com.example.todolistwithcompose.data.database.TasksDatabase
 import com.example.todolistwithcompose.domain.TabItem
 import com.example.todolistwithcompose.domain.Task
@@ -25,14 +23,10 @@ import com.example.todolistwithcompose.domain.useCases.GetTaskByIdUseCase
 import com.example.todolistwithcompose.domain.useCases.InsertTaskUseCase
 import com.example.todolistwithcompose.presentor.mainScreen.TabViewModel
 import com.example.todolistwithcompose.utils.AlarmReceiver
-import com.example.todolistwithcompose.utils.toTabItem
-import com.example.todolistwithcompose.utils.toTask
-import com.example.todolistwithcompose.utils.toTaskEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
@@ -85,8 +79,17 @@ class AddAndUpdateTaskViewModel @Inject constructor(
 
     fun setStatus(value: String) {
         val status = TaskStatus.entries.first { appContext.getString(it.idString) == value }
+        if (status == TaskStatus.COMPLETED) {
+            task.completedDate = getNowDateWithoutSeconds()
+            if ((taskId != 0L) && task.isRemind) {
+                changeIsRemind()
+            }
+        }else {
+            task.completedDate = null
+        }
         task.status = status
         _state.value = AddAndUpdateTaskState.Result(task = task, tabs = tabs)
+        Log.d("AddAndUpdateTaskViewModel", "AddAndUpdateTaskViewModel.setStatus: $status\n$task")
     }
 
     fun setTime(time: LocalTime) {
@@ -140,10 +143,12 @@ class AddAndUpdateTaskViewModel @Inject constructor(
                 _state.value = AddAndUpdateTaskState.Result(task, errorTitle = true, tabs = tabs)
                 false
             }
+
             task.content.isEmpty() -> {
                 _state.value = AddAndUpdateTaskState.Result(task, errorContext = true, tabs = tabs)
                 false
             }
+
             else -> true
         }
     }
@@ -210,14 +215,13 @@ class AddAndUpdateTaskViewModel @Inject constructor(
         viewModelScope.launch {
             task = task.copy(isRemind = !task.isRemind)
             _state.value = AddAndUpdateTaskState.Result(task = task, tabs = tabs)
-            if (!task.isRemind){
+            if (!task.isRemind) {
                 cancelAlarm(getNextTaskId())
             }
             task.apply {
                 date = if (isRemind) getNowDateWithoutSeconds() else null
             }
         }
-
     }
 
     private fun checkDateForRemind(): Boolean = task.date?.isAfter(LocalDateTime.now())
@@ -239,7 +243,7 @@ class AddAndUpdateTaskViewModel @Inject constructor(
         _state.value = AddAndUpdateTaskState.Result(task, isGranted = false, tabs = tabs)
     }
 
-    private suspend fun getNextTaskId():Int {
+    private suspend fun getNextTaskId(): Int {
         return if (taskId == 0L) getLastIdUseCase().toInt() else taskId.toInt()
     }
 

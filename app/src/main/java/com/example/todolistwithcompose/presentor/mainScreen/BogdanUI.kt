@@ -24,6 +24,7 @@ import com.example.todolistwithcompose.presentor.ViewModelFactory
 import com.example.todolistwithcompose.utils.getBoarderColor
 import com.example.todolistwithcompose.utils.getBoarderWidth
 import com.example.todolistwithcompose.utils.getColor
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 
@@ -69,23 +70,12 @@ fun Task(task: Task, onTaskListener: (Task) -> Unit) {
                     modifier = Modifier.weight(1f),
                 )
                 if (task.date != null) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(
-                            text = DateTimeFormatter
-                                .ofPattern("HH:mm")
-                                .format(task.date),
-                            modifier = Modifier.padding(end = 20.dp),
-                            color = Color.Black,
-                            textAlign = TextAlign.Center,
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            text = DateTimeFormatter
-                                .ofPattern("yyyy-MM-dd")
-                                .format(task.date),
-                            color = Color.Black,
-                        )
-                    }
+                    val date = task.date ?: throw IllegalStateException()
+                    TextWithDate(date = date, text = stringResource(R.string.reminder_date))
+                }
+                if (task.completedDate !=null){
+                    val date = task.completedDate ?: throw IllegalStateException()
+                    TextWithDate(date = date, text = stringResource(R.string.completed_date))
                 }
             }
         }
@@ -156,3 +146,24 @@ fun TaskWithFilter(tasks: List<Task>, onDismissListener: (Task) -> Unit, onTaskL
     }
 }
 
+@Composable
+fun TextWithDate(date: LocalDateTime, text:String){
+    Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+        Text(text = text)
+        Text(
+            text = DateTimeFormatter
+                .ofPattern("HH:mm")
+                .format(date),
+            modifier = Modifier.padding(end = 20.dp),
+            color = Color.Black,
+            textAlign = TextAlign.Center,
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+            text = DateTimeFormatter
+                .ofPattern("yyyy-MM-dd")
+                .format(date),
+            color = Color.Black,
+        )
+    }
+}

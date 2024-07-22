@@ -12,4 +12,5 @@ data class Task(
     var tabItemName: String,
     var status: TaskStatus,
     var isRemind: Boolean = false,
+    var completedDate: LocalDateTime? = null
 )

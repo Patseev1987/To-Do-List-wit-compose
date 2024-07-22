@@ -26,5 +26,7 @@ data class TaskEntity(
     @ColumnInfo("create_date")
     val createDate: LocalDateTime,
     @ColumnInfo("is_remind")
-    var isRemind: Boolean
+    var isRemind: Boolean,
+    @ColumnInfo("completed_date")
+    var completedDate: LocalDateTime?,
 )

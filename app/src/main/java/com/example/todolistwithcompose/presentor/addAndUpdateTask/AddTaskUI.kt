@@ -6,7 +6,6 @@ import android.os.Build
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
@@ -182,7 +181,7 @@ fun MainPartForAddAndUpdateTask(
         fontFamily = FontFamily.SansSerif
     )
     Spacer(modifier = Modifier.height(DEFAULT_VALUE_FOR_SPACER))
-    ExposedDropDownMenuWithTabItems(tabs = tabs) {
+    ExposedDropDownMenuWithTabItems(tabs = tabs, selected = currentState.task.tabItemName) {
         onMenuClickListener(it)
     }
     Spacer(modifier = Modifier.height(DEFAULT_VALUE_FOR_SPACER))
@@ -231,7 +230,7 @@ fun MainPartForAddAndUpdateTask(
 
 @Composable
 fun RadioButtons(values: List<String>, selected: String, onSelectedListener: (String) -> Unit) {
-    val (selectedOption, onOptionSelected) = remember { mutableStateOf(values[0]) }
+    val (selectedOption, onOptionSelected) = remember { mutableStateOf(selected) }
     Column(Modifier.selectableGroup()) {
         values.forEach { text ->
             Row(
@@ -267,11 +266,12 @@ fun RadioButtons(values: List<String>, selected: String, onSelectedListener: (St
 fun ExposedDropDownMenuWithTabItems(
     modifier: Modifier = Modifier,
     tabs: List<TabItem>,
+    selected:String,
     onClickListener: (TabItem) -> Unit
 ) {
     val context = LocalContext.current
     var expanded by remember { mutableStateOf(false) }
-    var selectedText by remember { mutableStateOf(tabs[0].name) }
+    var selectedText by remember { mutableStateOf(selected) }
 
     Box(
         modifier = modifier
@@ -356,7 +356,7 @@ fun MyDataPicker(
     val dateDialogState = rememberMaterialDialogState()
     val timeDialogState = rememberMaterialDialogState()
 
-    Row() {
+    Row {
         Column(
             modifier = Modifier.weight(1f),
             horizontalAlignment = CenterHorizontally

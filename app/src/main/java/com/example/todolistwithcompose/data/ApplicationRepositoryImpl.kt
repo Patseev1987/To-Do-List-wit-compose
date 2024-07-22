@@ -29,7 +29,7 @@ class ApplicationRepositoryImpl @Inject constructor (private val dao:Dao) : Appl
         dao.clearTaskById(id)
     }
 
-    override fun getLastId(): Long {
+    override suspend fun getLastId(): Long {
        return dao.getLastId()
     }
 

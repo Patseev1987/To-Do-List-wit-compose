@@ -13,7 +13,7 @@ interface ApplicationRepository {
 
     suspend fun clearTaskById(id: Long)
 
-    fun getLastId(): Long
+    suspend fun getLastId(): Long
 
     fun getTaskWithFilter(filter: String): Flow<List<Task>>
 

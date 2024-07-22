@@ -24,8 +24,8 @@ interface Dao {
     @Query("delete from tasks where id = :id")
     suspend fun clearTaskById(id: Long)
 
-    @Query("select id from tasks order by id desc limit 1")
-    fun getLastId(): Long
+    @Query("select  seq from sqlite_sequence where name = 'tasks'")
+    suspend fun getLastId(): Long
 
     @Query("select * from tab_items where name = :name")
     suspend fun getTabItemByName(name: String):TabItemEntity?

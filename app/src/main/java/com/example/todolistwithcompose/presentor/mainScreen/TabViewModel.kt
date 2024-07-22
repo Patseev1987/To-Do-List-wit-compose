@@ -1,6 +1,10 @@
 package com.example.todolistwithcompose.presentor.mainScreen
 
+import android.app.AlarmManager
 import android.app.Application
+import android.app.PendingIntent
+import android.app.PendingIntent.FLAG_IMMUTABLE
+import android.content.Context.ALARM_SERVICE
 import android.util.Log
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoAwesomeMotion
@@ -8,9 +12,11 @@ import androidx.compose.material.icons.outlined.AutoAwesomeMotion
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.todolistwithcompose.data.database.Dao
+import com.example.todolistwithcompose.data.database.TasksDatabase
 import com.example.todolistwithcompose.domain.TabItem
 import com.example.todolistwithcompose.domain.Task
 import com.example.todolistwithcompose.domain.useCases.*
+import com.example.todolistwithcompose.utils.AlarmReceiver
 import com.example.todolistwithcompose.utils.toTabItem
 import com.example.todolistwithcompose.utils.toTabItemEntity
 import com.example.todolistwithcompose.utils.toTask
@@ -22,6 +28,7 @@ import javax.inject.Inject
 
 
 class TabViewModel @Inject constructor(
+    private val appContext:Application,
     private val getSelectedTabItemUseCase: GetSelectedTabItemUseCase,
     private val getTabItemsUseCase: GetTabItemsUseCase,
     private val getTasksUseCase: GetTasksUseCase,
@@ -35,6 +42,7 @@ class TabViewModel @Inject constructor(
     private val _state = MutableStateFlow<TabState>(TabState.Init)
     val state = _state.asStateFlow()
 
+
     init {
         viewModelScope.launch(Dispatchers.IO) {
             checkFirstStart()
@@ -46,7 +54,6 @@ class TabViewModel @Inject constructor(
                     tasks = cacheTasks.withFilter(cacheSelectedTab).specialSort(),
                     tabs = cacheTabs
                 )
-                Log.d("TabViewModel", "Tab collect: $cacheTabs \n $cacheTasks")
             }
         }
         viewModelScope.launch(Dispatchers.IO) {
@@ -56,7 +63,6 @@ class TabViewModel @Inject constructor(
                     tasks = cacheTasks.withFilter(cacheSelectedTab).specialSort(),
                     tabs = cacheTabs
                 )
-                Log.d("TabViewModel", "Task collect: $cacheTabs \n $cacheTasks")
             }
         }
     }
@@ -64,6 +70,9 @@ class TabViewModel @Inject constructor(
 
     fun deleteTask(task: Task) {
         viewModelScope.launch(Dispatchers.IO) {
+            if (task.isRemind){
+                cancelAlarmWhenDeleteTask(task)
+            }
             deleteTaskUseCase(task.id)
         }
     }
@@ -93,6 +102,20 @@ class TabViewModel @Inject constructor(
         if (tabs.isEmpty()) {
             insertTabItemUseCase(ALL_TASKS)
         }
+    }
+
+
+   private fun cancelAlarmWhenDeleteTask(task:Task) {
+        val alarmManager = appContext.getSystemService(ALARM_SERVICE) as AlarmManager
+        val intent = AlarmReceiver.newAlarmIntent(appContext, task.title, task.content)
+       Log.d("SHOW_TASK_ID", "cancel alarm in TabViewModel-> ${task.id}")
+        val pendingIntent = PendingIntent.getBroadcast(
+            appContext,
+            task.id.toInt(),
+            intent,
+            FLAG_IMMUTABLE
+        )
+        alarmManager.cancel(pendingIntent)
     }
 
     companion object {

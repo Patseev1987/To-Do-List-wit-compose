@@ -11,7 +11,8 @@ import androidx.core.content.getSystemService
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.todolistwithcompose.R
-import com.example.todolistwithcompose.data.database.TasksDatabase
+import com.example.todolistwithcompose.data.ApplicationRepositoryImpl
+import com.example.todolistwithcompose.domain.ApplicationRepository
 import com.example.todolistwithcompose.domain.TabItem
 import com.example.todolistwithcompose.domain.Task
 import com.example.todolistwithcompose.domain.TaskStatus
@@ -22,9 +23,7 @@ import com.example.todolistwithcompose.domain.useCases.InsertTaskUseCase
 import com.example.todolistwithcompose.presentor.mainScreen.TabViewModel
 import com.example.todolistwithcompose.utils.AlarmReceiver
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
@@ -40,15 +39,13 @@ class AddAndUpdateTaskViewModel @Inject constructor(
     private val getTabItemsUseCase: GetTabItemsUseCase,
     private val getTaskByIdUseCase: GetTaskByIdUseCase,
     private val insertTaskUseCase: InsertTaskUseCase,
-    private val getLastIdUseCase: GetLastIdUseCase
+    private val getLastIdUseCase: GetLastIdUseCase,
 ) : ViewModel() {
 
     private lateinit var task: Task
     private lateinit var tabs: List<TabItem>
     private val _state: MutableStateFlow<AddAndUpdateTaskState> = MutableStateFlow(AddAndUpdateTaskState.Loading)
     val state = _state.asStateFlow()
-
-    val dao = TasksDatabase.getInstance(appContext).taskDao
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
@@ -63,7 +60,6 @@ class AddAndUpdateTaskViewModel @Inject constructor(
         }
     }
 
-
     fun setTitle(title: String) {
         task = task.copy(title = title)
         _state.value = AddAndUpdateTaskState.Result(task = task, tabs = tabs)
@@ -74,7 +70,6 @@ class AddAndUpdateTaskViewModel @Inject constructor(
         _state.value = AddAndUpdateTaskState.Result(task = task, tabs = tabs)
     }
 
-
     fun setStatus(value: String) {
         val status = TaskStatus.entries.first { appContext.getString(it.idString) == value }
         if (status == TaskStatus.COMPLETED) {
@@ -82,12 +77,12 @@ class AddAndUpdateTaskViewModel @Inject constructor(
             if ((taskId != 0L) && task.isRemind) {
                 changeIsRemind()
             }
-        }else {
+            task.isRemind = false
+        } else {
             task.completedDate = null
         }
-        task.status = status
+        task = task.copy(status = status)
         _state.value = AddAndUpdateTaskState.Result(task = task, tabs = tabs)
-        Log.d("AddAndUpdateTaskViewModel", "AddAndUpdateTaskViewModel.setStatus: $status\n$task")
     }
 
     fun setTime(time: LocalTime) {
@@ -141,10 +136,12 @@ class AddAndUpdateTaskViewModel @Inject constructor(
                 _state.value = AddAndUpdateTaskState.Result(task, errorTitle = true, tabs = tabs)
                 false
             }
+
             task.content.isEmpty() -> {
                 _state.value = AddAndUpdateTaskState.Result(task, errorContext = true, tabs = tabs)
                 false
             }
+
             else -> true
         }
     }
@@ -189,7 +186,6 @@ class AddAndUpdateTaskViewModel @Inject constructor(
     private fun cancelAlarm(taskId: Int) {
         val alarmManager = appContext.getSystemService(ALARM_SERVICE) as AlarmManager
         val intent = AlarmReceiver.newAlarmIntent(appContext, task.title, task.content)
-        Log.d("SHOW_TASK_ID", "cancel alarm in AddAndUpdateViewModel-> $taskId")
         val pendingIntent = PendingIntent.getBroadcast(
             appContext,
             taskId,
@@ -215,7 +211,6 @@ class AddAndUpdateTaskViewModel @Inject constructor(
     private fun checkDateForRemind(): Boolean = task.date?.isAfter(LocalDateTime.now())
         ?: throw RuntimeException("wrong date")
 
-
     private fun getNowDateWithoutSeconds(): LocalDateTime {
         return LocalDateTime.of(
             LocalDateTime.now().year,
@@ -235,7 +230,7 @@ class AddAndUpdateTaskViewModel @Inject constructor(
         return if (taskId == 0L) getLastIdUseCase().toInt() else taskId.toInt()
     }
 
-    private companion object {
+    companion object {
         val DEFAULT_TASK = Task(
             title = "",
             content = "",

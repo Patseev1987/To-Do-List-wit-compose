@@ -4,11 +4,15 @@ import com.example.todolistwithcompose.data.database.Dao
 import com.example.todolistwithcompose.domain.ApplicationRepository
 import com.example.todolistwithcompose.domain.TabItem
 import com.example.todolistwithcompose.domain.Task
+import com.example.todolistwithcompose.presentor.addAndUpdateTask.AddAndUpdateTaskState
+import com.example.todolistwithcompose.presentor.addAndUpdateTask.AddAndUpdateTaskViewModel.Companion.DEFAULT_TASK
 import com.example.todolistwithcompose.utils.toTabItem
 import com.example.todolistwithcompose.utils.toTabItemEntity
 import com.example.todolistwithcompose.utils.toTask
 import com.example.todolistwithcompose.utils.toTaskEntity
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
@@ -59,5 +63,4 @@ class ApplicationRepositoryImpl @Inject constructor (private val dao:Dao) : Appl
     override suspend fun insertTabItem(tabItem: TabItem){
         dao.insertTabItem(tabItem.toTabItemEntity())
     }
-
 }

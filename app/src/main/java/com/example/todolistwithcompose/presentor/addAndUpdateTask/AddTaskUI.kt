@@ -191,7 +191,7 @@ fun MainPartForAddAndUpdateTask(
             .padding(start = 25.dp, end = 25.dp),
     )
     Spacer(modifier = Modifier.height(DEFAULT_VALUE_FOR_SPACER))
-    Text(text = label, fontSize = 18.sp, fontFamily = FontFamily.SansSerif)
+    Text(text = stringResource(id = R.string.description), fontSize = 18.sp, fontFamily = FontFamily.SansSerif)
     Spacer(modifier = Modifier.height(DEFAULT_VALUE_FOR_SPACER))
     OutlinedTextField(
         currentState.task.content,
@@ -218,22 +218,23 @@ fun MainPartForAddAndUpdateTask(
         onMenuClickListener(it)
     }
     Spacer(modifier = Modifier.height(DEFAULT_VALUE_FOR_SPACER))
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Text(
-            text = stringResource(R.string.set_date_and_time_for_remind),
-            fontSize = 18.sp,
-            fontFamily = FontFamily.SansSerif
-        )
-        Checkbox(
-            checked = currentState.task.isRemind,
-            onCheckedChange = {
-                onCheckedListener()
-            },
-            colors = CheckboxDefaults.colors(
-                checkmarkColor = MaterialTheme.colorScheme.background
+    if (currentState.task.status != TaskStatus.COMPLETED) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = stringResource(R.string.set_date_and_time_for_remind),
+                fontSize = 18.sp,
+                fontFamily = FontFamily.SansSerif
             )
-
-        )
+            Checkbox(
+                checked = currentState.task.isRemind,
+                onCheckedChange = {
+                    onCheckedListener()
+                },
+                colors = CheckboxDefaults.colors(
+                    checkmarkColor = MaterialTheme.colorScheme.background
+                )
+            )
+        }
     }
     if (currentState.task.isRemind) {
         Spacer(modifier = Modifier.height(DEFAULT_VALUE_FOR_SPACER))

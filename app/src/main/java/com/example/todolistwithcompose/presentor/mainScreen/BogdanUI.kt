@@ -62,7 +62,10 @@ fun Task(task: Task, onTaskListener: (Task) -> Unit) {
             )
             Spacer(modifier = Modifier.height(8.dp))
 
-            Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Text(
                     text = task.tabItemName,
                     color = Color.Black,
@@ -147,7 +150,11 @@ fun TaskWithFilter(tasks: List<Task>, onDismissListener: (Task) -> Unit, onTaskL
 @Composable
 fun TextWithDate(date: LocalDateTime, text:String){
     Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-        Text(text = text)
+        Text(
+            text = text,
+            color = Color.Black,
+            textAlign = TextAlign.Center
+        )
         Text(
             text = DateTimeFormatter
                 .ofPattern("HH:mm")

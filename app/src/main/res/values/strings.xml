@@ -47,4 +47,6 @@
     <string name="you_can_t_delete_all_tasks">You can\'t delete task group \"All\"</string>
     <string name="reminder_date">Reminder date:</string>
     <string name="completed_date">Completed date:</string>
+    <string name="the_group_name_can_t_be_blank">The group name can\'t be blank!</string>
+    <string name="do_you_want_change_the_icon_for_this_group">Do you want change the Icon for this group?</string>
 </resources>

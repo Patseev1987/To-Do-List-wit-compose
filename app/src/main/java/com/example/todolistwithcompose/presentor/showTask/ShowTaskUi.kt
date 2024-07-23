@@ -299,8 +299,8 @@ fun TextWithDate(time: String, date: String, textLabel:String) {
                 ),
             ) {
                 append(textLabel)
+                append("\n\n")
             }
-            append("\n\n")
             withStyle(
                 style = SpanStyle(
                     color = Color.Black,

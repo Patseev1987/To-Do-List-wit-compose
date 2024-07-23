@@ -21,7 +21,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.todolistwithcompose.R
 import com.example.todolistwithcompose.domain.TabItem
 import com.example.todolistwithcompose.getApplicationComponent
-import com.example.todolistwithcompose.presentor.ViewModelFactory
 import com.example.todolistwithcompose.presentor.addAndUpdateTask.ExposedDropDownMenuWithTabItems
 import com.example.todolistwithcompose.presentor.addAndUpdateTask.MyButtons
 
@@ -54,7 +53,7 @@ fun DeleteItemView(
                     }
                 )
                 if (currentState.isProblemWithTasks) {
-                    MyDeleteItemDialog(
+                    MyItemDialog(
                         message = currentState.message,
                         onDismissRequest = { viewModel.setIsProblemWithTasks() },
                         onConfirmButtonClick = {
@@ -120,7 +119,7 @@ fun MainPartDeleteItemView(
 }
 
 @Composable
-fun MyDeleteItemDialog(
+fun MyItemDialog(
     message: String,
     onDismissRequest: () -> Unit,
     onConfirmButtonClick: () -> Unit,

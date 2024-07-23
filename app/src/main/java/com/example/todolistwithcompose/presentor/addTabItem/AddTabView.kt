@@ -17,14 +17,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.todolistwithcompose.IconChoiceActivity
+import com.example.todolistwithcompose.R
 import com.example.todolistwithcompose.domain.TabItem
 import com.example.todolistwithcompose.getApplicationComponent
 import com.example.todolistwithcompose.presentor.addAndUpdateTask.MyButtons
+import com.example.todolistwithcompose.presentor.deleteTabItem.MyItemDialog
 import com.example.todolistwithcompose.utils.selectedIcons
 import com.example.todolistwithcompose.utils.unselectedIcons
 import kotlinx.coroutines.launch
@@ -35,6 +38,7 @@ fun AddTabItem(
 
     onButtonClick: () -> Unit,
     onCancel: () -> Unit,
+
 ) {
     val component = getApplicationComponent()
     val factory = component.getViewModelFactory()
@@ -53,7 +57,7 @@ fun AddTabItem(
             viewModel = viewModel,
             state = state,
             paddingValues = paddingValues,
-            snackbarHostState = snackbarHostState
+            snackbarHostState = snackbarHostState,
         )
     }
 }
@@ -111,11 +115,9 @@ fun AddItemContent(
                     .size(100.dp)
                     .padding(paddingValues))
             }
-
         }
 
         is AddAndUpdateTabState.Result -> {
-
             MainPartAddTabItem(
                 label = viewModel.getLabel(),
                 tabItem = currentSate.tabItem,
@@ -126,9 +128,7 @@ fun AddItemContent(
                     onCancel()
                 },
                 onOkListener = {
-                    viewModel.saveTabItem {
-                        onButtonClick()
-                    }
+                    viewModel.checkTabItem(onButtonClick)
                 },
                 onTabItemSelectedListener = {
                     launcher.launch(
@@ -147,6 +147,16 @@ fun AddItemContent(
                 coroutineScope.launch {
                     snackbarHostState.showSnackbar(currentSate.errorMessage)
                 }
+            }
+            if (currentSate.isEqualsName) {
+                MyItemDialog(
+                    message = stringResource(R.string.do_you_want_change_the_icon_for_this_group),
+                    onDismissRequest = {viewModel.resetDialog()},
+                    onConfirmButtonClick = {
+                        viewModel.saveTabItem(onButtonClick)
+                    },
+                    onDismissButtonClick = {viewModel.resetDialog()}
+                )
             }
         }
     }
@@ -213,3 +223,4 @@ fun RowWithIconAndText(text: String, icon: ImageVector, onClickIconListener: () 
         Text(text = text, fontSize = 24.sp)
     }
 }
+

@@ -191,7 +191,7 @@ fun MainPartForAddAndUpdateTask(
             .padding(start = 25.dp, end = 25.dp),
     )
     Spacer(modifier = Modifier.height(DEFAULT_VALUE_FOR_SPACER))
-    Text(text = "$label description", fontSize = 18.sp, fontFamily = FontFamily.SansSerif)
+    Text(text = label, fontSize = 18.sp, fontFamily = FontFamily.SansSerif)
     Spacer(modifier = Modifier.height(DEFAULT_VALUE_FOR_SPACER))
     OutlinedTextField(
         currentState.task.content,

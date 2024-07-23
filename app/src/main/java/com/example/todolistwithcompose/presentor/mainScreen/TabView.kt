@@ -33,7 +33,7 @@ fun TabView(
     val component = getApplicationComponent()
     val factory = component.getViewModelFactory()
     val viewModel = viewModel<TabViewModel>(factory = factory)
-    val stateViewModel = viewModel.state.collectAsState(TabState.Init)
+    val stateViewModel = viewModel.state.collectAsState(TabState.Loading)
 
     TabViewContent(
         modifier = modifier,
@@ -62,7 +62,7 @@ fun TabViewContent(
     onDismissListener: (Task) -> Unit
 ) {
     when (val currentState = stateViewModel.value) {
-        is TabState.Init -> {
+        is TabState.Loading -> {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator()
             }

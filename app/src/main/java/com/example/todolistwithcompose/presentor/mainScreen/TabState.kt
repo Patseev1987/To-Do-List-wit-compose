@@ -4,9 +4,10 @@ import com.example.todolistwithcompose.domain.TabItem
 import com.example.todolistwithcompose.domain.Task
 
 sealed class TabState {
-    data object Init : TabState()
+    data object Loading : TabState()
     data class Result(
         val tasks: List<Task>,
-        val tabs: List<TabItem>
+        val tabs: List<TabItem>,
+        val selectedItem: TabItem
     ) : TabState()
 }

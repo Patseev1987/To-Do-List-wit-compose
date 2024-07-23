@@ -1,5 +1,6 @@
 package com.example.todolistwithcompose.data
 
+import androidx.lifecycle.viewModelScope
 import com.example.todolistwithcompose.data.database.Dao
 import com.example.todolistwithcompose.domain.ApplicationRepository
 import com.example.todolistwithcompose.domain.TabItem
@@ -8,12 +9,16 @@ import com.example.todolistwithcompose.presentor.addAndUpdateTask.AddAndUpdateTa
 import com.example.todolistwithcompose.presentor.addAndUpdateTask.AddAndUpdateTaskViewModel.Companion.DEFAULT_TASK
 import com.example.todolistwithcompose.presentor.deleteTabItem.DeleteItemState
 import com.example.todolistwithcompose.presentor.mainScreen.TabState
+import com.example.todolistwithcompose.presentor.mainScreen.TabViewModel.Companion.ALL_TASKS
 import com.example.todolistwithcompose.presentor.showTask.ShowTaskState
 import com.example.todolistwithcompose.utils.toTabItem
 import com.example.todolistwithcompose.utils.toTabItemEntity
 import com.example.todolistwithcompose.utils.toTask
 import com.example.todolistwithcompose.utils.toTaskEntity
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class ApplicationRepositoryImpl @Inject constructor(private val dao: Dao) : ApplicationRepository {
@@ -95,6 +100,43 @@ class ApplicationRepositoryImpl @Inject constructor(private val dao: Dao) : Appl
     }
 
     override fun tabItemFlow(): Flow<TabState> {
-        TODO("Not yet implemented")
+        return flow {
+            checkFirstStart()
+
+
+            getTabItems().onStart {  }
+                .collect{
+                val tasks = getTasks().firstOrNull() ?: emptyList()
+                val selectedTab = it.first{ item -> item.isSelected}
+                emit(
+                    TabState.Result(
+                        tabs = it,
+                        tasks = tasks,
+                        selectedItem = selectedTab
+                    )
+                )
+            }
+
+            CoroutineScope(Dispatchers.IO).launch {
+                getTasks().collect{
+                    val tabs = getTabItems().firstOrNull()
+                    ?: throw IllegalArgumentException("TabItem can't be null")
+                    val selectedTab = tabs.first{ item -> item.isSelected}
+                    emit(
+                        TabState.Result(
+                            tabs = tabs,
+                            tasks = it,
+                            selectedItem = selectedTab
+                        )
+                    )
+                }
+            }
+        }
+    }
+    private suspend fun checkFirstStart() {
+        val tabs = getTabItems().firstOrNull() ?: emptyList()
+        if (tabs.isEmpty()) {
+            insertTabItem(ALL_TASKS)
+        }
     }
 }

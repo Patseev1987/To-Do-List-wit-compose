@@ -12,12 +12,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.todolistwithcompose.domain.TabItem
 import com.example.todolistwithcompose.domain.Task
+import com.example.todolistwithcompose.domain.newUseCases.GetTabItemFlowUseCase
 import com.example.todolistwithcompose.domain.useCases.*
 import com.example.todolistwithcompose.utils.AlarmReceiver
+import com.example.todolistwithcompose.utils.mergeWith
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -25,43 +26,26 @@ import javax.inject.Inject
 class TabViewModel @Inject constructor(
     private val appContext: Application,
     private val getSelectedTabItemUseCase: GetSelectedTabItemUseCase,
-    private val getTabItemsUseCase: GetTabItemsUseCase,
-    private val getTasksUseCase: GetTasksUseCase,
     private val deleteTaskUseCase: DeleteTaskUseCase,
-    private val insertTabItemUseCase: InsertTabItemUseCase
+    private val insertTabItemUseCase: InsertTabItemUseCase,
+    getTabItemFlowUseCase: GetTabItemFlowUseCase,
+    scope: CoroutineScope,
 ) : ViewModel() {
 
     private var cacheTabs = listOf<TabItem>()
     private var cacheTasks = listOf<Task>()
     private var cacheSelectedTab = ALL_TASKS
-    private val _state = MutableStateFlow<TabState>(TabState.Init)
-    val state = _state.asStateFlow()
-
-
-    init {
-        viewModelScope.launch(Dispatchers.IO) {
-            checkFirstStart()
-            cacheSelectedTab = getSelectedTabItemUseCase()
-                ?: throw IllegalArgumentException("Selected TabItem is null")
-            getTabItemsUseCase().collect { tabs ->
-                cacheTabs = tabs
-                _state.value = TabState.Result(
-                    tasks = cacheTasks.withFilter(cacheSelectedTab).specialSort(),
-                    tabs = cacheTabs
-                )
+    private val _state = MutableStateFlow<TabState>(TabState.Loading)
+    val state = getTabItemFlowUseCase()
+        .onEach {
+            if (it is TabState.Result){
+                cacheTabs = it.tabs
+                cacheTasks = it.tasks.withFilter(cacheSelectedTab).specialSort()
+                cacheSelectedTab = it.selectedItem
             }
         }
-        viewModelScope.launch(Dispatchers.IO) {
-            getTasksUseCase().collect { tasks ->
-                cacheTasks = tasks
-                _state.value = TabState.Result(
-                    tasks = cacheTasks.withFilter(cacheSelectedTab).specialSort(),
-                    tabs = cacheTabs
-                )
-            }
-        }
-    }
-
+        .mergeWith(_state)
+        .stateIn(scope, SharingStarted.Lazily, TabState.Loading)
 
     fun deleteTask(task: Task) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -79,8 +63,8 @@ class TabViewModel @Inject constructor(
             val unselected = oldSelected.copy(isSelected = false)
             val newSelected = tab.copy(isSelected = true)
             cacheSelectedTab = newSelected
-            insertTabItemUseCase(unselected)
             insertTabItemUseCase(newSelected)
+            insertTabItemUseCase(unselected)
         }
 
     }
@@ -91,14 +75,6 @@ class TabViewModel @Inject constructor(
 
     private fun List<Task>.specialSort(): List<Task> = this.sortedWith(compareBy<Task> { task -> task.status }
         .thenBy(nullsLast()) { task -> task.date })
-
-    private suspend fun checkFirstStart() {
-        val tabs = getTabItemsUseCase().firstOrNull() ?: emptyList()
-        if (tabs.isEmpty()) {
-            insertTabItemUseCase(ALL_TASKS)
-        }
-    }
-
 
     private fun cancelAlarmWhenDeleteTask(task: Task) {
         val alarmManager = appContext.getSystemService(ALARM_SERVICE) as AlarmManager

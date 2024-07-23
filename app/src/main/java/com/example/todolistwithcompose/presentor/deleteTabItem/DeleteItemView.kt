@@ -49,7 +49,7 @@ fun DeleteItemView(
                         viewModel.checkTaskFromTaskGroup(confirmButtonListener)
                     },
                     tabItemListener = {
-                        viewModel.tabItem = it
+                        viewModel.setTebItem(it)
                     }
                 )
                 if (currentState.isProblemWithTasks) {

@@ -5,7 +5,7 @@ import android.content.Context
 import androidx.room.*
 import com.example.todolistwithcompose.data.database.tabEntity.TabItemEntity
 
-@Database(entities = [TaskEntity::class, TabItemEntity::class], exportSchema = false, version = 4)
+@Database(entities = [TaskEntity::class, TabItemEntity::class], exportSchema = false, version = 5)
 @TypeConverters(Convertor::class)
 abstract class TasksDatabase() : RoomDatabase() {
 

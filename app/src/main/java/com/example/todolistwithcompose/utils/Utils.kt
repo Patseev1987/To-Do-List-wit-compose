@@ -18,6 +18,8 @@ import com.example.todolistwithcompose.presentor.theme.ui.CompletedColor
 import com.example.todolistwithcompose.presentor.theme.ui.InProgressColor
 import com.example.todolistwithcompose.presentor.theme.ui.NotStartedColor
 import com.example.todolistwithcompose.presentor.theme.ui.Orange
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.merge
 import java.time.LocalDateTime
 import java.util.*
 
@@ -96,7 +98,9 @@ fun TabItemEntity.toTabItem(): TabItem {
     )
 }
 
-
+fun <T> Flow<T>.mergeWith(another: Flow<T>): Flow<T> {
+    return merge(this,another)
+}
 
 val selectedIcons = listOf(
     Icons.Filled.Call,

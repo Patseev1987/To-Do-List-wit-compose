@@ -15,10 +15,7 @@ import com.example.todolistwithcompose.utils.toTabItemEntity
 import com.example.todolistwithcompose.utils.toTask
 import com.example.todolistwithcompose.utils.toTaskEntity
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -93,7 +90,11 @@ class ApplicationRepositoryImpl @Inject constructor(private val dao: Dao) : Appl
     }
 
     override fun deleteItemFlow(): Flow<DeleteItemState> {
-        TODO("Not yet implemented")
+     return   flow{
+            val items = getTabItems().firstOrNull()
+                ?: throw IllegalArgumentException("Items must exist!")
+            emit(DeleteItemState.Result(items = items))
+        }
     }
 
     override fun tabItemFlow(): Flow<TabState> {

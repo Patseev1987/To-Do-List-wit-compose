@@ -8,9 +8,11 @@ import com.example.todolistwithcompose.data.database.Dao
 import com.example.todolistwithcompose.data.database.TaskEntity
 import com.example.todolistwithcompose.domain.TabItem
 import com.example.todolistwithcompose.domain.Task
+import com.example.todolistwithcompose.domain.newUseCases.DeleteItemFlowUseCase
 import com.example.todolistwithcompose.domain.useCases.*
 import com.example.todolistwithcompose.presentor.mainScreen.TabViewModel
 import com.example.todolistwithcompose.utils.*
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -20,26 +22,28 @@ import javax.inject.Inject
 
 class DeleteTabItemViewModel @Inject constructor(
     private val appContext: Application,
-    private val getTabItemsUseCase: GetTabItemsUseCase,
     private val getTasksUseCase: GetTasksUseCase,
     private val deleteTaskUseCase: DeleteTaskUseCase,
     private val deleteTabItemUseCase: DeleteTabItemUseCase,
     private val getTabItemByNameUseCase: GetTabItemByNameUseCase,
     private val getSelectedTabItemUseCase: GetSelectedTabItemUseCase,
-    private val insertTabItemUseCase: InsertTabItemUseCase
+    private val insertTabItemUseCase: InsertTabItemUseCase,
+    private val scope: CoroutineScope,
+    private val deleteItemFlowUseCase: DeleteItemFlowUseCase
 ) : ViewModel() {
     var tabItem: TabItem? = null
     private val _state: MutableStateFlow<DeleteItemState> = MutableStateFlow(DeleteItemState.Loading)
-    val state = _state.asStateFlow()
-
-    init {
-        viewModelScope.launch(Dispatchers.IO) {
-            val items = getTabItemsUseCase().firstOrNull()
-                ?: throw IllegalArgumentException("Items must exist!")
-            tabItem = items.first()
-            _state.value = DeleteItemState.Result(items = items)
+    val state = deleteItemFlowUseCase()
+        .onEach {
+            if (it is DeleteItemState.Result)
+            tabItem = it.items.first()
         }
-    }
+        .mergeWith(_state.asStateFlow())
+        .stateIn(
+            scope = scope,
+            started = SharingStarted.Lazily,
+            initialValue = DeleteItemState.Loading
+        )
 
     fun getLabel() = appContext.getString(R.string.delete_task_group)
     fun setIsProblemWithTasks() {
@@ -72,10 +76,13 @@ class DeleteTabItemViewModel @Inject constructor(
             .firstOrNull()
             ?.filter { entity -> entity.tabItemName == tab.name } ?: emptyList()
         if (tasks.isNotEmpty()) {
-            _state.value = (_state.value as DeleteItemState.Result).copy(
-                isProblemWithTasks = true,
-                message = getMessage(tasks)
-            )
+            val currentValue = _state.value
+            if (currentValue is DeleteItemState.Result) {
+              _state.value  = currentValue.copy(
+                    isProblemWithTasks = true,
+                    message = getMessage(tasks)
+                )
+            }
         } else {
             deleteItem()
             withContext(Dispatchers.Main) {

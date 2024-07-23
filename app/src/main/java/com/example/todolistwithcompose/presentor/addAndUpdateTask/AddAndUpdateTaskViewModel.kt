@@ -15,11 +15,10 @@ import com.example.todolistwithcompose.domain.Task
 import com.example.todolistwithcompose.domain.TaskStatus
 import com.example.todolistwithcompose.domain.newUseCases.GetAddAndUpdateTaskCase
 import com.example.todolistwithcompose.domain.useCases.GetLastIdUseCase
-import com.example.todolistwithcompose.domain.useCases.GetTabItemsUseCase
-import com.example.todolistwithcompose.domain.useCases.GetTaskByIdUseCase
 import com.example.todolistwithcompose.domain.useCases.InsertTaskUseCase
 import com.example.todolistwithcompose.presentor.mainScreen.TabViewModel
 import com.example.todolistwithcompose.utils.AlarmReceiver
+import com.example.todolistwithcompose.utils.mergeWith
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
@@ -54,10 +53,6 @@ class AddAndUpdateTaskViewModel @Inject constructor(
         .mergeWith(_state)
         .stateIn(scope, SharingStarted.Lazily, AddAndUpdateTaskState.Loading)
 
-
-    private fun <T> Flow<T>.mergeWith(another:Flow<T>):Flow<T> {
-        return merge(this,another)
-    }
 
     fun setTitle(title: String) {
         task = task.copy(title = title)

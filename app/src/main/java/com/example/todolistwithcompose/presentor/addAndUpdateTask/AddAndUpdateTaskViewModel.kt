@@ -13,16 +13,16 @@ import com.example.todolistwithcompose.R
 import com.example.todolistwithcompose.domain.TabItem
 import com.example.todolistwithcompose.domain.Task
 import com.example.todolistwithcompose.domain.TaskStatus
+import com.example.todolistwithcompose.domain.newUseCases.GetAddAndUpdateTaskCase
 import com.example.todolistwithcompose.domain.useCases.GetLastIdUseCase
 import com.example.todolistwithcompose.domain.useCases.GetTabItemsUseCase
 import com.example.todolistwithcompose.domain.useCases.GetTaskByIdUseCase
 import com.example.todolistwithcompose.domain.useCases.InsertTaskUseCase
 import com.example.todolistwithcompose.presentor.mainScreen.TabViewModel
 import com.example.todolistwithcompose.utils.AlarmReceiver
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
@@ -35,28 +35,28 @@ import javax.inject.Inject
 class AddAndUpdateTaskViewModel @Inject constructor(
     private val taskId: Long,
     private val appContext: Application,
-    private val getTabItemsUseCase: GetTabItemsUseCase,
-    private val getTaskByIdUseCase: GetTaskByIdUseCase,
     private val insertTaskUseCase: InsertTaskUseCase,
     private val getLastIdUseCase: GetLastIdUseCase,
+    private val addAndUpdateTaskCase: GetAddAndUpdateTaskCase,
+    private val scope: CoroutineScope,
 ) : ViewModel() {
 
     private lateinit var task: Task
     private lateinit var tabs: List<TabItem>
     private val _state: MutableStateFlow<AddAndUpdateTaskState> = MutableStateFlow(AddAndUpdateTaskState.Loading)
-    val state = _state.asStateFlow()
-
-    init {
-        viewModelScope.launch(Dispatchers.IO) {
-            tabs = getTabItemsUseCase().first()
-            task = if (taskId != 0L) getTaskByIdUseCase(taskId)
-                ?: throw Exception("Task with id=${taskId} not found")
-            else DEFAULT_TASK
-            _state.value = AddAndUpdateTaskState.Result(
-                task = task,
-                tabs = tabs
-            )
+    val state = addAndUpdateTaskCase(taskId)
+        .onEach {
+            if(it is AddAndUpdateTaskState.Result){
+                task = it.task
+                tabs = it.tabs
+            }
         }
+        .mergeWith(_state)
+        .stateIn(scope, SharingStarted.Lazily, AddAndUpdateTaskState.Loading)
+
+
+    private fun <T> Flow<T>.mergeWith(another:Flow<T>):Flow<T> {
+        return merge(this,another)
     }
 
     fun setTitle(title: String) {

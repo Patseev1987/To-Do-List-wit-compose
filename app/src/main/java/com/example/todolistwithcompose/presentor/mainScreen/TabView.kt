@@ -67,6 +67,7 @@ fun TabViewContent(
                 CircularProgressIndicator()
             }
         }
+
         is TabState.Result -> {
             val pagerState = rememberPagerState { currentState.tabs.size }
             val scope = rememberCoroutineScope()

@@ -15,7 +15,7 @@ import com.example.todolistwithcompose.domain.Task
 @Composable
 fun StartScreen(
     onFABClickListener: () -> Unit,
-    onTaskListener:(Task) -> Unit,
+    onTaskListener: (Task) -> Unit,
     onAddTabItemListener: () -> Unit,
     onDeleteTabItemListener: () -> Unit,
 ) {

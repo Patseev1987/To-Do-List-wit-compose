@@ -4,5 +4,5 @@ import com.example.todolistwithcompose.domain.Task
 
 sealed class MainScreenState {
     data object Loading : MainScreenState()
-    data class Result(val tasks:List<Task>): MainScreenState()
+    data class Result(val tasks: List<Task>) : MainScreenState()
 }

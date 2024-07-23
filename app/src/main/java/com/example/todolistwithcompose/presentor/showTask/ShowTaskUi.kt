@@ -39,12 +39,12 @@ fun ShowTask(taskId: Long, updateClickListener: (Long) -> Unit, cancelClickListe
     val viewmodel = viewModel<ShowTaskViewModel>(factory = factory)
     val state = viewmodel.state.collectAsState(ShowTaskState.Loading)
     Scaffold { paddingValues ->
-       ShowTaskContent(
-           paddingValues = paddingValues,
-           state = state,
-           updateClickListener = updateClickListener,
-           cancelClickListener = cancelClickListener
-       )
+        ShowTaskContent(
+            paddingValues = paddingValues,
+            state = state,
+            updateClickListener = updateClickListener,
+            cancelClickListener = cancelClickListener
+        )
     }
 }
 
@@ -54,7 +54,7 @@ fun ShowTaskContent(
     state: State<ShowTaskState>,
     updateClickListener: (Long) -> Unit,
     cancelClickListener: () -> Unit
-){
+) {
     when (val currentState = state.value) {
         is ShowTaskState.Loading -> {
             Box(
@@ -284,7 +284,7 @@ fun TaskInfo(task: Task, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun TextWithDate(time: String, date: String, textLabel:String) {
+fun TextWithDate(time: String, date: String, textLabel: String) {
     Text(
         textAlign = TextAlign.Center,
         modifier = Modifier

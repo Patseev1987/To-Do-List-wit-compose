@@ -4,18 +4,16 @@ import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.todolistwithcompose.R
-import com.example.todolistwithcompose.data.database.Dao
 import com.example.todolistwithcompose.domain.TabItem
 import com.example.todolistwithcompose.domain.useCases.GetTabItemByNameUseCase
 import com.example.todolistwithcompose.domain.useCases.GetTabItemsUseCase
 import com.example.todolistwithcompose.domain.useCases.InsertTabItemUseCase
-import com.example.todolistwithcompose.domain.useCases.InsertTaskUseCase
-import com.example.todolistwithcompose.utils.*
+import com.example.todolistwithcompose.utils.selectedIcons
+import com.example.todolistwithcompose.utils.unselectedIcons
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -56,7 +54,7 @@ class AddTabItemViewModel @Inject constructor(
 
     fun saveTabItem(onButtonListener: () -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
-            if ((_state.value  as AddAndUpdateTabState.Result).isEqualsName){
+            if ((_state.value as AddAndUpdateTabState.Result).isEqualsName) {
                 val tabItemWithOldIcon = getTabItemByNameUseCase(tabItem.name)
                 tabItemWithOldIcon.apply {
                     selectedIcon = tabItem.selectedIcon
@@ -64,16 +62,16 @@ class AddTabItemViewModel @Inject constructor(
                 }
                 tabItem = tabItemWithOldIcon
             }
-                insertTabItemsUseCase(tabItem)
-                withContext(Dispatchers.Main) {
-                    onButtonListener()
-                }
+            insertTabItemsUseCase(tabItem)
+            withContext(Dispatchers.Main) {
+                onButtonListener()
             }
+        }
     }
 
     fun getLabel(): String = appContext.getString(R.string.add_group)
 
-    fun checkTabItem( onButtonListener: () -> Unit) {
+    fun checkTabItem(onButtonListener: () -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             val tabs = getTabItemsUseCase().firstOrNull()
                 ?: throw IllegalStateException("selected tab is null")
@@ -92,7 +90,7 @@ class AddTabItemViewModel @Inject constructor(
         }
     }
 
-    fun resetDialog(){
+    fun resetDialog() {
         _state.value = (_state.value as AddAndUpdateTabState.Result)
             .copy(isEqualsName = false)
     }

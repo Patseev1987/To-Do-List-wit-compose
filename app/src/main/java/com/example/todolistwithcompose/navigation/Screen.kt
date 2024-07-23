@@ -1,7 +1,5 @@
 package com.example.todolistwithcompose.navigation
 
-import com.example.todolistwithcompose.navigation.Screen.ShowTaskScreen.SHOW_TASK_ROUTE
-
 sealed class Screen(val route: String) {
    data object MainScreen : Screen(MAIN_SCREEN)
    data object TaskScreen : Screen(TASK_SCREEN)

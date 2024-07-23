@@ -1,9 +1,7 @@
 package com.example.todolistwithcompose.domain
 
-import com.example.todolistwithcompose.navigation.Screen
 import com.example.todolistwithcompose.presentor.addAndUpdateTask.AddAndUpdateTaskState
 import com.example.todolistwithcompose.presentor.deleteTabItem.DeleteItemState
-import com.example.todolistwithcompose.presentor.mainScreen.MainScreenState
 import com.example.todolistwithcompose.presentor.mainScreen.TabState
 import com.example.todolistwithcompose.presentor.showTask.ShowTaskState
 import kotlinx.coroutines.flow.Flow

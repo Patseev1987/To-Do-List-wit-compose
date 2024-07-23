@@ -5,17 +5,14 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.todolistwithcompose.R
-import com.example.todolistwithcompose.data.database.Dao
-import com.example.todolistwithcompose.data.database.TaskEntity
 import com.example.todolistwithcompose.domain.TabItem
 import com.example.todolistwithcompose.domain.Task
 import com.example.todolistwithcompose.domain.newUseCases.DeleteItemFlowUseCase
 import com.example.todolistwithcompose.domain.useCases.*
 import com.example.todolistwithcompose.presentor.mainScreen.TabViewModel
-import com.example.todolistwithcompose.utils.*
+import com.example.todolistwithcompose.utils.mergeWith
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -30,16 +27,15 @@ class DeleteTabItemViewModel @Inject constructor(
     private val getTabItemByNameUseCase: GetTabItemByNameUseCase,
     private val getSelectedTabItemUseCase: GetSelectedTabItemUseCase,
     private val insertTabItemUseCase: InsertTabItemUseCase,
+    deleteItemFlowUseCase: DeleteItemFlowUseCase,
     private val scope: CoroutineScope,
-    private val deleteItemFlowUseCase: DeleteItemFlowUseCase
 ) : ViewModel() {
-   private var tabItem: TabItem? = null
+    private var tabItem: TabItem? = null
     private val _state: MutableSharedFlow<DeleteItemState> = MutableSharedFlow(replay = 1)
     val state = deleteItemFlowUseCase()
         .onEach {
-            Log.d("DELETE_ITEM_STATE", it.toString())
             if (it is DeleteItemState.Result)
-            tabItem = it.items.first()
+                tabItem = it.items.first()
         }
         .mergeWith(_state)
         .stateIn(
@@ -57,7 +53,7 @@ class DeleteTabItemViewModel @Inject constructor(
     }
 
     fun setTebItem(newTabItem: TabItem) {
-            tabItem = newTabItem
+        tabItem = newTabItem
     }
 
     fun deleteItem() = viewModelScope.launch(Dispatchers.IO) {
@@ -92,11 +88,12 @@ class DeleteTabItemViewModel @Inject constructor(
             val currentValue = state.value
             Log.d("DELETE_TASK_STATE", currentValue.toString())
             if (currentValue is DeleteItemState.Result) {
-              _state.emit (currentValue.copy(
-                    isProblemWithTasks = true,
-                    message = getMessage(tasks)
+                _state.emit(
+                    currentValue.copy(
+                        isProblemWithTasks = true,
+                        message = getMessage(tasks)
+                    )
                 )
-              )
             }
         } else {
             deleteItem()

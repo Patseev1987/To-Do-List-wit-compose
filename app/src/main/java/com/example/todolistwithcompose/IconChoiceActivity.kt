@@ -16,18 +16,20 @@ import com.example.todolistwithcompose.utils.selectedIcons
 import com.example.todolistwithcompose.utils.unselectedIcons
 
 class IconChoiceActivity : ComponentActivity() {
-    private var typeIcon:Int = UNKNOWN_TYPE
+    private var typeIcon: Int = UNKNOWN_TYPE
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             parseIntent()
             ToDoListWithComposeTheme {
                 Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-                    IconList(icons = when (typeIcon) {
-                        FILLED_TYPE_ICON -> selectedIcons
-                        OUTLINE_TYPE_ICON -> unselectedIcons
-                        else -> throw IllegalArgumentException("Invalid icon choice")
-                    }) { icon ->
+                    IconList(
+                        icons = when (typeIcon) {
+                            FILLED_TYPE_ICON -> selectedIcons
+                            OUTLINE_TYPE_ICON -> unselectedIcons
+                            else -> throw IllegalArgumentException("Invalid icon choice")
+                        }
+                    ) { icon ->
                         saveData(icon)
                         finish()
                     }
@@ -36,11 +38,11 @@ class IconChoiceActivity : ComponentActivity() {
         }
     }
 
-    private fun parseIntent(){
+    private fun parseIntent() {
         typeIcon = intent.getIntExtra(EXTRA_TYPE_ICON, UNKNOWN_TYPE)
     }
 
-    private fun saveData(icon:ImageVector){
+    private fun saveData(icon: ImageVector) {
         Intent().apply {
             putExtra(EXTRA_ICON_NAME, icon.name)
             putExtra(EXTRA_TYPE_ICON, typeIcon)

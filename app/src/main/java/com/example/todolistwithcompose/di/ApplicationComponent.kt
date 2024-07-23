@@ -1,7 +1,6 @@
 package com.example.todolistwithcompose.di
 
 import android.app.Application
-import com.example.todolistwithcompose.MainActivity
 import com.example.todolistwithcompose.presentor.ViewModelFactory
 import dagger.BindsInstance
 import dagger.Component

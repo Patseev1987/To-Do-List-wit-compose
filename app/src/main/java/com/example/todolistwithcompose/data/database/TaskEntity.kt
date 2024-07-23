@@ -3,10 +3,8 @@ package com.example.todolistwithcompose.data.database
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.example.todolistwithcompose.domain.TaskGroup
 import com.example.todolistwithcompose.domain.TaskStatus
 import java.time.LocalDateTime
-import java.util.*
 
 @Entity(tableName = "tasks")
 data class TaskEntity(

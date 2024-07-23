@@ -21,7 +21,6 @@ import com.example.todolistwithcompose.presentor.theme.ui.Orange
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.merge
 import java.time.LocalDateTime
-import java.util.*
 
 fun Task.toTaskEntity(): TaskEntity {
     return TaskEntity(
@@ -50,15 +49,15 @@ fun TaskEntity.toTask(): Task {
     )
 }
 
-fun Task.getColor():Color = when(this.status){
+fun Task.getColor(): Color = when (this.status) {
     TaskStatus.IN_PROGRESS -> InProgressColor
     TaskStatus.NOT_STARTED -> NotStartedColor
     TaskStatus.COMPLETED -> CompletedColor
 }
 
 fun Task.getBoarderWidth(): Dp {
-    return when(this.getBoarderColor()){
-        Color.Red ->4.dp
+    return when (this.getBoarderColor()) {
+        Color.Red -> 4.dp
         Orange -> 3.dp
         Yellow -> 2.dp
         else -> 1.dp
@@ -67,15 +66,14 @@ fun Task.getBoarderWidth(): Dp {
 
 fun Task.getBoarderColor(): Color {
     val taskDate = this.date
-    return if ( taskDate != null && this.status != TaskStatus.COMPLETED) {
+    return if (taskDate != null && this.status != TaskStatus.COMPLETED) {
         when {
             LocalDateTime.now().isAfter(taskDate) -> Color.Red
             LocalDateTime.now().isAfter(taskDate.minusDays(2L)) -> Orange
             LocalDateTime.now().isAfter(taskDate.minusDays(7L)) -> Yellow
             else -> Green
         }
-    }
-    else Transparent
+    } else Transparent
 }
 
 fun TabItem.toTabItemEntity(): TabItemEntity {
@@ -92,14 +90,14 @@ fun TabItemEntity.toTabItem(): TabItem {
     return TabItem(
         id = this.id,
         name = this.name,
-        selectedIcon = selectedIcons.first{ icon -> icon.name == this.iconSelectedName},
-        unselectedIcon = unselectedIcons.first{ icon -> icon.name == this.iconUnselectedName},
+        selectedIcon = selectedIcons.first { icon -> icon.name == this.iconSelectedName },
+        unselectedIcon = unselectedIcons.first { icon -> icon.name == this.iconUnselectedName },
         isSelected = this.isSelected
     )
 }
 
 fun <T> Flow<T>.mergeWith(another: Flow<T>): Flow<T> {
-    return merge(this,another)
+    return merge(this, another)
 }
 
 val selectedIcons = listOf(

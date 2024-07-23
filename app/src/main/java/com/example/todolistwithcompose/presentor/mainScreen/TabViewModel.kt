@@ -5,30 +5,25 @@ import android.app.Application
 import android.app.PendingIntent
 import android.app.PendingIntent.FLAG_IMMUTABLE
 import android.content.Context.ALARM_SERVICE
-import android.util.Log
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoAwesomeMotion
 import androidx.compose.material.icons.outlined.AutoAwesomeMotion
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.todolistwithcompose.data.database.Dao
-import com.example.todolistwithcompose.data.database.TasksDatabase
 import com.example.todolistwithcompose.domain.TabItem
 import com.example.todolistwithcompose.domain.Task
 import com.example.todolistwithcompose.domain.useCases.*
 import com.example.todolistwithcompose.utils.AlarmReceiver
-import com.example.todolistwithcompose.utils.toTabItem
-import com.example.todolistwithcompose.utils.toTabItemEntity
-import com.example.todolistwithcompose.utils.toTask
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
 class TabViewModel @Inject constructor(
-    private val appContext:Application,
+    private val appContext: Application,
     private val getSelectedTabItemUseCase: GetSelectedTabItemUseCase,
     private val getTabItemsUseCase: GetTabItemsUseCase,
     private val getTasksUseCase: GetTasksUseCase,
@@ -70,7 +65,7 @@ class TabViewModel @Inject constructor(
 
     fun deleteTask(task: Task) {
         viewModelScope.launch(Dispatchers.IO) {
-            if (task.isRemind){
+            if (task.isRemind) {
                 cancelAlarmWhenDeleteTask(task)
             }
             deleteTaskUseCase(task.id)
@@ -105,10 +100,9 @@ class TabViewModel @Inject constructor(
     }
 
 
-   private fun cancelAlarmWhenDeleteTask(task:Task) {
+    private fun cancelAlarmWhenDeleteTask(task: Task) {
         val alarmManager = appContext.getSystemService(ALARM_SERVICE) as AlarmManager
         val intent = AlarmReceiver.newAlarmIntent(appContext, task.title, task.content)
-       Log.d("SHOW_TASK_ID", "cancel alarm in TabViewModel-> ${task.id}")
         val pendingIntent = PendingIntent.getBroadcast(
             appContext,
             task.id.toInt(),

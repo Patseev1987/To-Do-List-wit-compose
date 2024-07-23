@@ -75,7 +75,7 @@ fun Task(task: Task, onTaskListener: (Task) -> Unit) {
                     val date = task.date ?: throw IllegalStateException()
                     TextWithDate(date = date, text = stringResource(R.string.reminder_date))
                 }
-                if (task.completedDate !=null){
+                if (task.completedDate != null) {
                     val date = task.completedDate ?: throw IllegalStateException()
                     TextWithDate(date = date, text = stringResource(R.string.completed_date))
                 }
@@ -148,7 +148,7 @@ fun TaskWithFilter(tasks: List<Task>, onDismissListener: (Task) -> Unit, onTaskL
 }
 
 @Composable
-fun TextWithDate(date: LocalDateTime, text:String){
+fun TextWithDate(date: LocalDateTime, text: String) {
     Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
         Text(
             text = text,

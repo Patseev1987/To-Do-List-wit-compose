@@ -1,6 +1,5 @@
 package com.example.todolistwithcompose.data
 
-import androidx.lifecycle.viewModelScope
 import com.example.todolistwithcompose.data.database.Dao
 import com.example.todolistwithcompose.domain.ApplicationRepository
 import com.example.todolistwithcompose.domain.TabItem
@@ -14,9 +13,7 @@ import com.example.todolistwithcompose.utils.toTabItem
 import com.example.todolistwithcompose.utils.toTabItemEntity
 import com.example.todolistwithcompose.utils.toTask
 import com.example.todolistwithcompose.utils.toTaskEntity
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class ApplicationRepositoryImpl @Inject constructor(private val dao: Dao) : ApplicationRepository {

@@ -39,7 +39,7 @@ fun AddTabItem(
     onButtonClick: () -> Unit,
     onCancel: () -> Unit,
 
-) {
+    ) {
     val component = getApplicationComponent()
     val factory = component.getViewModelFactory()
     val viewModel = viewModel<AddTabItemViewModel>(factory = factory)
@@ -111,9 +111,11 @@ fun AddItemContent(
     when (val currentSate = state.value) {
         is AddAndUpdateTabState.Loading -> {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(modifier = Modifier
-                    .size(100.dp)
-                    .padding(paddingValues))
+                CircularProgressIndicator(
+                    modifier = Modifier
+                        .size(100.dp)
+                        .padding(paddingValues)
+                )
             }
         }
 
@@ -151,11 +153,11 @@ fun AddItemContent(
             if (currentSate.isEqualsName) {
                 MyItemDialog(
                     message = stringResource(R.string.do_you_want_change_the_icon_for_this_group),
-                    onDismissRequest = {viewModel.resetDialog()},
+                    onDismissRequest = { viewModel.resetDialog() },
                     onConfirmButtonClick = {
                         viewModel.saveTabItem(onButtonClick)
                     },
-                    onDismissButtonClick = {viewModel.resetDialog()}
+                    onDismissButtonClick = { viewModel.resetDialog() }
                 )
             }
         }

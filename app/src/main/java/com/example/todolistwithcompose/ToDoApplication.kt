@@ -7,7 +7,7 @@ import com.example.todolistwithcompose.di.ApplicationComponent
 import com.example.todolistwithcompose.di.DaggerApplicationComponent
 
 
-class ToDoApplication: Application() {
+class ToDoApplication : Application() {
     val component by lazy {
         DaggerApplicationComponent.factory().create(this)
     }

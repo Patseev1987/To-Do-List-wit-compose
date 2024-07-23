@@ -21,7 +21,10 @@ import com.example.todolistwithcompose.utils.AlarmReceiver
 import com.example.todolistwithcompose.utils.mergeWith
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
@@ -36,8 +39,8 @@ class AddAndUpdateTaskViewModel @Inject constructor(
     private val appContext: Application,
     private val insertTaskUseCase: InsertTaskUseCase,
     private val getLastIdUseCase: GetLastIdUseCase,
-    private val addAndUpdateTaskCase: GetAddAndUpdateTaskCase,
-    private val scope: CoroutineScope,
+    addAndUpdateTaskCase: GetAddAndUpdateTaskCase,
+    scope: CoroutineScope,
 ) : ViewModel() {
 
     private lateinit var task: Task
@@ -45,7 +48,7 @@ class AddAndUpdateTaskViewModel @Inject constructor(
     private val _state: MutableStateFlow<AddAndUpdateTaskState> = MutableStateFlow(AddAndUpdateTaskState.Loading)
     val state = addAndUpdateTaskCase(taskId)
         .onEach {
-            if(it is AddAndUpdateTaskState.Result){
+            if (it is AddAndUpdateTaskState.Result) {
                 task = it.task
                 tabs = it.tabs
             }

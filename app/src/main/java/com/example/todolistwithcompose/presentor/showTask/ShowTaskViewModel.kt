@@ -11,7 +11,7 @@ class ShowTaskViewModel @Inject constructor(
     private val taskId: Long,
     private val showTaskFlowUseCase: GetShowTaskFlowUseCase,
     private val scope: CoroutineScope
-):ViewModel() {
+) : ViewModel() {
 
     val state = showTaskFlowUseCase(taskId)
         .stateIn(

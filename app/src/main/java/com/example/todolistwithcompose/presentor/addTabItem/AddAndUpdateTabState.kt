@@ -7,6 +7,6 @@ sealed class AddAndUpdateTabState {
     data class Result(
         val tabItem: TabItem,
         val errorMessage: String = "",
-        val isEqualsName:Boolean = false
+        val isEqualsName: Boolean = false
     ) : AddAndUpdateTabState()
 }

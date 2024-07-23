@@ -7,6 +7,8 @@ import com.example.todolistwithcompose.domain.ApplicationRepository
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 
 @Module
 interface DataModule {
@@ -18,6 +20,9 @@ interface DataModule {
     companion object {
         @Provides
         fun provideDao(application:Application) = TasksDatabase.getInstance(application).taskDao
+
+        @Provides
+        fun provideIOScope() = CoroutineScope(Dispatchers.IO)
     }
 
 

@@ -5,9 +5,7 @@ import android.app.Application
 import android.app.PendingIntent
 import android.app.PendingIntent.FLAG_IMMUTABLE
 import android.content.Context.ALARM_SERVICE
-import android.content.Intent
 import android.os.Build
-import android.provider.Settings
 import android.util.Log
 import androidx.core.content.getSystemService
 import androidx.lifecycle.ViewModel
@@ -143,12 +141,10 @@ class AddAndUpdateTaskViewModel @Inject constructor(
                 _state.value = AddAndUpdateTaskState.Result(task, errorTitle = true, tabs = tabs)
                 false
             }
-
             task.content.isEmpty() -> {
                 _state.value = AddAndUpdateTaskState.Result(task, errorContext = true, tabs = tabs)
                 false
             }
-
             else -> true
         }
     }
@@ -165,7 +161,6 @@ class AddAndUpdateTaskViewModel @Inject constructor(
             val alarmTime = time
                 ?: throw RuntimeException("wrong time")
             val requestCodeFromIdTask = getNextTaskId()
-            Log.d("SHOW_TASK_ID", "set alarm -> $requestCodeFromIdTask")
             val pendingIntent = PendingIntent.getBroadcast(
                 appContext,
                 requestCodeFromIdTask,
@@ -178,13 +173,6 @@ class AddAndUpdateTaskViewModel @Inject constructor(
                     alarmTime,
                     pendingIntent,
                 )
-            } else {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    Intent().also { myIntent ->
-                        myIntent.action = Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM
-                        appContext.startActivity(myIntent)
-                    }
-                }
             }
         }
     }

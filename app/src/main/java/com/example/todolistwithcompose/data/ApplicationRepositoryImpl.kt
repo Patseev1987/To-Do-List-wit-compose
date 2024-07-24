@@ -94,7 +94,4 @@ class ApplicationRepositoryImpl @Inject constructor(private val dao: Dao) : Appl
         }
     }
 
-    override fun tabItemFlow(): Flow<TabState> {
-        TODO("Not yet implemented")
-    }
 }

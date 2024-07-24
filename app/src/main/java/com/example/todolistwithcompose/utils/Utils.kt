@@ -1,5 +1,10 @@
 package com.example.todolistwithcompose.utils
 
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.app.PendingIntent.FLAG_IMMUTABLE
+import android.content.Context
+import android.content.Context.ALARM_SERVICE
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
@@ -98,6 +103,19 @@ fun TabItemEntity.toTabItem(): TabItem {
 
 fun <T> Flow<T>.mergeWith(another: Flow<T>): Flow<T> {
     return merge(this, another)
+}
+
+
+fun cancelAlarmWhenDeleteTask(task: Task, appContext: Context) {
+    val alarmManager = appContext.getSystemService(ALARM_SERVICE) as AlarmManager
+    val intent = AlarmReceiver.newAlarmIntent(appContext, task.title, task.content)
+    val pendingIntent = PendingIntent.getBroadcast(
+        appContext,
+        task.id.toInt(),
+        intent,
+        FLAG_IMMUTABLE
+    )
+    alarmManager.cancel(pendingIntent)
 }
 
 val selectedIcons = listOf(

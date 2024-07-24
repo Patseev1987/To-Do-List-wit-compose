@@ -37,6 +37,4 @@ interface ApplicationRepository {
 
     fun deleteItemFlow():Flow<DeleteItemState>
 
-    fun tabItemFlow():Flow<TabState>
-
 }

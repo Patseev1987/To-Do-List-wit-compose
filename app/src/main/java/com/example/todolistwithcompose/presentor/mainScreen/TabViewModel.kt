@@ -4,6 +4,7 @@ import android.app.AlarmManager
 import android.app.Application
 import android.app.PendingIntent
 import android.app.PendingIntent.FLAG_IMMUTABLE
+import android.content.Context
 import android.content.Context.ALARM_SERVICE
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoAwesomeMotion
@@ -14,6 +15,7 @@ import com.example.todolistwithcompose.domain.TabItem
 import com.example.todolistwithcompose.domain.Task
 import com.example.todolistwithcompose.domain.useCases.*
 import com.example.todolistwithcompose.utils.AlarmReceiver
+import com.example.todolistwithcompose.utils.cancelAlarmWhenDeleteTask
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -62,11 +64,10 @@ class TabViewModel @Inject constructor(
         }
     }
 
-
     fun deleteTask(task: Task) {
         viewModelScope.launch(Dispatchers.IO) {
             if (task.isRemind) {
-                cancelAlarmWhenDeleteTask(task)
+                cancelAlarmWhenDeleteTask(task, appContext)
             }
             deleteTaskUseCase(task.id)
         }
@@ -100,17 +101,7 @@ class TabViewModel @Inject constructor(
     }
 
 
-    private fun cancelAlarmWhenDeleteTask(task: Task) {
-        val alarmManager = appContext.getSystemService(ALARM_SERVICE) as AlarmManager
-        val intent = AlarmReceiver.newAlarmIntent(appContext, task.title, task.content)
-        val pendingIntent = PendingIntent.getBroadcast(
-            appContext,
-            task.id.toInt(),
-            intent,
-            FLAG_IMMUTABLE
-        )
-        alarmManager.cancel(pendingIntent)
-    }
+
 
     companion object {
         val ALL_TASKS = TabItem(

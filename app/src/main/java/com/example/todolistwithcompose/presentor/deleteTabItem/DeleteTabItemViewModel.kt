@@ -10,6 +10,7 @@ import com.example.todolistwithcompose.domain.Task
 import com.example.todolistwithcompose.domain.newUseCases.DeleteItemFlowUseCase
 import com.example.todolistwithcompose.domain.useCases.*
 import com.example.todolistwithcompose.presentor.mainScreen.TabViewModel
+import com.example.todolistwithcompose.utils.cancelAlarmWhenDeleteTask
 import com.example.todolistwithcompose.utils.mergeWith
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -59,16 +60,25 @@ class DeleteTabItemViewModel @Inject constructor(
     fun deleteItem() = viewModelScope.launch(Dispatchers.IO) {
         val tab = tabItem ?: return@launch
         deleteTabItemUseCase(tab.name)
-        val taskIds = getTasksUseCase()
+        val tasks = getTasksUseCase()
             .firstOrNull()
             ?.filter { entity -> entity.tabItemName == tab.name }
-            ?.map { entity -> entity.id } ?: emptyList()
-        taskIds.forEach { taskId -> deleteTaskUseCase(taskId) }
+             ?: emptyList()
+        deleteTasks(tasks)
         val selected = getSelectedTabItemUseCase()
         if (selected?.name == null) {
             var tabItem = getTabItemByNameUseCase(TabViewModel.ALL_TASKS.name)
             tabItem = tabItem.copy(isSelected = true)
             insertTabItemUseCase(tabItem)
+        }
+    }
+
+    private suspend fun deleteTasks(tasks:List<Task>) {
+        tasks.forEach {task ->
+            if(task.isRemind){
+                cancelAlarmWhenDeleteTask(task,appContext)
+            }
+            deleteTaskUseCase(task.id)
         }
     }
 

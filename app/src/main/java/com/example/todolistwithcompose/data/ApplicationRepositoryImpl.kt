@@ -102,9 +102,11 @@ class ApplicationRepositoryImpl @Inject constructor(private val dao: Dao) : Appl
     override fun tabItemFlow(): Flow<TabState> {
         return flow {
             checkFirstStart()
-
-
-            getTabItems().onStart {  }
+            getTabItems()
+                .filter { tabs ->
+                  val selected =  tabs.firstOrNull { it.isSelected}?.isSelected ?: false
+                   selected
+                }
                 .collect{
                 val tasks = getTasks().firstOrNull() ?: emptyList()
                 val selectedTab = it.first{ item -> item.isSelected}
@@ -116,7 +118,6 @@ class ApplicationRepositoryImpl @Inject constructor(private val dao: Dao) : Appl
                     )
                 )
             }
-
             CoroutineScope(Dispatchers.IO).launch {
                 getTasks().collect{
                     val tabs = getTabItems().firstOrNull()

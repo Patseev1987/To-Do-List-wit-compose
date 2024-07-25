@@ -1,6 +1,7 @@
 package com.example.todolistwithcompose.presentor.showTask
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -30,6 +31,7 @@ import com.example.todolistwithcompose.R
 import com.example.todolistwithcompose.domain.Task
 import com.example.todolistwithcompose.getApplicationComponent
 import com.example.todolistwithcompose.presentor.mainScreen.DEFAULT_VALUE_FOR_SPACER
+import com.example.todolistwithcompose.presentor.theme.ui.ToDoListWithComposeTheme
 
 
 @Composable
@@ -87,7 +89,10 @@ fun ShowTaskContent(
 fun MainPartShowTask(task: Task, modifier: Modifier = Modifier) {
     Card(
         shape = CardDefaults.outlinedShape,
-        colors = CardDefaults.cardColors(containerColor = Color.Gray.copy(alpha = 0.2f)),
+        colors = CardDefaults.cardColors(
+            containerColor = if (isSystemInDarkTheme()) MaterialTheme.colorScheme.secondary.copy(alpha = 0.9f)
+            else Color.Black.copy(alpha = 0.1f),
+        ),
         border = BorderStroke(2.dp, Color.Black),
         modifier = modifier
             .padding(16.dp)

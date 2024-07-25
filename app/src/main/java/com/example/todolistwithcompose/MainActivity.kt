@@ -71,12 +71,8 @@ class MainActivity : ComponentActivity() {
                     },
                     deleteTAbItemContent = {
                         DeleteItemView(
-                            cancelButtonListener = {
-                                onBackPressedDispatcher.onBackPressed()
-                            },
-                            confirmButtonListener = {
-                                onBackPressedDispatcher.onBackPressed()
-                            }
+                            cancelButtonListener = { onBackPressedDispatcher.onBackPressed() },
+                            confirmButtonListener = { onBackPressedDispatcher.onBackPressed() }
                         )
                     }
                 )

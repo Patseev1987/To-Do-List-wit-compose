@@ -1,7 +1,6 @@
 package com.example.todolistwithcompose.presentor.deleteTabItem
 
 import android.app.Application
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.todolistwithcompose.R
@@ -96,7 +95,6 @@ class DeleteTabItemViewModel @Inject constructor(
             ?.filter { entity -> entity.tabItemName == tab.name } ?: emptyList()
         if (tasks.isNotEmpty()) {
             val currentValue = state.value
-            Log.d("DELETE_TASK_STATE", currentValue.toString())
             if (currentValue is DeleteItemState.Result) {
                 _state.emit(
                     currentValue.copy(
